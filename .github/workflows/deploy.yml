@@ -23,4 +23,4 @@ jobs:
           server-dir: /home/zakhemke/domains/zakhem.ke/public_html/
           
           # 🔥 THIS PREVENTS RANDOM FOLDERS
-          dangerous-clean-slate: true
+          dangerous-clean-slate: true 

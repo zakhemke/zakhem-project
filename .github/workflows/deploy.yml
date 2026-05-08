@@ -1,4 +1,4 @@
-name: Deploy to InterServer
+name: Deploy Website to InterServer FTP
 
 on:
   push:
@@ -6,23 +6,20 @@ on:
       - main
 
 jobs:
-  deploy:
+  ftp-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      - name: Deploy to FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: vda7000.is.cc
+          server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-
-          # 🔥 THIS IS THE KEY FIX
-          server-dir: public_html/
-          
-          # 🔥 THIS PREVENTS RANDOM FOLDERS
-          dangerous-clean-slate: true 
-        
- 
+          protocol: ftp
+          port: 21
+          local-dir: ./
+          server-dir: /public_html/

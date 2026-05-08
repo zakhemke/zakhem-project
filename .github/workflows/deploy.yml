@@ -20,7 +20,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
 
           # 🔥 THIS IS THE KEY FIX
-          server-dir: /home/zakhemke/domains/zakhem.ke/public_html/
+          server-dir: /public_html/
           
           # 🔥 THIS PREVENTS RANDOM FOLDERS
           dangerous-clean-slate: true 

@@ -8,4 +8,4 @@
     port: 21
     local-dir: ./
     server-dir: /domains/zakhem.ke/public_html/
-    dangerous-clean-slate: false
+    dangerous-clean-slate: false  

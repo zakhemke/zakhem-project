@@ -253,49 +253,36 @@ tr:hover td{background:#f8fef2}
 
 <div class="login-screen" id="loginScreen" role="main">
 
-  <!-- ── SIGN IN VIEW ── -->
+  <!-- SIGN IN -->
   <div class="login-box" id="loginView">
     <div class="login-logo" aria-hidden="true">Z</div>
-    <h1>Admin Panel</h1>
-    <p id="loginSubtitle">Signing in as master account</p>
-
-    <!-- Read-only email chip — shows who is logging in -->
-    <div style="display:flex;align-items:center;gap:10px;background:#f0fce6;border:1px solid var(--border2);border-radius:var(--r);padding:11px 16px;margin-bottom:12px">
-      <div style="width:28px;height:28px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0a1007;flex-shrink:0" id="loginAvatarChip">Z</div>
-      <span id="loginEmailDisplay" style="font-size:14px;font-weight:600;color:#1c3309;flex:1;word-break:break-all"></span>
-      <i class="fas fa-shield-alt" style="color:var(--red);font-size:13px" title="Master account"></i>
-    </div>
-
-    <!-- Hidden email field (used by doLogin) -->
-    <input type="email" id="loginEmail" style="display:none" autocomplete="username">
-
+    <h1>Zakhem Panel</h1>
+    <p>Sign in to your account</p>
     <div class="login-input-wrap">
-      <input type="password" class="login-input" id="loginPassword" placeholder="Enter your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" autofocus>
-      <button class="pwd-toggle" onclick="togglePwdVisibility()" aria-label="Toggle password visibility" type="button">
-        <i class="fas fa-eye" id="pwdEyeIcon"></i>
-      </button>
+      <input type="email" class="login-input" id="loginEmail" placeholder="Email address" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()">
     </div>
-
+    <div class="login-input-wrap">
+      <input type="password" class="login-input" id="loginPassword" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="pwd-toggle" onclick="togglePwdVisibility()" aria-label="Toggle password visibility" type="button"><i class="fas fa-eye" id="pwdEyeIcon"></i></button>
+    </div>
     <button class="login-btn" id="loginBtn" onclick="doLogin()"><i class="fas fa-lock"></i> Sign In</button>
-
     <div class="login-error" id="loginError" role="alert"></div>
     <div class="login-lockout" id="loginLockout" role="alert"></div>
-
     <button onclick="showForgotView()" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;margin-top:14px;text-decoration:underline">Forgot password?</button>
   </div>
 
-  <!-- ── FORGOT PASSWORD VIEW ── -->
+  <!-- FORGOT PASSWORD -->
   <div class="login-box" id="forgotView" style="display:none">
     <div class="login-logo" aria-hidden="true">Z</div>
     <h1>Reset Password</h1>
-    <p style="margin-bottom:20px">We'll send a reset link to the master account email.</p>
-    <div style="background:#f0fce6;border:1px solid var(--border2);border-radius:var(--r);padding:12px 16px;margin-bottom:20px;font-size:13px;color:#1c3309;word-break:break-all">
-      <i class="fas fa-envelope" style="color:var(--red);margin-right:8px"></i><span id="forgotEmailDisplay"></span>
+    <p style="margin-bottom:20px">Enter your account email and we'll send a reset link.</p>
+    <div class="login-input-wrap">
+      <input type="email" class="login-input" id="resetEmail" placeholder="Your email address">
     </div>
     <button class="login-btn" id="resetBtn" onclick="doPasswordReset()"><i class="fas fa-paper-plane"></i> Send Reset Link</button>
-    <div class="login-error" id="resetError" role="alert" style="margin-top:10px"></div>
+    <div class="login-error" id="resetError" role="alert" style="margin-top:10px;display:none"></div>
     <div id="resetSuccess" style="display:none;color:#16a34a;font-size:13px;margin-top:12px;padding:12px;background:rgba(22,163,74,0.08);border-radius:8px;border:1px solid rgba(22,163,74,0.25)">
-      <i class="fas fa-check-circle"></i> Reset link sent! Check your inbox and follow the link to set a new password.
+      <i class="fas fa-check-circle"></i> Reset link sent! Check your inbox.
     </div>
     <button onclick="showLoginView()" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;margin-top:16px;text-decoration:underline">← Back to sign in</button>
   </div>
@@ -345,6 +332,7 @@ tr:hover td{background:#f8fef2}
       </div>
       <div class="nav-group">
         <div class="nav-group-title">System</div>
+        <button class="sidebar-link master-only" onclick="showPanel('staff',this)"><i class="fas fa-users-cog"></i> Staff Accounts</button>
         <button class="sidebar-link" onclick="showPanel('analytics',this)"><i class="fas fa-chart-line"></i> Analytics</button>
         <button class="sidebar-link" onclick="confirmLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
       </div>
@@ -891,6 +879,50 @@ tr:hover td{background:#f8fef2}
   </div>
 </div>
 
+<!-- ══ STAFF ACCOUNTS PANEL (master only) ══ -->
+<div class="panel" id="panel-staff">
+  <div class="data-card" style="margin-bottom:20px">
+    <div class="data-card-header">
+      <h3><i class="fas fa-user-plus" style="color:var(--red);margin-right:8px"></i>Add Seller Account</h3>
+    </div>
+    <div style="padding:20px 24px">
+      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:14px;align-items:end">
+        <div class="form-group" style="margin:0">
+          <label>Full Name *</label>
+          <input type="text" class="form-input" id="newStaffName" placeholder="e.g. John Kamau">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label>Email Address *</label>
+          <input type="email" class="form-input" id="newStaffEmail" placeholder="seller@example.com">
+        </div>
+        <button class="admin-btn primary" onclick="inviteStaff()"><i class="fas fa-paper-plane"></i> Send Invite</button>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:12px"><i class="fas fa-info-circle"></i> The seller will receive an email to set their password. They will have limited access — Orders, Products, and Messages only.</p>
+    </div>
+  </div>
+  <div class="data-card">
+    <div class="data-card-header">
+      <h3>Staff Members</h3>
+      <div class="data-card-actions">
+        <button class="admin-btn ghost" onclick="loadStaff()"><i class="fas fa-sync"></i> Refresh</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Added</th><th>Actions</th></tr></thead>
+        <tbody id="staffTable"><tr><td colspan="6" class="table-empty"><i class="fas fa-users"></i><br>Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- STAFF ROLE BADGE CSS injected inline -->
+<style>
+.role-master{background:rgba(110,217,48,0.18);color:#1c5c05;font-weight:700;border:1px solid rgba(110,217,48,0.4)}
+.role-seller{background:rgba(37,99,235,0.12);color:#1d4ed8;font-weight:600;border:1px solid rgba(37,99,235,0.25)}
+.master-only{display:none}
+</style>
+
 <div class="toast-wrap" aria-live="polite">
   <div class="toast" id="toast">
     <i class="fas fa-check-circle toast-icon" id="toastIcon" aria-hidden="true"></i>
@@ -902,15 +934,11 @@ tr:hover td{background:#f8fef2}
 'use strict';
 
 /* ═══════════════════════════════════════════════════
-   MASTER ACCOUNT — single admin email for this store
-   Change this to the email registered in Supabase Auth
-═══════════════════════════════════════════════════ */
-const MASTER_ADMIN_EMAIL = 'zakheminvestments@gmail.com';
-
-/* ═══════════════════════════════════════════════════
    STATE
 ═══════════════════════════════════════════════════ */
 let currentUser = null;
+let currentUserRole = null;  // 'admin' | 'seller'
+let currentUserName = null;
 let allOrders = [], allProducts = [], allMessages = [], allLegal = [];
 let currentMessageId = null, currentOrderId = null;
 let currentPanel = 'dashboard';
@@ -977,154 +1005,114 @@ function populateSelect(selId, items) {
 }
 
 /* ═══════════════════════════════════════════════════
-   FIX #2: AUTH — DENY BY DEFAULT (no silent bypass)
+   AUTH — ROLE-BASED ACCESS
+   roles: 'admin' (master) | 'seller' (limited)
 ═══════════════════════════════════════════════════ */
 function togglePwdVisibility() {
   const input = document.getElementById('loginPassword');
-  const icon = document.getElementById('pwdEyeIcon');
+  const icon  = document.getElementById('pwdEyeIcon');
   if (!input || !icon) return;
   const isText = input.type === 'text';
   input.type = isText ? 'password' : 'text';
   icon.className = isText ? 'fas fa-eye' : 'fas fa-eye-slash';
 }
 
-// FIXED: fail closed — if profiles table missing or no row → DENY
-async function isAdminUser(userId) {
-  try {
-    const { data, error } = await sb()
-      .from('profiles')
-      .select('role')
-      .eq('id', userId)
-      .single();
-    if (error) {
-      console.warn('Admin check failed (deny by default):', error.message);
-      return false; // DENY if table missing or error
-    }
-    return data?.role === 'admin';
-  } catch (e) {
-    return false; // DENY on exception
-  }
-}
-
-/* ═══════════════════════════════════════════════════
-   LOGIN UI HELPERS
-═══════════════════════════════════════════════════ */
-function prefillMasterEmail() {
-  // Fill the hidden email input used by doLogin
-  const emailInput = document.getElementById('loginEmail');
-  if (emailInput) emailInput.value = MASTER_ADMIN_EMAIL;
-
-  // Show the email in the read-only chip
-  const display = document.getElementById('loginEmailDisplay');
-  if (display) display.textContent = MASTER_ADMIN_EMAIL;
-
-  const chip = document.getElementById('loginAvatarChip');
-  if (chip) chip.textContent = MASTER_ADMIN_EMAIL.charAt(0).toUpperCase();
-
-  // Also set forgot password email display
-  const fe = document.getElementById('forgotEmailDisplay');
-  if (fe) fe.textContent = MASTER_ADMIN_EMAIL;
-}
-
 function showForgotView() {
-  document.getElementById('loginView').style.display = 'none';
+  document.getElementById('loginView').style.display  = 'none';
   document.getElementById('forgotView').style.display = 'block';
-  document.getElementById('resetError').style.display = 'none';
-  document.getElementById('resetSuccess').style.display = 'none';
 }
-
 function showLoginView() {
   document.getElementById('forgotView').style.display = 'none';
-  document.getElementById('loginView').style.display = 'block';
+  document.getElementById('loginView').style.display  = 'block';
   document.getElementById('loginError').style.display = 'none';
 }
 
 async function doPasswordReset() {
-  const btn = document.getElementById('resetBtn');
+  const email = document.getElementById('resetEmail')?.value.trim();
   const errEl = document.getElementById('resetError');
-  const successEl = document.getElementById('resetSuccess');
-  errEl.style.display = 'none';
-  successEl.style.display = 'none';
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…';
-
+  const okEl  = document.getElementById('resetSuccess');
+  const btn   = document.getElementById('resetBtn');
+  errEl.style.display = 'none'; okEl.style.display = 'none';
+  if (!email) { errEl.textContent = 'Enter your email address'; errEl.style.display = 'block'; return; }
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…';
   await waitForSupabase();
   try {
-    const { error } = await sb().auth.resetPasswordForEmail(MASTER_ADMIN_EMAIL, {
-      redirectTo: window.location.href,
-    });
+    const { error } = await sb().auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
     if (error) throw error;
-    successEl.style.display = 'block';
+    okEl.style.display = 'block';
   } catch(e) {
-    errEl.textContent = 'Error: ' + (e.message || 'Could not send reset email');
-    errEl.style.display = 'block';
+    errEl.textContent = 'Error: ' + e.message; errEl.style.display = 'block';
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Reset Link';
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Reset Link';
   }
 }
 
-async function doLogin() {
-  // Always use the master account email — never allow arbitrary email input
-  const email = MASTER_ADMIN_EMAIL;
-  const pw = document.getElementById('loginPassword')?.value || '';
-  const errEl = document.getElementById('loginError');
-  const lockoutEl = document.getElementById('loginLockout');
-  const btn = document.getElementById('loginBtn');
+// Returns 'admin', 'seller', or null (deny)
+async function getUserRole(userId) {
+  try {
+    const { data, error } = await sb().from('profiles').select('role,full_name').eq('id', userId).single();
+    if (error) { console.warn('Role check failed:', error.message); return null; }
+    const role = data?.role;
+    if (role === 'admin' || role === 'seller') return { role, full_name: data.full_name };
+    return null;
+  } catch(e) { return null; }
+}
 
-  errEl.style.display = 'none';
-  lockoutEl.style.display = 'none';
+async function doLogin() {
+  const email     = document.getElementById('loginEmail')?.value.trim() || '';
+  const pw        = document.getElementById('loginPassword')?.value || '';
+  const errEl     = document.getElementById('loginError');
+  const lockoutEl = document.getElementById('loginLockout');
+  const btn       = document.getElementById('loginBtn');
+
+  errEl.style.display = 'none'; lockoutEl.style.display = 'none';
 
   if (Date.now() < loginLockedUntil) {
     const secs = Math.ceil((loginLockedUntil - Date.now()) / 1000);
-    lockoutEl.textContent = `Too many attempts. Please wait ${secs}s before trying again.`;
-    lockoutEl.style.display = 'block';
-    return;
+    lockoutEl.textContent = `Too many attempts. Wait ${secs}s.`;
+    lockoutEl.style.display = 'block'; return;
   }
 
-  if (!pw) { showLoginError('Please enter your password'); return; }
+  if (!email) { showLoginError('Please enter your email'); return; }
+  if (!pw)    { showLoginError('Please enter your password'); return; }
 
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in…';
-
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in…';
   await waitForSupabase();
 
   try {
     const { data, error } = await sb().auth.signInWithPassword({ email, password: pw });
-
     if (error) {
       loginAttempts++;
       if (loginAttempts >= MAX_LOGIN_ATTEMPTS) {
         loginLockedUntil = Date.now() + 30000;
         lockoutEl.textContent = 'Too many failed attempts. Locked for 30 seconds.';
-        lockoutEl.style.display = 'block';
-        loginAttempts = 0;
+        lockoutEl.style.display = 'block'; loginAttempts = 0;
       } else {
-        const remaining = MAX_LOGIN_ATTEMPTS - loginAttempts;
+        const rem = MAX_LOGIN_ATTEMPTS - loginAttempts;
         showLoginError(error.message?.toLowerCase().includes('invalid')
-          ? `Incorrect password. ${remaining} attempt${remaining !== 1 ? 's' : ''} remaining.`
+          ? `Incorrect email or password. ${rem} attempt${rem!==1?'s':''} remaining.`
           : error.message);
       }
       return;
     }
 
-    // Security: still verify admin role in profiles table
-    const adminOk = await isAdminUser(data.user.id);
-    if (!adminOk) {
+    const profile = await getUserRole(data.user.id);
+    if (!profile) {
       await sb().auth.signOut();
-      showLoginError('Access denied. This account does not have admin privileges.');
+      showLoginError('Access denied. Contact the store owner to get access.');
       return;
     }
 
     loginAttempts = 0;
-    currentUser = data.user;
+    currentUser     = data.user;
+    currentUserRole = profile.role;
+    currentUserName = profile.full_name || data.user.email;
     showAdmin();
 
   } catch(e) {
     showLoginError('Login failed: ' + (e.message || 'Unknown error'));
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-lock"></i> Sign In';
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-lock"></i> Sign In';
   }
 }
 
@@ -1138,21 +1126,16 @@ async function checkSession() {
   try {
     const { data: { session } } = await sb().auth.getSession();
     if (session) {
-      // FIXED: deny by default on session restore too
-      const adminOk = await isAdminUser(session.user.id);
-      if (!adminOk) {
-        await sb().auth.signOut();
-        hideLoader();
-        document.getElementById('loginScreen').style.display = 'flex';
-        return;
+      const profile = await getUserRole(session.user.id);
+      if (!profile) { await sb().auth.signOut(); }
+      else {
+        currentUser     = session.user;
+        currentUserRole = profile.role;
+        currentUserName = profile.full_name || session.user.email;
+        showAdmin(); return;
       }
-      currentUser = session.user;
-      showAdmin();
-      return;
     }
-  } catch(e) {
-    console.warn('checkSession error:', e);
-  }
+  } catch(e) { console.warn('checkSession error:', e); }
   hideLoader();
   document.getElementById('loginScreen').style.display = 'flex';
 }
@@ -1162,22 +1145,59 @@ function hideLoader() {
   if (loader) { loader.classList.add('done'); setTimeout(() => loader.remove(), 600); }
 }
 
+function applyRoleUI() {
+  const isMaster = currentUserRole === 'admin';
+
+  // Show master-only sidebar links
+  document.querySelectorAll('.master-only').forEach(el => {
+    el.style.display = isMaster ? 'flex' : 'none';
+  });
+
+  // Seller: hide entire nav groups they can't access
+  if (!isMaster) {
+    // Hide Content group (homepage, branding, reviews, legal)
+    document.querySelectorAll('.nav-group').forEach(group => {
+      const title = group.querySelector('.nav-group-title')?.textContent?.trim();
+      if (title === 'Content' || title === 'Communication' || title === 'System') {
+        group.style.display = 'none';
+      }
+    });
+    // Within Store group hide Categories, Brands, Deals for seller
+    document.querySelectorAll('.sidebar-link').forEach(btn => {
+      const text = btn.textContent.trim();
+      if (['Categories','Brands','Deals'].some(t => text.startsWith(t))) {
+        btn.style.display = 'none';
+      }
+    });
+  }
+
+  // Role badge in sidebar footer
+  const roleEl = document.getElementById('sidebarRole');
+  if (roleEl) {
+    roleEl.innerHTML = isMaster
+      ? '<span class="badge role-master"><i class="fas fa-crown"></i> Master Admin</span>'
+      : '<span class="badge role-seller"><i class="fas fa-store"></i> Seller</span>';
+  }
+}
+
 function showAdmin() {
   hideLoader();
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('adminApp').classList.add('visible');
-  document.getElementById('sidebarEmail').textContent = currentUser.email;
-  document.getElementById('sidebarAvatarLetter').textContent = (currentUser.email || 'A')[0].toUpperCase();
+  document.getElementById('sidebarEmail').textContent       = currentUserName || currentUser.email;
+  document.getElementById('sidebarAvatarLetter').textContent = (currentUserName || currentUser.email || 'A')[0].toUpperCase();
+
+  applyRoleUI();
 
   sb().auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_OUT' || !session) location.reload();
   });
 
   initAdmin();
-  setupRealtime(); // FIX: real-time order/message notifications
+  setupRealtime();
 }
 
-function confirmLogout() { if (confirm('Are you sure you want to logout?')) logout(); }
+function confirmLogout() { if (confirm('Sign out?')) logout(); }
 async function logout() {
   if (realtimeChannel) sb().removeChannel(realtimeChannel);
   await sb().auth.signOut();
@@ -1232,10 +1252,15 @@ const PANEL_TITLES = {
   dashboard:'Dashboard', products:'Products', orders:'Orders', categories:'Categories',
   brands:'Brands', deals:'Deals', homepage:'Homepage Sections', branding:'Branding',
   legal:'Legal Hub', contact:'Contact Info', messages:'Messages', social:'Social Media',
-  newsletter:'Newsletter', analytics:'Analytics', testimonials:'Customer Reviews'
+  newsletter:'Newsletter', analytics:'Analytics', testimonials:'Customer Reviews',
+  staff:'Staff Accounts'
 };
 
 function showPanel(name, btn) {
+  const sellerAllowed = ['dashboard','products','orders','messages'];
+  if (currentUserRole === 'seller' && !sellerAllowed.includes(name)) {
+    toast('Access restricted. Contact the master admin.', 'error'); return;
+  }
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-' + name)?.classList.add('active');
   document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
@@ -1247,6 +1272,11 @@ function showPanel(name, btn) {
 }
 
 function loadPanel(name) {
+  // Sellers can only access these panels
+  const sellerAllowed = ['dashboard','products','orders','messages'];
+  if (currentUserRole === 'seller' && !sellerAllowed.includes(name)) {
+    toast('Access restricted. Contact the master admin.', 'error'); return;
+  }
   switch(name) {
     case 'dashboard':    initAdmin(); break;
     case 'products':     loadProducts(); break;
@@ -1263,6 +1293,7 @@ function loadPanel(name) {
     case 'social':       loadSocial(); break;
     case 'newsletter':   loadNewsletter(); break;
     case 'analytics':    loadAnalytics(); break;
+    case 'staff':        loadStaff(); break;
   }
 }
 
@@ -2254,6 +2285,112 @@ async function deleteTestimonial(id) {
 }
 
 /* ═══════════════════════════════════════════════════
+   STAFF ACCOUNTS (master only)
+═══════════════════════════════════════════════════ */
+async function inviteStaff() {
+  if (currentUserRole !== 'admin') { toast('Only the master admin can add staff', 'error'); return; }
+  const name  = document.getElementById('newStaffName')?.value.trim();
+  const email = document.getElementById('newStaffEmail')?.value.trim();
+  if (!name)  { toast('Full name is required', 'error'); return; }
+  if (!email) { toast('Email address is required', 'error'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('Enter a valid email', 'error'); return; }
+
+  try {
+    // Use Supabase admin invite — sends email with magic link to set password
+    const { data, error } = await sb().auth.admin.inviteUserByEmail(email, {
+      data: { full_name: name, role: 'seller' }
+    });
+
+    if (error) {
+      // Fallback: create user directly if invite API not available on anon key
+      // Master must use service role key for invite — guide them to SQL instead
+      toast('Use the SQL below to add this seller (invite requires service key)', 'info');
+      showStaffSQLGuide(name, email);
+      return;
+    }
+
+    // Insert into profiles as seller
+    await sb().from('profiles').upsert({
+      id:        data.user.id,
+      full_name: name,
+      role:      'seller',
+      email,
+      created_at: new Date().toISOString(),
+    }, { onConflict: 'id' });
+
+    toast(`Invite sent to ${email}!`);
+    document.getElementById('newStaffName').value  = '';
+    document.getElementById('newStaffEmail').value = '';
+    loadStaff();
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+  }
+}
+
+function showStaffSQLGuide(name, email) {
+  // Show a modal / toast with the SQL to run in Supabase
+  const sql = `-- Run in Supabase SQL Editor to add this seller:\nSELECT create_staff_seller('${email}', '${name}');`;
+  const msg = `To add ${name} as a seller, run this in Supabase SQL Editor:\n\nINSERT INTO auth.users (email, email_confirmed_at, created_at, updated_at)\nVALUES ('${email}', now(), now(), now());\n\nThen in profiles:\nINSERT INTO profiles (id, full_name, role, email)\nSELECT id, '${name}', 'seller', '${email}' FROM auth.users WHERE email='${email}'\nON CONFLICT (id) DO UPDATE SET role='seller', full_name='${name}';`;
+  if (confirm('Copy SQL to clipboard?')) {
+    navigator.clipboard?.writeText(msg).then(() => toast('SQL copied to clipboard!'));
+  }
+}
+
+async function loadStaff() {
+  if (currentUserRole !== 'admin') return;
+  try {
+    const { data, error } = await sb()
+      .from('profiles')
+      .select('id,full_name,email,role,created_at,active')
+      .order('created_at', { ascending: false });
+
+    const tb = document.getElementById('staffTable');
+    if (error) { tb.innerHTML = emptyRow(6, error.message); return; }
+    if (!data?.length) { tb.innerHTML = emptyRow(6, 'No staff yet — add a seller above'); return; }
+
+    tb.innerHTML = data.map(u => `<tr>
+      <td><strong>${esc(u.full_name || '—')}</strong></td>
+      <td>${esc(u.email || '—')}</td>
+      <td><span class="badge role-${esc(u.role)}">${u.role === 'admin' ? '<i class="fas fa-crown"></i> Master Admin' : '<i class="fas fa-store"></i> Seller'}</span></td>
+      <td><span class="badge ${u.active !== false ? 'active' : 'inactive'}">${u.active !== false ? 'Active' : 'Suspended'}</span></td>
+      <td>${fmtDate(u.created_at)}</td>
+      <td class="actions-cell">
+        ${u.role !== 'admin' ? `
+          <button class="tbl-btn edit" onclick="toggleStaffActive('${esc(u.id)}', ${u.active !== false})"
+            title="${u.active !== false ? 'Suspend access' : 'Restore access'}">
+            <i class="fas fa-toggle-${u.active !== false ? 'on' : 'off'}"></i>
+          </button>
+          <button class="tbl-btn del" onclick="removeStaff('${esc(u.id)}', '${esc(u.full_name || u.email)}')" title="Remove staff">
+            <i class="fas fa-user-minus"></i>
+          </button>
+        ` : '<span style="color:var(--muted);font-size:12px">—</span>'}
+      </td>
+    </tr>`).join('');
+  } catch(e) {
+    document.getElementById('staffTable').innerHTML = emptyRow(6, 'Error: ' + e.message);
+  }
+}
+
+async function toggleStaffActive(id, currentlyActive) {
+  try {
+    const { error } = await sb().from('profiles').update({ active: !currentlyActive }).eq('id', id);
+    if (error) throw error;
+    toast(currentlyActive ? 'Account suspended' : 'Account restored');
+    loadStaff();
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function removeStaff(id, name) {
+  if (!confirm(`Remove ${name} from staff? They will no longer be able to log in.`)) return;
+  try {
+    const { error } = await sb().from('profiles').update({ role: 'revoked', active: false }).eq('id', id);
+    if (error) throw error;
+    toast(`${name} removed from staff`);
+    loadStaff();
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+/* ═══════════════════════════════════════════════════
    NEWSLETTER
 ═══════════════════════════════════════════════════ */
 async function loadNewsletter() {
@@ -2339,7 +2476,6 @@ document.querySelectorAll('.modal-overlay').forEach(mo => {
 ═══════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('loginScreen').style.display = 'none';
-  prefillMasterEmail();
   checkSession();
 });
 </script>

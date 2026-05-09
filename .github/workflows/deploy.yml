@@ -7,5 +7,5 @@
     protocol: ftp
     port: 21
     local-dir: ./
-    server-dir: /domains/zakhem.ke/public_html/
-    dangerous-clean-slate: false  
+    server-dir: public_html
+    dangerous-clean-slate: false    

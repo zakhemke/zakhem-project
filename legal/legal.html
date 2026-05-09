@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <!-- ✅ FIX: Load Supabase via CDN (synchronous) instead of async ES module -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="module">   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';   window.supabase = createClient(     'https://onhzqxdfbrzjmhyybteb.supabase.co',     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uaHpxeGRmYnJ6am1oeXlidGViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwMTgyOTAsImV4cCI6MjA5MzU5NDI5MH0.yaUiBaNhU5F3JL3dszmEFKR6EEl3eQp0OqoI-T-NHQ0'   );   window.dispatchEvent(new Event('supabase-ready')); </script>
 
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -341,7 +341,7 @@ footer{background:#e8fad8;border-top:1px solid #c8eaa0;margin-top:80px}
   );
 
   // Helper — always returns the initialized client
-  const sb = () => window.supabase;
+  function sb() { return window.supabase; }  async function init() {   await new Promise(resolve => {     if (window.supabase) { resolve(); return; }     window.addEventListener('supabase-ready', resolve, { once: true });   });   document.getElementById('copyYear').textContent = new Date().getFullYear();   await Promise.allSettled([loadLogo(), loadContactInfo(), loadSocialLinks(), loadLegalPages()]);   checkUrlParam();   setTimeout(() => document.getElementById('pageLoader')?.classList.add('hidden'), 300); } init();
 
   let allPages = [];
   let currentPageIndex = -1;

@@ -66,12 +66,10 @@ html{scroll-behavior:smooth;font-size:16px}
 /* ✅ FIX: cursor:none removed from body — bad for accessibility/mobile */
 body{font-family:var(--font-body);background:var(--dark);color:var(--text);overflow-x:hidden;line-height:1.6}
 
-/* ✅ FIX: Custom cursor only shown on pointer devices */
-@media(pointer:fine){
-  .cursor{position:fixed;width:10px;height:10px;background:var(--red);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:transform .1s;mix-blend-mode:normal}
-  .cursor-ring{position:fixed;width:36px;height:36px;border:1.5px solid rgba(110,217,48,0.5);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:all .15s ease}
-  body.custom-cursor,body.custom-cursor a,body.custom-cursor button,body.custom-cursor select,body.custom-cursor input,body.custom-cursor [onclick]{cursor:none}
-}
+/* Custom cursor disabled - use normal browser cursor */
+.cursor,.cursor-ring{display:none!important}
+body,body *{cursor:auto}
+body a,body button,[onclick]{cursor:pointer}
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:#d8f5b0}
 ::-webkit-scrollbar-thumb{background:var(--red);border-radius:2px}
@@ -169,7 +167,9 @@ nav{background:#e8fad8;border-bottom:1px solid #c8eaa0}
 .hero-stat strong{display:block;font-family:var(--font-head);font-size:26px;font-weight:800;color:#1c3309}
 .hero-stat span{font-size:12px;color:#4a6a2a;letter-spacing:.5px;text-transform:uppercase}
 .hero-visual{position:relative}
-.hero-card-main{background:#ffffff;border:1px solid var(--border2);border-radius:var(--r2);padding:36px;box-shadow:var(--shadow);animation:float 6s ease-in-out infinite}
+.hero-card-main{background:#ffffff;border:1px solid var(--border2);border-radius:var(--r2);padding:36px;box-shadow:var(--shadow);animation:float 6s ease-in-out infinite;overflow:hidden;position:relative}
+.hero-card-bg-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.07;border-radius:var(--r2);pointer-events:none;display:none}
+.hero-card-bg-img.loaded{display:block}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
 .hero-card-main .big-icon{font-size:80px;text-align:center;display:block;margin-bottom:20px;color:var(--red)}
 .hero-card-main h3{font-family:var(--font-head);font-size:18px;font-weight:700;color:#1c3309;margin-bottom:6px}
@@ -289,9 +289,12 @@ nav{background:#e8fad8;border-bottom:1px solid #c8eaa0}
 .brand-chip{padding:12px 24px;background:#ffffff;border:1px solid #b0e070;border-radius:var(--r);font-family:var(--font-head);font-size:13px;font-weight:600;color:#2e5012;cursor:pointer;transition:var(--transition)}
 .brand-chip:hover{border-color:var(--red);color:var(--red);background:rgba(110,217,48,0.06)}
 
-/* ── TESTIMONIALS ── */
+/* ── ADMIN REVIEWS SECTION ── */
 .testimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .testimonial-card{background:#ffffff;border:1px solid #b0e070;border-radius:var(--r2);padding:28px}
+.admin-reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.admin-review-card{background:#ffffff;border:1px solid #b0e070;border-radius:var(--r2);padding:28px;transition:var(--transition)}
+.admin-review-card:hover{box-shadow:var(--shadow);border-color:var(--border2)}
 .t-stars{font-size:16px;color:var(--gold);margin-bottom:14px}
 .t-text{font-size:14px;color:var(--muted2);line-height:1.7;margin-bottom:20px;font-style:italic}
 .t-author{display:flex;align-items:center;gap:12px}
@@ -323,7 +326,7 @@ nav{background:#e8fad8;border-bottom:1px solid #c8eaa0}
 /* ── FOOTER ── */
 footer{background:#1a3208;border-top:1px solid rgba(110,217,48,0.20);padding:56px 0 28px}
 .footer-inner{max-width:1400px;margin:auto;padding:0 28px}
-.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:32px;margin-bottom:48px}
 .footer-logo{display:flex;align-items:center;gap:12px;margin-bottom:20px}
 .footer-logo-mark{width:38px;height:38px;background:var(--red);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:18px;color:#0a1007}
 .footer-logo-name{font-family:var(--font-head);font-size:16px;font-weight:700;color:#dcfaad}
@@ -491,11 +494,11 @@ footer{background:#1a3208;border-top:1px solid rgba(110,217,48,0.20);padding:56p
   .products-grid{grid-template-columns:repeat(2,1fr)}
   .hero-inner{grid-template-columns:1fr;gap:40px}
   .hero-visual{display:none}
-  .footer-grid{grid-template-columns:1fr 1fr;gap:28px}
+  .footer-grid{grid-template-columns:1fr 1fr 1fr;gap:28px}
   .modal-inner{grid-template-columns:1fr}
   .modal-img-side{border-radius:24px 24px 0 0;min-height:280px}
   .contact-grid{grid-template-columns:1fr}
-  .testimonials-grid{grid-template-columns:1fr 1fr}
+  .testimonials-grid,.admin-reviews-grid{grid-template-columns:1fr 1fr}
   .promo-grid{grid-template-columns:1fr}
   .trust-inner{grid-template-columns:repeat(2,1fr)}
   .payment-methods{grid-template-columns:1fr}
@@ -509,7 +512,7 @@ footer{background:#1a3208;border-top:1px solid rgba(110,217,48,0.20);padding:56p
   .topbar,.nav-mobile-hidden{display:none}
   nav{display:none}
   .categories-grid{grid-template-columns:repeat(4,1fr)}
-  .testimonials-grid{grid-template-columns:1fr}
+  .testimonials-grid,.admin-reviews-grid{grid-template-columns:1fr}
   .footer-grid{grid-template-columns:1fr}
   .trust-inner{grid-template-columns:1fr 1fr}
   .hero{min-height:auto;padding:20px 0}
@@ -520,6 +523,23 @@ footer{background:#1a3208;border-top:1px solid rgba(110,217,48,0.20);padding:56p
   .nl-form{flex-direction:column}
   .order-confirm-modal{padding:32px 24px}
   .cart-sidebar{max-width:100%}
+}
+/* Extra small phones */
+@media(max-width:380px){
+  .products-grid{grid-template-columns:1fr 1fr}
+  .categories-grid{grid-template-columns:repeat(3,1fr)}
+  .hero h1{font-size:28px;letter-spacing:-1px}
+  .hero-stats{flex-wrap:wrap;gap:16px}
+  .hero-ctas{flex-direction:column}
+  .btn-primary,.btn-secondary{width:100%;justify-content:center}
+  .trust-inner{grid-template-columns:1fr}
+  .product-card .product-img{height:160px}
+  .header-inner{gap:8px}
+  .cart-sidebar{max-width:100%;width:100%}
+}
+@media(max-width:320px){
+  .products-grid{grid-template-columns:1fr}
+  .hero h1{font-size:24px}
 }
 
 /* ══ MULTI-COLOR ACCENT SYSTEM ══ */
@@ -705,6 +725,7 @@ footer{background:#1a3208;border-top:1px solid rgba(110,217,48,0.20);padding:56p
     </div>
     <div class="hero-visual" aria-hidden="true">
       <div class="hero-card-main">
+        <img class="hero-card-bg-img" id="heroCardBgImg" src="" alt="" aria-hidden="true">
         <i class="fas fa-store big-icon"></i>
         <h3>Everything for Your Home & Office</h3>
         <p>Top-quality products across all categories</p>
@@ -721,7 +742,7 @@ footer{background:#1a3208;border-top:1px solid rgba(110,217,48,0.20);padding:56p
       </div>
       <div class="hero-badge-float bottom">
         <div class="hbf-icon" style="color:var(--gold)"><i class="fas fa-truck"></i></div>
-        <div class="hbf-text"><strong>Free Delivery</strong><span>Orders over KES 25,000</span></div>
+        <div class="hbf-text"><strong>Free Delivery</strong><span id="heroBadgeFreeDelivery">Orders over KES 25,000</span></div>
       </div>
     </div>
   </div>
@@ -732,7 +753,7 @@ footer{background:#1a3208;border-top:1px solid rgba(110,217,48,0.20);padding:56p
   <div class="trust-inner">
     <div class="trust-item">
       <div class="trust-icon"><i class="fas fa-shipping-fast" aria-hidden="true"></i></div>
-      <div class="trust-text"><h4>Free Delivery</h4><p>On orders over KES 5,000</p></div>
+      <div class="trust-text"><h4>Free Delivery</h4><p id="trustFreeDeliveryText">On orders over KES 25,000</p></div>
     </div>
     <div class="trust-item" style="cursor:pointer" onclick="window.open('https://wa.me/254716833833','_blank')">
       <div class="trust-icon"><i class="fab fa-whatsapp" aria-hidden="true"></i></div>
@@ -824,9 +845,10 @@ footer{background:#1a3208;border-top:1px solid rgba(110,217,48,0.20);padding:56p
   <div class="section-inner">
     <div class="section-head">
       <h2>What Our Customers <span>Say</span></h2>
-      <div style="display:flex;gap:4px;font-size:18px;color:var(--gold)" aria-label="Rating: 4.9 out of 5">★★★★★<span style="font-size:14px;color:var(--muted);margin-left:8px">4.9/5 from 2,400+ reviews</span></div>
+      <div style="display:flex;gap:4px;font-size:18px;color:var(--gold)" aria-label="Rating: 4.9 out of 5">★★★★★<span style="font-size:14px;color:var(--muted);margin-left:8px" id="reviewsRatingLine">4.9/5 from 2,400+ reviews</span></div>
     </div>
-    <div class="testimonials-grid">
+    <div class="testimonials-grid" id="reviewsGrid">
+      <!-- Loaded from DB or fallback to defaults below -->
       <div class="testimonial-card">
         <div class="t-stars" aria-label="5 stars">★★★★★</div>
         <p class="t-text">"Excellent service! The remote arrived within 24 hours and works perfectly with my LG TV. Highly recommend Zakhem Investments!"</p>
@@ -910,7 +932,6 @@ footer{background:#1a3208;border-top:1px solid rgba(110,217,48,0.20);padding:56p
           <li><a href="#products">Products</a></li>
           <li><a href="#" onclick="openCart();return false">My Cart</a></li>
           <li><a href="https://wa.me/254716833833" target="_blank" rel="noopener">Order via WhatsApp</a></li>
-          <li><a href="legal.html">Legal Hub</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -920,15 +941,17 @@ footer{background:#1a3208;border-top:1px solid rgba(110,217,48,0.20);padding:56p
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Contact Us</h4>
-        <ul class="footer-links" style="margin-bottom:24px">
-          <li><a href="tel:+254716833833" id="footerPhone"><i class="fas fa-phone-alt" style="color:var(--red);margin-right:6px;width:14px" aria-hidden="true"></i>+254 716 833 833</a></li>
-          <li><a href="mailto:info@zakhem.co.ke" id="footerEmail"><i class="fas fa-envelope" style="color:var(--red);margin-right:6px;width:14px" aria-hidden="true"></i>info@zakhem.co.ke</a></li>
-          <li><a href="https://maps.google.com/?q=Gaborone+Rd+Nairobi+California+Building" target="_blank" rel="noopener" id="footerAddress"><i class="fas fa-map-marker-alt" style="color:var(--red);margin-right:6px;width:14px" aria-hidden="true"></i>Gaborone Rd, California Building, GF Shop 1, Nairobi</a></li>
-        </ul>
         <h4>Legal</h4>
         <ul class="footer-links" id="footerLegalLinks">
           <li><a href="legal.html">Legal Hub</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact Us</h4>
+        <ul class="footer-links">
+          <li><a href="tel:+254716833833" id="footerPhone"><i class="fas fa-phone-alt" style="color:var(--red);margin-right:6px;width:14px" aria-hidden="true"></i>+254 716 833 833</a></li>
+          <li><a href="mailto:info@zakhem.co.ke" id="footerEmail"><i class="fas fa-envelope" style="color:var(--red);margin-right:6px;width:14px" aria-hidden="true"></i>info@zakhem.co.ke</a></li>
+          <li><a href="https://maps.google.com/?q=Gaborone+Rd+Nairobi+California+Building" target="_blank" rel="noopener" id="footerAddress"><i class="fas fa-map-marker-alt" style="color:var(--red);margin-right:6px;width:14px" aria-hidden="true"></i>Gaborone Rd, California Building, GF Shop 1, Nairobi</a></li>
         </ul>
       </div>
     </div>
@@ -1227,6 +1250,14 @@ const DB = {
       return data || [];
     } catch(e) { return []; }
   },
+  async getTestimonials() {
+    if (!window.supabase) return [];
+    try {
+      const { data } = await window.supabase.from('testimonials')
+        .select('*').eq('active',true).order('sort_order',{ascending:true}).limit(6);
+      return data || [];
+    } catch(e) { return []; }
+  },
   // ✅ FIX: saveOrder now correctly maps customer fields to DB columns
   async saveOrder(order) {
     await waitForSupabase();
@@ -1295,11 +1326,8 @@ const CAT_ICONS = {
 // 3. INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', async () => {
-  // ✅ FIX: Custom cursor only on pointer:fine devices
-  if (window.matchMedia('(pointer:fine)').matches) {
-    document.body.classList.add('custom-cursor');
-    initCursor();
-  }
+  // Custom cursor disabled - using normal browser cursor
+  // if (window.matchMedia('(pointer:fine)').matches) { initCursor(); }
 
   showSkeletons();
   document.getElementById('footerYear').textContent = new Date().getFullYear();
@@ -1449,8 +1477,18 @@ function buildSearchCatFilter() {
 // ============================================================
 async function loadSiteData() {
   try {
-    const [logoUrl, settings, contact, socials, legalPages] = await Promise.all([
+    const [logoUrl, settings, contact, socials, legalPages, testimonials, heroImageData] = await Promise.all([
       DB.getLogo(), DB.getSiteSettings(), DB.getContactInfo(), DB.getSocialLinks(), DB.getLegalPages(),
+      DB.getTestimonials(),
+      // Also fetch hero image from media_assets
+      (async () => {
+        try {
+          const { data } = await window.supabase.from('media_assets')
+            .select('file_url').eq('type','hero_image').eq('active',true)
+            .order('created_at',{ascending:false}).limit(1).single();
+          return data?.file_url || null;
+        } catch(e) { return null; }
+      })(),
     ]);
 
     if (logoUrl) {
@@ -1524,6 +1562,61 @@ async function loadSiteData() {
         `<li><a href="legal.html?policy=${esc(p.slug)}">${sanitize(p.title)}</a></li>`
       ).join('');
     }
+
+    // Load hero background image into hero card visual
+    if (heroImageData) {
+      const heroCardImg = document.getElementById('heroCardBgImg');
+      if (heroCardImg) {
+        heroCardImg.src = heroImageData;
+        heroCardImg.onload = () => heroCardImg.classList.add('loaded');
+      }
+      // Also apply as hero section subtle background
+      const heroSection = document.getElementById('hero');
+      if (heroSection) {
+        heroSection.style.backgroundImage = `linear-gradient(160deg,rgba(237,251,212,0.97) 0%,rgba(240,252,230,0.95) 50%,rgba(220,250,173,0.97) 100%),url('${heroImageData}')`;
+        heroSection.style.backgroundSize = 'cover';
+        heroSection.style.backgroundPosition = 'center';
+      }
+    }
+
+    // Update free delivery threshold from settings
+    if (settings && settings.free_delivery_threshold) {
+      const threshold = settings.free_delivery_threshold;
+      const formattedThreshold = 'KES ' + Number(threshold).toLocaleString();
+      const trustEl = document.getElementById('trustFreeDeliveryText');
+      const heroEl = document.getElementById('heroBadgeFreeDelivery');
+      const announceBar = document.getElementById('announceBar');
+      if (trustEl) trustEl.textContent = 'On orders over ' + formattedThreshold;
+      if (heroEl) heroEl.textContent = 'Orders over ' + formattedThreshold;
+      // Update announcement bar text
+      if (announceBar && announceBar.textContent.includes('25,000')) {
+        const firstTextNode = [...announceBar.childNodes].find(n => n.nodeType === 3);
+        if (firstTextNode) firstTextNode.textContent = firstTextNode.textContent.replace(/KES [\d,]+/, formattedThreshold);
+      }
+    }
+
+    // Render admin-managed testimonials/reviews
+    if (testimonials && testimonials.length) {
+      const grid = document.getElementById('reviewsGrid');
+      if (grid) {
+        grid.innerHTML = testimonials.map(t => {
+          const stars = '★'.repeat(Math.min(5, Math.max(1, t.rating || 5)));
+          const initial = (t.author_name || 'A').charAt(0).toUpperCase();
+          return `<div class="testimonial-card">
+            <div class="t-stars" aria-label="${esc(t.rating || 5)} stars">${sanitize(stars)}</div>
+            <p class="t-text">"${sanitize(t.review_text || '')}"</p>
+            <div class="t-author">
+              <div class="t-avatar" aria-hidden="true">${sanitize(initial)}</div>
+              <div>
+                <div class="t-name">${sanitize(t.author_name || '')}</div>
+                <div class="t-role">${sanitize(t.author_location || '')}${t.author_location && t.verified ? ' — ' : ''}${t.verified ? 'Verified Buyer' : ''}</div>
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+      }
+    }
+
   } catch(e) {
     console.warn('loadSiteData error:', e);
   }

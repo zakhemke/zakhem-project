@@ -4,13 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zakhem Admin Panel</title>
-<!-- ✅ FIX: noindex so admin panel doesn't appear in search results -->
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<!-- DOMPurify for robust XSS sanitization of rich editor content -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
-
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
   const SUPABASE_URL      = 'https://onhzqxdfbrzjmhyybteb.supabase.co';
@@ -19,23 +16,15 @@
   window.history.replaceState({}, document.title, window.location.pathname);
   window.dispatchEvent(new Event('supabase-ready'));
 </script>
-  
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  /* ── BRAND GREENS (matching index) ── */
   --red:#6ed930;--red2:#8fef40;--red-glow:rgba(110,217,48,0.25);
-  /* ── PAGE BACKGROUNDS (light green like index) ── */
   --dark:#f0fce6;--dark2:#e8fad8;--dark3:#daf5c0;--dark4:#c8eaa0;
-  /* ── CARD / SURFACE ── */
   --card:#ffffff;
-  /* ── BORDERS ── */
   --border:rgba(110,217,48,0.22);--border2:rgba(110,217,48,0.38);
-  /* ── TEXT COLOURS ── */
   --text:#1c3309;--muted:#4a6a2a;--muted2:#2e5012;--white:#ffffff;
-  /* ── ACCENT PALETTE ── */
   --green:#16a34a;--gold:#e6870a;--blue:#2563eb;--purple:#7c3aed;
-  /* ── TYPOGRAPHY ── */
   --font-head:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;
   --r:10px;--r2:16px;
   --shadow:0 4px 20px rgba(26,50,8,0.10);
@@ -43,34 +32,29 @@
 }
 html{font-size:16px}
 body{font-family:var(--font-body);background:var(--dark);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
-/* Scrollbar matching index */
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:#d8f5b0}
-::-webkit-scrollbar-thumb{background:var(--red);border-radius:2px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:#d8f5b0}::-webkit-scrollbar-thumb{background:var(--red);border-radius:2px}
 
-/* ── LOGIN ── */
+/* LOGIN */
 .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#edfbd4 0%,#f0fce6 50%,#dcfaad 100%);position:fixed;inset:0;z-index:9999;flex-direction:column;gap:32px}
-.login-box{background:#ffffff;border:1px solid var(--border2);border-radius:24px;padding:48px;width:100%;max-width:420px;text-align:center;box-shadow:var(--shadow)}
+.login-box{background:#fff;border:1px solid var(--border2);border-radius:24px;padding:48px;width:100%;max-width:420px;text-align:center;box-shadow:var(--shadow)}
 .login-logo{width:60px;height:60px;background:var(--red);border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:28px;font-weight:800;color:#0a1007;margin:0 auto 20px;box-shadow:var(--shadow-green)}
 .login-box h1{font-family:var(--font-head);font-size:24px;font-weight:800;margin-bottom:8px;color:#1c3309}
 .login-box p{color:var(--muted);margin-bottom:32px;font-size:14px}
 .login-input-wrap{position:relative;margin-bottom:12px}
 .login-input{width:100%;padding:14px 18px;background:#f0fce6;border:1px solid var(--border2);border-radius:var(--r);color:#1c3309;font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .2s}
 .login-input:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-glow)}
-/* ✅ FIX: Password toggle button */
 .pwd-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;padding:4px}
 .pwd-toggle:hover{color:#1c3309}
 .login-btn{width:100%;padding:14px;background:var(--red);border:none;border-radius:var(--r);color:#0a1007;font-family:var(--font-head);font-size:15px;font-weight:700;cursor:pointer;transition:background .2s;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px}
 .login-btn:hover:not(:disabled){background:var(--red2)}
 .login-btn:disabled{opacity:.6;cursor:not-allowed}
 .login-error{color:#c0392b;font-size:13px;margin-top:10px;display:none;padding:10px;background:rgba(192,57,43,0.08);border-radius:8px;border:1px solid rgba(192,57,43,0.2)}
-/* ✅ FIX: Rate-limit lockout message */
 .login-lockout{color:var(--gold);font-size:13px;margin-top:10px;display:none;padding:10px;background:rgba(230,135,10,0.08);border-radius:8px;border:1px solid rgba(230,135,10,0.2)}
 
-/* ── ADMIN APP ── */
+/* ADMIN APP */
 .admin-app{display:none;min-height:100vh;flex-direction:row}
 .admin-app.visible{display:flex}
-.admin-sidebar{width:260px;background:#ffffff;border-right:1px solid var(--border2);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:100;transition:transform .3s;overflow-y:auto;box-shadow:2px 0 12px rgba(26,50,8,0.08)}
+.admin-sidebar{width:260px;background:#fff;border-right:1px solid var(--border2);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:100;transition:transform .3s;overflow-y:auto;box-shadow:2px 0 12px rgba(26,50,8,0.08)}
 .sidebar-header{padding:24px 20px;border-bottom:1px solid var(--border);flex-shrink:0;background:#f8fef2}
 .sidebar-logo{display:flex;align-items:center;gap:12px}
 .sidebar-logo-mark{width:38px;height:38px;background:var(--red);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:18px;color:#0a1007;flex-shrink:0;box-shadow:var(--shadow-green)}
@@ -90,7 +74,7 @@ body{font-family:var(--font-body);background:var(--dark);color:var(--text);min-h
 .sidebar-user-info strong{display:block;font-size:13px;color:#1c3309;word-break:break-all}
 .sidebar-user-info span{font-size:11px;color:var(--muted)}
 .admin-main{flex:1;margin-left:260px;display:flex;flex-direction:column;min-height:100vh}
-.admin-topbar{background:#ffffff;border-bottom:1px solid var(--border2);padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0;box-shadow:0 2px 8px rgba(26,50,8,0.06)}
+.admin-topbar{background:#fff;border-bottom:1px solid var(--border2);padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0;box-shadow:0 2px 8px rgba(26,50,8,0.06)}
 .admin-topbar h1{font-family:var(--font-head);font-size:18px;font-weight:700;color:#1c3309}
 .admin-topbar-right{display:flex;align-items:center;gap:12px}
 .admin-btn{display:flex;align-items:center;gap:8px;padding:9px 18px;border-radius:var(--r);font-size:13px;font-weight:600;font-family:var(--font-head);cursor:pointer;transition:all .2s;border:none;text-decoration:none}
@@ -100,19 +84,20 @@ body{font-family:var(--font-body);background:var(--dark);color:var(--text);min-h
 .admin-btn.ghost:hover{background:#e8fad8;color:#1c3309}
 .admin-btn.green{background:rgba(22,163,74,0.1);color:var(--green);border:1px solid rgba(22,163,74,0.2)}
 .admin-btn.green:hover{background:rgba(22,163,74,0.2)}
-.admin-btn.blue{background:rgba(37,99,235,0.1);color:var(--blue);border:1px solid rgba(37,99,235,0.2)}
-.admin-btn.blue:hover{background:rgba(37,99,235,0.2)}
 .admin-btn.danger{background:rgba(192,57,43,0.1);color:#c0392b;border:1px solid rgba(192,57,43,0.2)}
 .admin-btn.danger:hover{background:rgba(192,57,43,0.2)}
 .admin-btn:disabled{opacity:.5;cursor:not-allowed}
 .mob-sidebar-btn{display:none;background:#e8fad8;border:1px solid var(--border2);border-radius:8px;padding:8px 10px;color:#1c3309;font-size:18px;cursor:pointer}
 .admin-content{flex:1;padding:28px;overflow-y:auto;background:var(--dark)}
-.panel{display:none}
-.panel.active{display:block}
+.panel{display:none}.panel.active{display:block}
 
-/* ── STATS ── */
+/* REALTIME INDICATOR */
+.realtime-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;display:inline-block;margin-right:6px;animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+
+/* STATS */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px}
-.stat-card{background:#ffffff;border:1px solid var(--border2);border-radius:var(--r2);padding:22px;box-shadow:var(--shadow)}
+.stat-card{background:#fff;border:1px solid var(--border2);border-radius:var(--r2);padding:22px;box-shadow:var(--shadow)}
 .stat-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
 .stat-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
 .stat-icon.red{background:rgba(110,217,48,0.15);color:#3d8a12}
@@ -124,8 +109,8 @@ body{font-family:var(--font-body);background:var(--dark);color:var(--text);min-h
 .stat-value{font-family:var(--font-head);font-size:28px;font-weight:800;color:#1c3309;margin-bottom:4px}
 .stat-label{font-size:12.5px;color:var(--muted)}
 
-/* ── DATA CARDS & TABLES ── */
-.data-card{background:#ffffff;border:1px solid var(--border2);border-radius:var(--r2);overflow:hidden;margin-bottom:24px;box-shadow:var(--shadow)}
+/* DATA CARDS & TABLES */
+.data-card{background:#fff;border:1px solid var(--border2);border-radius:var(--r2);overflow:hidden;margin-bottom:24px;box-shadow:var(--shadow)}
 .data-card-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;background:#f8fef2}
 .data-card-header h3{font-family:var(--font-head);font-size:16px;font-weight:700;color:#1c3309}
 .data-card-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -156,13 +141,11 @@ tr:hover td{background:#f8fef2}
 .tbl-btn.view:hover{background:rgba(124,58,237,0.2)}
 .actions-cell{display:flex;gap:6px;flex-wrap:wrap}
 
-/* ── MODALS ── */
+/* MODALS */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,50,8,0.80);z-index:2000;backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px}
 .modal-overlay.open{display:flex}
-.modal-box{background:#ffffff;border:1px solid var(--border2);border-radius:20px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(26,50,8,0.2)}
-.modal-box.sm{max-width:480px}
-.modal-box.md{max-width:660px}
-.modal-box.lg{max-width:860px}
+.modal-box{background:#fff;border:1px solid var(--border2);border-radius:20px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(26,50,8,0.2)}
+.modal-box.sm{max-width:480px}.modal-box.md{max-width:660px}.modal-box.lg{max-width:860px}
 .modal-header{padding:24px 28px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#f8fef2;z-index:1}
 .modal-header h3{font-family:var(--font-head);font-size:18px;font-weight:700;color:#1c3309}
 .modal-close{background:#e8fad8;border:1px solid var(--border2);border-radius:8px;padding:6px 10px;color:#2e5012;font-size:18px;cursor:pointer;transition:all .2s;line-height:1}
@@ -175,55 +158,50 @@ tr:hover td{background:#f8fef2}
 .form-input::placeholder,.form-textarea::placeholder{color:var(--muted)}
 .form-select option{background:#f0fce6;color:#1c3309}
 .form-textarea{resize:vertical;min-height:100px}
-/* ✅ FIX: validation error state */
 .form-input.invalid,.form-select.invalid,.form-textarea.invalid{border-color:#c0392b}
 .field-err{font-size:11px;color:#c0392b;margin-top:4px;display:block}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .form-footer{padding:20px 28px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;background:#f8fef2}
 
-/* ── SETTINGS ── */
+/* SETTINGS */
 .settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px}
-.settings-card{background:#ffffff;border:1px solid var(--border2);border-radius:var(--r2);padding:24px;box-shadow:var(--shadow)}
+.settings-card{background:#fff;border:1px solid var(--border2);border-radius:var(--r2);padding:24px;box-shadow:var(--shadow)}
 .settings-card h3{font-family:var(--font-head);font-size:15px;font-weight:700;color:#1c3309;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border)}
 
-/* ── IMAGE UPLOAD ── */
+/* IMAGE UPLOAD */
 .img-drop-zone{border:2px dashed var(--border2);border-radius:var(--r);padding:28px;text-align:center;cursor:pointer;transition:all .2s;position:relative;margin-bottom:12px;background:#f8fef2}
 .img-drop-zone:hover,.img-drop-zone.dragover{border-color:var(--red);background:rgba(110,217,48,0.08)}
 .img-drop-zone i{font-size:28px;color:var(--muted);display:block;margin-bottom:8px}
 .img-drop-zone p{font-size:13px;color:var(--muted2);margin:0}
 .img-drop-zone span{font-size:12px;color:var(--muted)}
 .img-file-input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-/* ✅ FIX: Multi-image preview grid */
 .img-preview{width:100%;height:120px;object-fit:contain;border-radius:8px;background:#e8fad8;display:none;margin-bottom:12px}
 .img-preview.show{display:block}
 .multi-img-preview{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-.multi-img-thumb{width:64px;height:64px;border-radius:8px;object-fit:cover;border:2px solid var(--border2);cursor:pointer;transition:border-color .2s;position:relative}
+.multi-img-thumb{width:64px;height:64px;border-radius:8px;object-fit:cover;border:2px solid var(--border2);transition:border-color .2s}
 .multi-img-thumb:hover{border-color:var(--red)}
-.img-remove-btn{position:absolute;top:-6px;right:-6px;width:18px;height:18px;background:var(--red);border:none;border-radius:50%;color:#0a1007;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 
-/* ── RICH EDITOR ── */
+/* RICH EDITOR */
 .rich-editor-toolbar{display:flex;gap:6px;flex-wrap:wrap;padding:10px;background:#e8fad8;border:1px solid var(--border2);border-radius:var(--r) var(--r) 0 0;border-bottom:none}
 .rich-editor-toolbar button{padding:5px 10px;border-radius:6px;border:none;background:#c8eaa0;color:#2e5012;font-size:12px;cursor:pointer;transition:all .15s}
 .rich-editor-toolbar button:hover{background:var(--red);color:#0a1007}
 .rich-editor{width:100%;min-height:300px;padding:14px;background:#f8fef2;border:1px solid var(--border2);border-radius:0 0 var(--r) var(--r);color:#1c3309;font-family:var(--font-body);font-size:14px;outline:none;line-height:1.7}
 .rich-editor:focus{border-color:var(--red)}
 
-/* ── ALERTS ── */
+/* ALERTS & TOAST */
 .alert{padding:14px 18px;border-radius:var(--r);font-size:13.5px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px}
 .alert.success{background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);color:var(--green)}
 .alert.error{background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.2);color:#c0392b}
 .alert.info{background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);color:var(--blue)}
 .alert.warning{background:rgba(230,135,10,0.08);border:1px solid rgba(230,135,10,0.2);color:var(--gold)}
-
-/* ── TOAST ── */
 .toast-wrap{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}
-.toast{background:#ffffff;border:1px solid var(--border2);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:10px;font-size:13.5px;color:#1c3309;min-width:280px;box-shadow:0 8px 28px rgba(26,50,8,0.15);pointer-events:all;transform:translateX(120%);transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.toast{background:#fff;border:1px solid var(--border2);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:10px;font-size:13.5px;color:#1c3309;min-width:280px;box-shadow:0 8px 28px rgba(26,50,8,0.15);pointer-events:all;transform:translateX(120%);transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
 .toast.show{transform:translateX(0)}
 .toast.success .toast-icon{color:var(--green)}
 .toast.error .toast-icon{color:#c0392b}
 .toast.info .toast-icon{color:var(--blue)}
 
-/* ── SOCIAL ── */
+/* SOCIAL */
 .social-icon-preview{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
 .platform-facebook{background:rgba(24,119,242,0.15);color:#1877f2}
 .platform-twitter{background:rgba(29,161,242,0.15);color:#1da1f2}
@@ -234,31 +212,22 @@ tr:hover td{background:#f8fef2}
 .platform-whatsapp{background:rgba(37,211,102,0.15);color:#25d366}
 .platform-tiktok{background:rgba(26,50,8,0.1);color:#1c3309}
 
-/* ── ACTIVITY ── */
+/* ACTIVITY */
 .activity-item{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
 .activity-item:last-child{border:none}
 .activity-dot{width:8px;height:8px;border-radius:50%;margin-top:6px;flex-shrink:0}
-.activity-dot.order{background:var(--green)}
-.activity-dot.message{background:var(--blue)}
-.activity-dot.signup{background:var(--gold)}
-.activity-dot.other{background:var(--muted)}
+.activity-dot.order{background:var(--green)}.activity-dot.message{background:var(--blue)}.activity-dot.signup{background:var(--gold)}.activity-dot.other{background:var(--muted)}
 .activity-info{flex:1}
 .activity-info p{font-size:13.5px;color:#1c3309;margin-bottom:3px}
 .activity-info span{font-size:11.5px;color:var(--muted)}
 .msg-body{font-size:13.5px;color:var(--muted2);line-height:1.6;padding:14px;background:#f0fce6;border-radius:var(--r);margin-top:10px;border:1px solid var(--border)}
 
-/* ── SIDEBAR OVERLAY (mobile) ── */
+/* MISC */
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(26,50,8,0.5);z-index:99;backdrop-filter:blur(2px)}
 .sidebar-overlay.show{display:block}
-
-/* ── RLS WARNING BANNER ── */
 .rls-warning{background:rgba(230,135,10,0.08);border:1px solid rgba(230,135,10,0.3);border-radius:var(--r);padding:12px 16px;margin-bottom:20px;font-size:13px;color:var(--gold);display:flex;align-items:center;gap:10px}
-
-/* ── PAGE LOADING (matching index) ── */
 .page-loading{position:fixed;inset:0;background:#f0fce6;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;transition:opacity .5s}
 .page-loading.done{opacity:0;pointer-events:none}
-.loading-logo{width:80px;height:80px;display:block;animation:pulse-load 1.5s infinite;object-fit:contain}
-@keyframes pulse-load{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(1.05)}}
 .loading-bar{width:200px;height:3px;background:#daf5c0;border-radius:2px;overflow:hidden}
 .loading-bar-fill{height:100%;background:var(--red);border-radius:2px;animation:loading-fill 1.5s ease-in-out infinite}
 @keyframes loading-fill{0%{width:0;margin-left:0}50%{width:100%;margin-left:0}100%{width:0;margin-left:100%}}
@@ -277,13 +246,11 @@ tr:hover td{background:#f8fef2}
 </head>
 <body>
 
-<!-- ✅ PAGE LOADING OVERLAY (matching index) -->
 <div class="page-loading" id="pageLoading">
-  <div class="loading-logo" style="width:60px;height:60px;background:var(--red);border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:#0a1007;box-shadow:0 8px 28px rgba(110,217,48,0.30)">Z</div>
+  <div style="width:60px;height:60px;background:var(--red);border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:#0a1007;box-shadow:var(--shadow-green)">Z</div>
   <div class="loading-bar"><div class="loading-bar-fill"></div></div>
 </div>
 
-<!-- LOGIN SCREEN -->
 <div class="login-screen" id="loginScreen" role="main">
   <div class="login-box">
     <div class="login-logo" aria-hidden="true">Z</div>
@@ -294,31 +261,24 @@ tr:hover td{background:#f8fef2}
     </div>
     <div class="login-input-wrap">
       <input type="password" class="login-input" id="loginPassword" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
-      <!-- ✅ FIX: Password visibility toggle -->
       <button class="pwd-toggle" onclick="togglePwdVisibility()" aria-label="Toggle password visibility" type="button">
         <i class="fas fa-eye" id="pwdEyeIcon"></i>
       </button>
     </div>
-    <button class="login-btn" id="loginBtn" onclick="doLogin()">
-      <i class="fas fa-lock"></i> Sign In
-    </button>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()"><i class="fas fa-lock"></i> Sign In</button>
     <div class="login-error" id="loginError" role="alert"></div>
-    <!-- ✅ FIX: Lockout counter -->
     <div class="login-lockout" id="loginLockout" role="alert"></div>
   </div>
   <a href="index.html" style="color:var(--muted);font-size:13px;text-decoration:none">← Back to store</a>
 </div>
 
-<!-- SIDEBAR OVERLAY (mobile) -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-<!-- ADMIN APP -->
 <div class="admin-app" id="adminApp">
-  <!-- SIDEBAR -->
   <aside class="admin-sidebar" id="adminSidebar" role="navigation" aria-label="Admin navigation">
     <div class="sidebar-header">
       <div class="sidebar-logo">
-        <div class="sidebar-logo-mark" aria-hidden="true" style="color:#0a1007">Z</div>
+        <div class="sidebar-logo-mark" aria-hidden="true">Z</div>
         <div>
           <div class="sidebar-logo-text">Zakhem</div>
           <div class="sidebar-logo-sub">Admin Panel</div>
@@ -369,7 +329,6 @@ tr:hover td{background:#f8fef2}
     </div>
   </aside>
 
-  <!-- MAIN -->
   <main class="admin-main">
     <div class="admin-topbar">
       <div style="display:flex;align-items:center;gap:12px">
@@ -377,6 +336,7 @@ tr:hover td{background:#f8fef2}
         <h1 id="topbarTitle">Dashboard</h1>
       </div>
       <div class="admin-topbar-right">
+        <span id="realtimeStatus" style="font-size:12px;color:var(--muted);display:flex;align-items:center"></span>
         <a href="index.html" target="_blank" class="admin-btn ghost"><i class="fas fa-external-link-alt"></i> View Store</a>
         <button class="admin-btn ghost" onclick="refreshCurrentPanel()"><i class="fas fa-sync-alt"></i> Refresh</button>
       </div>
@@ -384,7 +344,7 @@ tr:hover td{background:#f8fef2}
 
     <div class="admin-content">
 
-      <!-- ── DASHBOARD ── -->
+      <!-- DASHBOARD -->
       <div class="panel active" id="panel-dashboard">
         <div class="stats-grid">
           <div class="stat-card"><div class="stat-card-top"><div class="stat-icon red"><i class="fas fa-box"></i></div><span class="stat-badge">Live</span></div><div class="stat-value" id="stat-products">—</div><div class="stat-label">Products</div></div>
@@ -406,10 +366,9 @@ tr:hover td{background:#f8fef2}
         </div>
       </div>
 
-      <!-- ── PRODUCTS ── -->
+      <!-- PRODUCTS -->
       <div class="panel" id="panel-products">
-        <!-- ✅ FIX: RLS note -->
-        <div class="rls-warning"><i class="fas fa-shield-alt"></i> Ensure your <strong>products</strong> table has RLS enabled in Supabase with policies for authenticated admin reads/writes.</div>
+        <div class="rls-warning"><i class="fas fa-shield-alt"></i> Products use <strong>text columns</strong> for category/brand — no FK joins. Ensure <code>category_name</code> and <code>brand_name</code> columns exist in your products table.</div>
         <div class="data-card">
           <div class="data-card-header">
             <h3>All Products</h3>
@@ -425,7 +384,7 @@ tr:hover td{background:#f8fef2}
         </div>
       </div>
 
-      <!-- ── ORDERS ── -->
+      <!-- ORDERS -->
       <div class="panel" id="panel-orders">
         <div class="data-card">
           <div class="data-card-header">
@@ -450,7 +409,7 @@ tr:hover td{background:#f8fef2}
         </div>
       </div>
 
-      <!-- ── CATEGORIES ── -->
+      <!-- CATEGORIES -->
       <div class="panel" id="panel-categories">
         <div class="data-card" style="margin-bottom:20px">
           <div class="data-card-header"><h3>Add Category</h3></div>
@@ -472,7 +431,7 @@ tr:hover td{background:#f8fef2}
         </div>
       </div>
 
-      <!-- ── BRANDS ── -->
+      <!-- BRANDS -->
       <div class="panel" id="panel-brands">
         <div class="data-card" style="margin-bottom:20px">
           <div class="data-card-header"><h3>Add Brand</h3></div>
@@ -493,7 +452,7 @@ tr:hover td{background:#f8fef2}
         </div>
       </div>
 
-      <!-- ── DEALS ── -->
+      <!-- DEALS -->
       <div class="panel" id="panel-deals">
         <div class="data-card">
           <div class="data-card-header">
@@ -507,12 +466,12 @@ tr:hover td{background:#f8fef2}
         </div>
       </div>
 
-      <!-- ── HOMEPAGE ── -->
+      <!-- HOMEPAGE -->
       <div class="panel" id="panel-homepage">
         <div class="data-card">
           <div class="data-card-header"><h3>Homepage Sections</h3></div>
-          <div style="padding:24px" id="homepageSectionsForm">
-            <div class="alert info"><i class="fas fa-info-circle"></i> Edit each section and click Save to update the homepage.</div>
+          <div style="padding:24px">
+            <div class="alert info"><i class="fas fa-info-circle"></i> Changes here update the live store homepage immediately after saving.</div>
             <div class="settings-card" style="margin-bottom:20px">
               <h3><i class="fas fa-image" style="color:var(--red);margin-right:8px"></i>Hero Section</h3>
               <div class="form-row">
@@ -547,7 +506,7 @@ tr:hover td{background:#f8fef2}
         </div>
       </div>
 
-      <!-- ── BRANDING ── -->
+      <!-- BRANDING -->
       <div class="panel" id="panel-branding">
         <div class="settings-grid">
           <div class="settings-card">
@@ -556,7 +515,7 @@ tr:hover td{background:#f8fef2}
             <div class="img-drop-zone" id="logoDrop" onclick="document.getElementById('logoFileInput').click()" ondragover="handleDragOver(event,'logoDrop')" ondragleave="handleDragLeave(event,'logoDrop')" ondrop="handleDrop(event,'logo')">
               <i class="fas fa-cloud-upload-alt"></i>
               <p>Click or drag to upload logo</p>
-              <span>PNG, SVG, WebP recommended · Max 2MB</span>
+              <span>PNG, SVG, WebP · Max 2MB</span>
               <input type="file" id="logoFileInput" class="img-file-input" accept="image/*" onchange="uploadBrandingAsset('logo',this)">
             </div>
             <div class="form-group"><label>Or paste URL</label><input type="url" class="form-input" id="logoUrlInput" placeholder="https://…"></div>
@@ -581,12 +540,13 @@ tr:hover td{background:#f8fef2}
             <div class="form-group"><label>Site Name</label><input type="text" class="form-input" id="siteNameInput" placeholder="Zakhem Investments"></div>
             <div class="form-group"><label>Site Description</label><textarea class="form-textarea" id="siteDescInput" rows="3" placeholder="Kenya's premium electronics store…"></textarea></div>
             <div class="form-group"><label>Free Delivery Threshold (KES)</label><input type="number" class="form-input" id="freeDeliveryThreshold" placeholder="25000" min="0" step="500"></div>
+            <div class="form-group"><label>WhatsApp Number (digits only)</label><input type="text" class="form-input" id="globalWhatsapp" placeholder="254716833833"></div>
             <button class="admin-btn primary" style="width:100%" onclick="saveSiteSettings()"><i class="fas fa-save"></i> Save Settings</button>
           </div>
         </div>
       </div>
 
-      <!-- ── CONTACT INFO ── -->
+      <!-- CONTACT INFO -->
       <div class="panel" id="panel-contact">
         <div class="settings-grid">
           <div class="settings-card">
@@ -597,7 +557,7 @@ tr:hover td{background:#f8fef2}
           </div>
           <div class="settings-card">
             <h3><i class="fas fa-map-marker-alt" style="color:var(--red);margin-right:8px"></i>Location, Hours & Email</h3>
-            <div class="form-group"><label>Address</label><textarea class="form-textarea" id="ci_address" rows="3" placeholder="Gaborone Rd, Nairobi, California Building…"></textarea></div>
+            <div class="form-group"><label>Address</label><textarea class="form-textarea" id="ci_address" rows="3" placeholder="Gaborone Rd, Nairobi…"></textarea></div>
             <div class="form-group"><label>Working Hours</label><input type="text" class="form-input" id="ci_hours" placeholder="Mon–Sat 8am–6pm | Sun 10am–4pm"></div>
             <div class="form-group"><label>Email</label><input type="email" class="form-input" id="ci_email" placeholder="info@zakhem.ke"></div>
             <button class="admin-btn primary" style="width:100%" onclick="saveContactInfo()"><i class="fas fa-save"></i> Save Contact Info</button>
@@ -605,7 +565,7 @@ tr:hover td{background:#f8fef2}
         </div>
       </div>
 
-      <!-- ── MESSAGES ── -->
+      <!-- MESSAGES -->
       <div class="panel" id="panel-messages">
         <div class="data-card">
           <div class="data-card-header">
@@ -621,7 +581,7 @@ tr:hover td{background:#f8fef2}
         </div>
       </div>
 
-      <!-- ── SOCIAL MEDIA ── -->
+      <!-- SOCIAL MEDIA -->
       <div class="panel" id="panel-social">
         <div class="data-card" style="margin-bottom:20px">
           <div class="data-card-header"><h3>Add Social Link</h3></div>
@@ -629,14 +589,10 @@ tr:hover td{background:#f8fef2}
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:14px;align-items:end">
               <div class="form-group" style="margin:0"><label>Platform</label>
                 <select class="form-select" id="newSocialPlatform">
-                  <option value="facebook">Facebook</option>
-                  <option value="twitter">X (Twitter)</option>
-                  <option value="instagram">Instagram</option>
-                  <option value="youtube">YouTube</option>
-                  <option value="pinterest">Pinterest</option>
-                  <option value="map">Google Maps</option>
-                  <option value="whatsapp">WhatsApp</option>
-                  <option value="tiktok">TikTok</option>
+                  <option value="facebook">Facebook</option><option value="twitter">X (Twitter)</option>
+                  <option value="instagram">Instagram</option><option value="youtube">YouTube</option>
+                  <option value="pinterest">Pinterest</option><option value="map">Google Maps</option>
+                  <option value="whatsapp">WhatsApp</option><option value="tiktok">TikTok</option>
                 </select>
               </div>
               <div class="form-group" style="margin:0"><label>Icon Class (FA)</label><input type="text" class="form-input" id="newSocialIcon" placeholder="fab fa-facebook-f"></div>
@@ -654,8 +610,7 @@ tr:hover td{background:#f8fef2}
         </div>
       </div>
 
-
-      <!-- ── TESTIMONIALS / REVIEWS ── -->
+      <!-- TESTIMONIALS -->
       <div class="panel" id="panel-testimonials">
         <div class="data-card">
           <div class="data-card-header">
@@ -672,7 +627,7 @@ tr:hover td{background:#f8fef2}
         </div>
       </div>
 
-      <!-- ── LEGAL HUB ── -->
+      <!-- LEGAL HUB -->
       <div class="panel" id="panel-legal">
         <div class="data-card">
           <div class="data-card-header">
@@ -686,7 +641,7 @@ tr:hover td{background:#f8fef2}
         </div>
       </div>
 
-      <!-- ── NEWSLETTER ── -->
+      <!-- NEWSLETTER -->
       <div class="panel" id="panel-newsletter">
         <div class="data-card">
           <div class="data-card-header"><h3>Newsletter Subscribers</h3></div>
@@ -697,7 +652,7 @@ tr:hover td{background:#f8fef2}
         </div>
       </div>
 
-      <!-- ── ANALYTICS ── -->
+      <!-- ANALYTICS -->
       <div class="panel" id="panel-analytics">
         <div class="stats-grid">
           <div class="stat-card"><div class="stat-card-top"><div class="stat-icon blue"><i class="fas fa-users"></i></div><span class="stat-badge">Total</span></div><div class="stat-value" id="an-users">—</div><div class="stat-label">Registered Users</div></div>
@@ -711,19 +666,15 @@ tr:hover td{background:#f8fef2}
         </div>
       </div>
 
-    </div><!-- /admin-content -->
+    </div>
   </main>
-</div><!-- /admin-app -->
+</div>
 
-<!-- ══ MODALS ══ -->
-
+<!-- MODALS -->
 <!-- PRODUCT MODAL -->
 <div class="modal-overlay" id="productModal" role="dialog" aria-modal="true" aria-label="Product form">
   <div class="modal-box lg">
-    <div class="modal-header">
-      <h3 id="productModalTitle">Add Product</h3>
-      <button class="modal-close" onclick="closeModal('productModal')" aria-label="Close">×</button>
-    </div>
+    <div class="modal-header"><h3 id="productModalTitle">Add Product</h3><button class="modal-close" onclick="closeModal('productModal')" aria-label="Close">×</button></div>
     <div class="modal-body">
       <input type="hidden" id="pm_id">
       <div class="form-row">
@@ -741,22 +692,14 @@ tr:hover td{background:#f8fef2}
       <div class="form-row">
         <div class="form-group">
           <label>Badge</label>
-          <select class="form-select" id="pm_badge">
-            <option value="">None</option>
-            <option value="NEW">NEW</option>
-            <option value="SALE">SALE</option>
-            <option value="HOT">HOT</option>
-            <option value="DEAL">DEAL</option>
-          </select>
+          <select class="form-select" id="pm_badge"><option value="">None</option><option value="NEW">NEW</option><option value="SALE">SALE</option><option value="HOT">HOT</option><option value="DEAL">DEAL</option></select>
         </div>
         <div class="form-group"><label>Stock</label><input type="number" class="form-input" id="pm_stock" placeholder="0" min="0"></div>
       </div>
       <div class="form-group"><label>Description</label><textarea class="form-textarea" id="pm_desc" rows="4" placeholder="Product description…"></textarea></div>
-
-      <!-- ✅ FIX: Multi-image upload with preview -->
       <div class="form-group">
-        <label>Product Images (URLs, comma-separated or upload below)</label>
-        <textarea class="form-textarea" id="pm_images" rows="2" placeholder="https://…, https://…"></textarea>
+        <label>Product Images (URLs, comma-separated)</label>
+        <textarea class="form-textarea" id="pm_images" rows="2" placeholder="https://…, https://…" oninput="previewImagesFromTextarea()"></textarea>
         <div class="multi-img-preview" id="pmImgPreviewGrid"></div>
       </div>
       <div class="form-group">
@@ -769,18 +712,13 @@ tr:hover td{background:#f8fef2}
         </div>
         <div id="pmUploadStatus"></div>
       </div>
-
       <div class="form-row">
         <div class="form-group"><label>Rating (0–5)</label><input type="number" class="form-input" id="pm_rating" placeholder="4.5" step="0.1" min="0" max="5"></div>
         <div class="form-group"><label>Reviews Count</label><input type="number" class="form-input" id="pm_reviews" placeholder="0" min="0"></div>
       </div>
       <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:var(--muted2)">
-          <input type="checkbox" id="pm_active" checked> Active (visible in store)
-        </label>
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:var(--muted2)">
-          <input type="checkbox" id="pm_featured"> Featured
-        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:var(--muted2)"><input type="checkbox" id="pm_active" checked> Active (visible in store)</label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:var(--muted2)"><input type="checkbox" id="pm_featured"> Featured</label>
       </div>
     </div>
     <div class="form-footer">
@@ -793,10 +731,7 @@ tr:hover td{background:#f8fef2}
 <!-- DEAL MODAL -->
 <div class="modal-overlay" id="dealModal" role="dialog" aria-modal="true" aria-label="Deal form">
   <div class="modal-box md">
-    <div class="modal-header">
-      <h3 id="dealModalTitle">Add Deal</h3>
-      <button class="modal-close" onclick="closeModal('dealModal')" aria-label="Close">×</button>
-    </div>
+    <div class="modal-header"><h3 id="dealModalTitle">Add Deal</h3><button class="modal-close" onclick="closeModal('dealModal')" aria-label="Close">×</button></div>
     <div class="modal-body">
       <input type="hidden" id="dm_id">
       <div class="form-group"><label>Title *</label><input type="text" class="form-input" id="dm_title" placeholder="e.g. Samsung 55″ Smart TV – SALE"></div>
@@ -816,9 +751,7 @@ tr:hover td{background:#f8fef2}
           <input type="file" id="dmFileInput" class="img-file-input" accept="image/*" onchange="uploadDealImage(this)">
         </div>
       </div>
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:var(--muted2)">
-        <input type="checkbox" id="dm_active" checked> Active
-      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:var(--muted2)"><input type="checkbox" id="dm_active" checked> Active</label>
     </div>
     <div class="form-footer">
       <button class="admin-btn ghost" onclick="closeModal('dealModal')">Cancel</button>
@@ -830,10 +763,7 @@ tr:hover td{background:#f8fef2}
 <!-- LEGAL MODAL -->
 <div class="modal-overlay" id="legalModal" role="dialog" aria-modal="true" aria-label="Legal page form">
   <div class="modal-box lg">
-    <div class="modal-header">
-      <h3 id="legalModalTitle">New Legal Page</h3>
-      <button class="modal-close" onclick="closeModal('legalModal')" aria-label="Close">×</button>
-    </div>
+    <div class="modal-header"><h3 id="legalModalTitle">New Legal Page</h3><button class="modal-close" onclick="closeModal('legalModal')" aria-label="Close">×</button></div>
     <div class="modal-body">
       <input type="hidden" id="lm_id">
       <div class="form-row">
@@ -849,11 +779,10 @@ tr:hover td{background:#f8fef2}
           <button onclick="fmtH('h3')" title="Heading 3">H3</button>
           <button onclick="fmt('insertUnorderedList')" title="List"><i class="fas fa-list-ul"></i></button>
           <button onclick="fmtLink()" title="Link"><i class="fas fa-link"></i></button>
-          <button onclick="fmt('removeFormat')" title="Clear formatting"><i class="fas fa-remove-format"></i></button>
+          <button onclick="fmt('removeFormat')" title="Clear"><i class="fas fa-remove-format"></i></button>
         </div>
-        <!-- ✅ FIX: Note about rich editor sanitization -->
         <div class="rich-editor" id="lm_content" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Legal page content"></div>
-        <p style="font-size:11px;color:var(--muted);margin-top:6px"><i class="fas fa-shield-alt"></i> HTML content is sanitized before display on the public site.</p>
+        <p style="font-size:11px;color:var(--muted);margin-top:6px"><i class="fas fa-shield-alt"></i> Content is sanitized via DOMPurify before saving and display.</p>
       </div>
       <div class="form-row">
         <div class="form-group"><label>Sort Order</label><input type="number" class="form-input" id="lm_sort" value="0" min="0"></div>
@@ -870,10 +799,7 @@ tr:hover td{background:#f8fef2}
 <!-- TESTIMONIAL MODAL -->
 <div class="modal-overlay" id="testimonialModal" role="dialog" aria-modal="true" aria-label="Review form">
   <div class="modal-box md">
-    <div class="modal-header">
-      <h3 id="testimonialModalTitle">Add Review</h3>
-      <button class="modal-close" onclick="closeModal('testimonialModal')" aria-label="Close">×</button>
-    </div>
+    <div class="modal-header"><h3 id="testimonialModalTitle">Add Review</h3><button class="modal-close" onclick="closeModal('testimonialModal')" aria-label="Close">×</button></div>
     <div class="modal-body" style="padding:24px">
       <div class="form-row">
         <div class="form-group"><label>Customer Name *</label><input type="text" class="form-input" id="tm_author" placeholder="e.g. Sarah Muthoni"></div>
@@ -883,10 +809,8 @@ tr:hover td{background:#f8fef2}
         <div class="form-group">
           <label>Star Rating</label>
           <select class="form-input" id="tm_rating">
-            <option value="5">★★★★★ (5 stars)</option>
-            <option value="4">★★★★☆ (4 stars)</option>
-            <option value="3">★★★☆☆ (3 stars)</option>
-            <option value="2">★★☆☆☆ (2 stars)</option>
+            <option value="5">★★★★★ (5 stars)</option><option value="4">★★★★☆ (4 stars)</option>
+            <option value="3">★★★☆☆ (3 stars)</option><option value="2">★★☆☆☆ (2 stars)</option>
             <option value="1">★☆☆☆☆ (1 star)</option>
           </select>
         </div>
@@ -894,13 +818,13 @@ tr:hover td{background:#f8fef2}
       </div>
       <div class="form-group"><label>Review Text *</label><textarea class="form-textarea" id="tm_text" rows="4" placeholder="What did the customer say?"></textarea></div>
       <div class="form-row" style="margin-top:8px">
-        <div class="form-group" style="display:flex;align-items:center;gap:10px;margin:0">
+        <div style="display:flex;align-items:center;gap:10px">
           <input type="checkbox" id="tm_verified" checked style="width:16px;height:16px;accent-color:var(--red)">
-          <label for="tm_verified" style="margin:0;text-transform:none;letter-spacing:0;font-size:14px;cursor:pointer">Verified Buyer</label>
+          <label for="tm_verified" style="font-size:14px;cursor:pointer">Verified Buyer</label>
         </div>
-        <div class="form-group" style="display:flex;align-items:center;gap:10px;margin:0">
+        <div style="display:flex;align-items:center;gap:10px">
           <input type="checkbox" id="tm_active" checked style="width:16px;height:16px;accent-color:var(--red)">
-          <label for="tm_active" style="margin:0;text-transform:none;letter-spacing:0;font-size:14px;cursor:pointer">Active (visible on site)</label>
+          <label for="tm_active" style="font-size:14px;cursor:pointer">Active (visible on site)</label>
         </div>
       </div>
     </div>
@@ -936,7 +860,6 @@ tr:hover td{background:#f8fef2}
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast-wrap" aria-live="polite">
   <div class="toast" id="toast">
     <i class="fas fa-check-circle toast-icon" id="toastIcon" aria-hidden="true"></i>
@@ -947,24 +870,25 @@ tr:hover td{background:#f8fef2}
 <script>
 'use strict';
 
-// ============================================================
-// STATE
-// ============================================================
+/* ═══════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════ */
 let currentUser = null;
 let allOrders = [], allProducts = [], allMessages = [], allLegal = [];
 let currentMessageId = null, currentOrderId = null;
 let currentPanel = 'dashboard';
+let realtimeChannel = null;
 
-// ✅ FIX: Login rate limiting (5 attempts then 30s lockout)
+// FIX #1: Rate limiting — 5 attempts then 30s lockout
 let loginAttempts = 0;
 const MAX_LOGIN_ATTEMPTS = 5;
 let loginLockedUntil = 0;
 
 const sb = () => window.supabase;
 
-// ============================================================
-// HELPERS
-// ============================================================
+/* ═══════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════ */
 function waitForSupabase() {
   return new Promise(resolve => {
     if (window.supabase) { resolve(); return; }
@@ -973,52 +897,32 @@ function waitForSupabase() {
   });
 }
 
-// ✅ FIX: XSS-safe text escape
+// XSS-safe escape
 function esc(s) {
   if (!s && s !== 0) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 }
 
-// XSS sanitizer — uses DOMPurify if loaded (via CDN), falls back to inline sanitizer
+// Sanitize HTML using DOMPurify (loaded via CDN)
 function sanitizeHtml(html) {
   if (!html) return '';
   if (window.DOMPurify) {
-    return DOMPurify.sanitize(html, { ALLOWED_TAGS: ['p','br','b','i','strong','em','h2','h3','ul','ol','li','a','span','div'], ALLOWED_ATTR: ['href','target','rel'] });
-  }
-  // Inline fallback
-  const ALLOWED_TAGS = /^(p|br|b|i|strong|em|h2|h3|ul|ol|li|a|span|div)$/i;
-  const tmp = document.createElement('div');
-  tmp.innerHTML = html;
-  tmp.querySelectorAll('*').forEach(el => {
-    if (!ALLOWED_TAGS.test(el.tagName)) { el.replaceWith(document.createTextNode(el.textContent)); return; }
-    [...el.attributes].forEach(attr => {
-      if (attr.name.startsWith('on') || (attr.name === 'href' && /^javascript:/i.test(attr.value))) {
-        el.removeAttribute(attr.name);
-      }
+    return DOMPurify.sanitize(html, {
+      ALLOWED_TAGS: ['p','br','b','i','strong','em','h2','h3','ul','ol','li','a','span','div'],
+      ALLOWED_ATTR: ['href','target','rel']
     });
-  });
+  }
+  // Fallback if DOMPurify not loaded
+  const tmp = document.createElement('div');
+  tmp.textContent = html;
   return tmp.innerHTML;
 }
 
-function setText(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = val;
-}
-function fmtDate(d) {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-KE', { day:'numeric', month:'short', year:'numeric' });
-}
-function emptyRow(cols, msg) {
-  return `<tr><td colspan="${cols}" class="table-empty"><i class="fas fa-inbox" aria-hidden="true"></i><br>${esc(msg)}</td></tr>`;
-}
-function openModal(id) {
-  document.getElementById(id)?.classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeModal(id) {
-  document.getElementById(id)?.classList.remove('open');
-  document.body.style.overflow = '';
-}
+function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'}); }
+function emptyRow(cols, msg) { return `<tr><td colspan="${cols}" class="table-empty"><i class="fas fa-inbox" aria-hidden="true"></i><br>${esc(msg)}</td></tr>`; }
+function openModal(id) { document.getElementById(id)?.classList.add('open'); document.body.style.overflow='hidden'; }
+function closeModal(id) { document.getElementById(id)?.classList.remove('open'); document.body.style.overflow=''; }
 function filterTable(tbId, q) {
   const rows = document.querySelectorAll(`#${tbId} tr`);
   const ql = q.toLowerCase();
@@ -1027,19 +931,17 @@ function filterTable(tbId, q) {
 function populateCatSelect(selId, cats) {
   const sel = document.getElementById(selId);
   if (!sel) return;
-  // Use name as value — products stores category_name/brand_name as text, no FK
   sel.innerHTML = '<option value="">— None —</option>' + (cats||[]).map(c => `<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('');
 }
 function populateSelect(selId, items) {
   const sel = document.getElementById(selId);
   if (!sel) return;
-  // Use name as value — products stores brand_name as text, no FK
   sel.innerHTML = '<option value="">— None —</option>' + (items||[]).map(i => `<option value="${esc(i.name)}">${esc(i.name)}</option>`).join('');
 }
 
-// ============================================================
-// AUTH — with rate limiting & session persistence
-// ============================================================
+/* ═══════════════════════════════════════════════════
+   FIX #2: AUTH — DENY BY DEFAULT (no silent bypass)
+═══════════════════════════════════════════════════ */
 function togglePwdVisibility() {
   const input = document.getElementById('loginPassword');
   const icon = document.getElementById('pwdEyeIcon');
@@ -1047,6 +949,24 @@ function togglePwdVisibility() {
   const isText = input.type === 'text';
   input.type = isText ? 'password' : 'text';
   icon.className = isText ? 'fas fa-eye' : 'fas fa-eye-slash';
+}
+
+// FIXED: fail closed — if profiles table missing or no row → DENY
+async function isAdminUser(userId) {
+  try {
+    const { data, error } = await sb()
+      .from('profiles')
+      .select('role')
+      .eq('id', userId)
+      .single();
+    if (error) {
+      console.warn('Admin check failed (deny by default):', error.message);
+      return false; // DENY if table missing or error
+    }
+    return data?.role === 'admin';
+  } catch (e) {
+    return false; // DENY on exception
+  }
 }
 
 async function doLogin() {
@@ -1059,7 +979,6 @@ async function doLogin() {
   errEl.style.display = 'none';
   lockoutEl.style.display = 'none';
 
-  // ✅ FIX: Rate limiting check
   if (Date.now() < loginLockedUntil) {
     const secs = Math.ceil((loginLockedUntil - Date.now()) / 1000);
     lockoutEl.textContent = `Too many attempts. Please wait ${secs}s before trying again.`;
@@ -1082,7 +1001,7 @@ async function doLogin() {
       loginAttempts++;
       if (loginAttempts >= MAX_LOGIN_ATTEMPTS) {
         loginLockedUntil = Date.now() + 30000;
-        lockoutEl.textContent = `Too many failed attempts. Locked for 30 seconds.`;
+        lockoutEl.textContent = 'Too many failed attempts. Locked for 30 seconds.';
         lockoutEl.style.display = 'block';
         loginAttempts = 0;
       } else {
@@ -1094,15 +1013,13 @@ async function doLogin() {
       return;
     }
 
-    // ✅ FIX: Soft role check — don't break if profiles table missing
-    try {
-      const { data: profile } = await sb().from('profiles').select('role').eq('id', data.user.id).single();
-      if (profile?.role && profile.role !== 'admin') {
-        await sb().auth.signOut();
-        showLoginError('Access denied. Admin accounts only.');
-        return;
-      }
-    } catch(e) { /* profiles table absent — allow any authenticated user */ }
+    // FIXED: deny by default — must be confirmed admin
+    const adminOk = await isAdminUser(data.user.id);
+    if (!adminOk) {
+      await sb().auth.signOut();
+      showLoginError('Access denied. Admin accounts only. Contact the site owner.');
+      return;
+    }
 
     loginAttempts = 0;
     currentUser = data.user;
@@ -1126,13 +1043,14 @@ async function checkSession() {
   try {
     const { data: { session } } = await sb().auth.getSession();
     if (session) {
-      try {
-        const { data: profile } = await sb().from('profiles').select('role').eq('id', session.user.id).single();
-        if (profile?.role && profile.role !== 'admin') {
-          await sb().auth.signOut();
-          hideLoader(); return;
-        }
-      } catch(e) { /* allow */ }
+      // FIXED: deny by default on session restore too
+      const adminOk = await isAdminUser(session.user.id);
+      if (!adminOk) {
+        await sb().auth.signOut();
+        hideLoader();
+        document.getElementById('loginScreen').style.display = 'flex';
+        return;
+      }
       currentUser = session.user;
       showAdmin();
       return;
@@ -1140,7 +1058,6 @@ async function checkSession() {
   } catch(e) {
     console.warn('checkSession error:', e);
   }
-  // Show login screen
   hideLoader();
   document.getElementById('loginScreen').style.display = 'flex';
 }
@@ -1157,58 +1074,70 @@ function showAdmin() {
   document.getElementById('sidebarEmail').textContent = currentUser.email;
   document.getElementById('sidebarAvatarLetter').textContent = (currentUser.email || 'A')[0].toUpperCase();
 
-  // ✅ FIX: Listen for auth state changes (token refresh, external signout)
   sb().auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_OUT' || !session) location.reload();
   });
 
   initAdmin();
+  setupRealtime(); // FIX: real-time order/message notifications
 }
 
-function confirmLogout() {
-  if (confirm('Are you sure you want to logout?')) logout();
-}
+function confirmLogout() { if (confirm('Are you sure you want to logout?')) logout(); }
 async function logout() {
+  if (realtimeChannel) sb().removeChannel(realtimeChannel);
   await sb().auth.signOut();
   location.reload();
 }
 
-// ============================================================
-// MOBILE SIDEBAR
-// ============================================================
-function openSidebar() {
-  document.getElementById('adminSidebar')?.classList.add('open');
-  document.getElementById('sidebarOverlay')?.classList.add('show');
-}
-function closeSidebar() {
-  document.getElementById('adminSidebar')?.classList.remove('open');
-  document.getElementById('sidebarOverlay')?.classList.remove('show');
+/* ═══════════════════════════════════════════════════
+   FIX #3: REALTIME SUBSCRIPTIONS (orders + messages)
+═══════════════════════════════════════════════════ */
+function setupRealtime() {
+  const statusEl = document.getElementById('realtimeStatus');
+  realtimeChannel = sb()
+    .channel('admin-realtime')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, payload => {
+      toast('🛍️ New order received!', 'info');
+      loadDashboardStats();
+      if (currentPanel === 'orders') loadOrders();
+      if (currentPanel === 'dashboard') loadRecentOrders();
+    })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'contact_messages' }, payload => {
+      toast('💬 New message received!', 'info');
+      loadDashboardStats();
+      if (currentPanel === 'messages') loadMessages();
+    })
+    .subscribe(status => {
+      if (statusEl) {
+        if (status === 'SUBSCRIBED') {
+          statusEl.innerHTML = '<span class="realtime-dot"></span> Live';
+        } else {
+          statusEl.textContent = '';
+        }
+      }
+    });
 }
 
-// ============================================================
-// INIT
-// ============================================================
+/* ═══════════════════════════════════════════════════
+   MOBILE SIDEBAR
+═══════════════════════════════════════════════════ */
+function openSidebar() { document.getElementById('adminSidebar')?.classList.add('open'); document.getElementById('sidebarOverlay')?.classList.add('show'); }
+function closeSidebar() { document.getElementById('adminSidebar')?.classList.remove('open'); document.getElementById('sidebarOverlay')?.classList.remove('show'); }
+
+/* ═══════════════════════════════════════════════════
+   INIT & PANELS
+═══════════════════════════════════════════════════ */
 async function initAdmin() {
-  await Promise.all([
-    loadDashboardStats(),
-    loadRecentActivity(),
-    loadRecentOrders(),
-  ]);
+  await Promise.all([loadDashboardStats(), loadRecentActivity(), loadRecentOrders()]);
 }
 
-function refreshCurrentPanel() {
-  loadPanel(currentPanel);
-  if (currentPanel === 'dashboard') initAdmin();
-}
+function refreshCurrentPanel() { loadPanel(currentPanel); if (currentPanel === 'dashboard') initAdmin(); }
 
-// ============================================================
-// PANELS
-// ============================================================
 const PANEL_TITLES = {
   dashboard:'Dashboard', products:'Products', orders:'Orders', categories:'Categories',
   brands:'Brands', deals:'Deals', homepage:'Homepage Sections', branding:'Branding',
   legal:'Legal Hub', contact:'Contact Info', messages:'Messages', social:'Social Media',
-  newsletter:'Newsletter', analytics:'Analytics'
+  newsletter:'Newsletter', analytics:'Analytics', testimonials:'Customer Reviews'
 };
 
 function showPanel(name, btn) {
@@ -1219,40 +1148,36 @@ function showPanel(name, btn) {
   document.getElementById('topbarTitle').textContent = PANEL_TITLES[name] || name;
   currentPanel = name;
   loadPanel(name);
-  closeSidebar(); // auto-close on mobile
+  closeSidebar();
 }
 
 function loadPanel(name) {
   switch(name) {
-    case 'dashboard':  initAdmin(); break;
-    case 'products':   loadProducts(); break;
-    case 'orders':     loadOrders(); break;
-    case 'categories': loadCategories(); break;
-    case 'brands':     loadBrands(); break;
-    case 'deals':      loadDeals(); break;
-    case 'homepage':   loadHomepageSections(); break;
-    case 'branding':   loadBranding(); break;
-    case 'legal':      loadLegal(); break;
+    case 'dashboard':    initAdmin(); break;
+    case 'products':     loadProducts(); break;
+    case 'orders':       loadOrders(); break;
+    case 'categories':   loadCategories(); break;
+    case 'brands':       loadBrands(); break;
+    case 'deals':        loadDeals(); break;
+    case 'homepage':     loadHomepageSections(); break;
+    case 'branding':     loadBranding(); break;
+    case 'legal':        loadLegal(); break;
     case 'testimonials': loadTestimonials(); break;
-    case 'contact':    loadContactInfo(); break;
-    case 'messages':   loadMessages(); break;
-    case 'social':     loadSocial(); break;
-    case 'newsletter': loadNewsletter(); break;
-    case 'analytics':  loadAnalytics(); break;
+    case 'contact':      loadContactInfo(); break;
+    case 'messages':     loadMessages(); break;
+    case 'social':       loadSocial(); break;
+    case 'newsletter':   loadNewsletter(); break;
+    case 'analytics':    loadAnalytics(); break;
   }
 }
 
-// ============================================================
-// DASHBOARD STATS
-// ============================================================
+/* ═══════════════════════════════════════════════════
+   DASHBOARD STATS
+═══════════════════════════════════════════════════ */
 async function loadDashboardStats() {
   try {
     const [
-      { count: pc, error: pe },
-      { count: oc },
-      { count: mc },
-      { count: sc },
-      { count: uc },
+      { count: pc }, { count: oc }, { count: mc }, { count: sc }, { count: uc }
     ] = await Promise.all([
       sb().from('products').select('*',{count:'exact',head:true}).eq('active',true),
       sb().from('orders').select('*',{count:'exact',head:true}),
@@ -1266,16 +1191,11 @@ async function loadDashboardStats() {
     setText('stat-users',    uc ?? '—');
     setText('stat-subs',     sc ?? '—');
 
-    // Badges
     const { count: unread } = await sb().from('contact_messages').select('*',{count:'exact',head:true}).eq('read',false);
     if (unread > 0) { const b = document.getElementById('unreadBadge'); if(b){b.textContent=unread;b.style.display='inline';} }
-
     const { count: pending } = await sb().from('orders').select('*',{count:'exact',head:true}).eq('status','pending');
     if (pending > 0) { const b = document.getElementById('pendingBadge'); if(b){b.textContent=pending;b.style.display='inline';} }
-
-  } catch(e) {
-    console.warn('loadDashboardStats error:', e);
-  }
+  } catch(e) { console.warn('loadDashboardStats error:', e); }
 }
 
 async function loadRecentActivity() {
@@ -1283,11 +1203,11 @@ async function loadRecentActivity() {
     const { data } = await sb().from('analytics').select('*').order('created_at',{ascending:false}).limit(20);
     const el = document.getElementById('activityLog');
     if (!el) return;
-    if (!data?.length) { el.innerHTML = '<div class="table-empty"><i class="fas fa-history" aria-hidden="true"></i><br>No activity yet</div>'; return; }
+    if (!data?.length) { el.innerHTML = '<div class="table-empty"><i class="fas fa-history"></i><br>No activity yet</div>'; return; }
     el.innerHTML = data.map(e => {
       const type = (e.event_type||'').toLowerCase();
       const dot = type.includes('order') ? 'order' : type.includes('message') ? 'message' : type.includes('signup') ? 'signup' : 'other';
-      return `<div class="activity-item"><div class="activity-dot ${dot}" aria-hidden="true"></div><div class="activity-info"><p>${esc(e.description || e.event_type)}</p><span>${fmtDate(e.created_at)}</span></div></div>`;
+      return `<div class="activity-item"><div class="activity-dot ${dot}"></div><div class="activity-info"><p>${esc(e.description || e.event_type)}</p><span>${fmtDate(e.created_at)}</span></div></div>`;
     }).join('');
   } catch(e) {}
 }
@@ -1311,14 +1231,14 @@ async function loadRecentOrders() {
   } catch(e) {}
 }
 
-// ============================================================
-// PRODUCTS
-// ============================================================
+/* ═══════════════════════════════════════════════════
+   FIX #4: PRODUCTS — text columns only, consistent save
+═══════════════════════════════════════════════════ */
 async function loadProducts() {
   try {
     const [{ data: cats }, { data: brnds }, { data }] = await Promise.all([
       sb().from('categories').select('id,name').eq('active',true).order('sort_order'),
-      sb().from('brands').select('id,name').eq('active',true).order('sort_order'),
+      sb().from('brands').select('id,name').eq('active',true).order('name'),
       sb().from('products').select('*').order('created_at',{ascending:false}),
     ]);
     allProducts = data || [];
@@ -1334,16 +1254,19 @@ function renderProductsTable(rows) {
   const tb = document.getElementById('productsTable');
   if (!rows?.length) { tb.innerHTML = emptyRow(8,'No products yet — click "Add Product" to get started'); return; }
   tb.innerHTML = rows.map(p => {
-    const imgs = Array.isArray(p.images) ? p.images.filter(Boolean) : (p.images?.length ? [p.images] : []);
+    // FIX: read category_name/brand_name (text columns) with fallback
+    const imgs = Array.isArray(p.images) ? p.images.filter(Boolean) : [];
     const img = imgs[0] || '';
+    const catLabel = p.category_name || p.category || '—';
+    const brdLabel = p.brand_name || p.brand || '—';
     return `<tr>
       <td>${img ? `<img src="${esc(img)}" alt="${esc(p.name)}" style="width:44px;height:44px;object-fit:cover;border-radius:8px" loading="lazy" onerror="this.style.display='none'">` : '<span style="color:var(--muted)">—</span>'}</td>
-      <td><strong>${esc(p.name)}</strong>${p.featured ? ' <span class="badge active" style="font-size:9px">FEAT</span>' : ''}</td>
-      <td>${esc(p.category_name || p.category || '—')}</td>
-      <td>${esc(p.brand_name || p.brand || '—')}</td>
+      <td><strong>${esc(p.name)}</strong>${p.featured?' <span class="badge active" style="font-size:9px">FEAT</span>':''}</td>
+      <td>${esc(catLabel)}</td>
+      <td>${esc(brdLabel)}</td>
       <td>KES ${Number(p.price).toLocaleString()}</td>
-      <td>${p.badge ? `<span class="badge">${esc(p.badge)}</span>` : '—'}</td>
-      <td><span class="badge ${p.active ? 'active' : 'inactive'}">${p.active ? 'Active' : 'Inactive'}</span></td>
+      <td>${p.badge?`<span class="badge">${esc(p.badge)}</span>`:'—'}</td>
+      <td><span class="badge ${p.active?'active':'inactive'}">${p.active?'Active':'Inactive'}</span></td>
       <td class="actions-cell">
         <button class="tbl-btn edit" onclick="editProduct('${esc(p.id)}')"><i class="fas fa-edit"></i></button>
         <button class="tbl-btn del" onclick="deleteProduct('${esc(p.id)}')"><i class="fas fa-trash"></i></button>
@@ -1355,9 +1278,9 @@ function openProductModal(p) {
   document.getElementById('productModalTitle').textContent = p ? 'Edit Product' : 'Add Product';
   document.getElementById('pm_id').value        = p?.id || '';
   document.getElementById('pm_name').value      = p?.name || '';
-  document.getElementById('pm_sku').value       = p?.sku || '';
+  document.getElementById('pm_sku').value        = p?.sku || '';
   document.getElementById('pm_price').value     = p?.price || '';
-  document.getElementById('pm_old_price').value = p?.old_price || '';
+  document.getElementById('pm_old_price').value  = p?.old_price || '';
   document.getElementById('pm_desc').value      = p?.description || '';
   document.getElementById('pm_stock').value     = p?.stock ?? 0;
   document.getElementById('pm_rating').value    = p?.rating || '';
@@ -1370,31 +1293,30 @@ function openProductModal(p) {
   document.getElementById('pmUploadStatus').innerHTML = '';
   renderProductImgPreviews(imgs);
 
-  // Use category_name / brand_name text columns (no FK)
+  // FIX: use category_name / brand_name (text columns)
   const catSel = document.getElementById('pm_category');
   const brdSel = document.getElementById('pm_brand');
   if (catSel) catSel.value = p?.category_name || p?.category || '';
-  if (brdSel) brdSel.value = p?.brand_name || p?.brand || '';
+  if (brdSel) brdSel.value = p?.brand_name    || p?.brand    || '';
 
   openModal('productModal');
+}
+
+function previewImagesFromTextarea() {
+  const imgs = document.getElementById('pm_images').value.split(',').map(s=>s.trim()).filter(Boolean);
+  renderProductImgPreviews(imgs);
 }
 
 function renderProductImgPreviews(imgs) {
   const grid = document.getElementById('pmImgPreviewGrid');
   if (!grid) return;
   grid.innerHTML = imgs.map((url, i) =>
-    `<div style="position:relative;display:inline-block">
-      <img class="multi-img-thumb" src="${esc(url)}" alt="Image ${i+1}" loading="lazy" onerror="this.style.opacity='.3'">
-    </div>`
+    `<img class="multi-img-thumb" src="${esc(url)}" alt="Image ${i+1}" loading="lazy" onerror="this.style.opacity='.3'">`
   ).join('');
 }
 
-function editProduct(id) {
-  const p = allProducts.find(x => x.id === id);
-  if (p) openProductModal(p);
-}
+function editProduct(id) { const p = allProducts.find(x => x.id === id); if (p) openProductModal(p); }
 
-// ✅ FIX: Validate product form before save
 function validateProductForm() {
   const name = document.getElementById('pm_name')?.value.trim();
   const price = document.getElementById('pm_price')?.value;
@@ -1410,12 +1332,13 @@ async function saveProduct() {
 
   const id = document.getElementById('pm_id').value;
   const imagesRaw = document.getElementById('pm_images').value;
-  const images = imagesRaw ? imagesRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+  const images = imagesRaw ? imagesRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
 
   const catSel = document.getElementById('pm_category');
   const brdSel = document.getElementById('pm_brand');
-  const categoryName = catSel?.options[catSel.selectedIndex]?.text || catSel?.value || '';
-  const brandName    = brdSel?.options[brdSel.selectedIndex]?.text || brdSel?.value || '';
+  // FIX: save to BOTH category/brand AND category_name/brand_name text columns
+  const categoryName = catSel?.value || '';
+  const brandName    = brdSel?.value || '';
 
   const payload = {
     name:          document.getElementById('pm_name').value.trim(),
@@ -1428,11 +1351,10 @@ async function saveProduct() {
     reviews:       parseInt(document.getElementById('pm_reviews').value) || 0,
     images,
     badge:         document.getElementById('pm_badge').value || null,
-    // Use text columns — no FK relations in DB
-    category:      categoryName !== '— None —' ? categoryName : null,
-    brand:         brandName    !== '— None —' ? brandName    : null,
-    category_name: categoryName !== '— None —' ? categoryName : null,
-    brand_name:    brandName    !== '— None —' ? brandName    : null,
+    category:      categoryName || null,
+    brand:         brandName    || null,
+    category_name: categoryName || null,
+    brand_name:    brandName    || null,
     active:        document.getElementById('pm_active').checked,
     featured:      document.getElementById('pm_featured').checked,
     updated_at:    new Date().toISOString(),
@@ -1460,67 +1382,46 @@ async function deleteProduct(id) {
     if (error) throw error;
     toast('Product deleted');
     loadProducts();
-  } catch(e) {
-    toast('Error: ' + e.message, 'error');
-  }
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
-// ✅ FIX: Multi-image upload — appends URLs to the textarea
 async function uploadProductImages(files) {
   if (!files || !files.length) return;
   const statusEl = document.getElementById('pmUploadStatus');
   statusEl.innerHTML = '<div class="alert info"><i class="fas fa-spinner fa-spin"></i> Uploading images…</div>';
-
   const uploadedUrls = [];
-  let errors = [];
+  const errors = [];
 
   for (const file of files) {
-    if (file.size > 3 * 1024 * 1024) { errors.push(`${file.name} exceeds 3MB`); continue; }
+    if (file.size > 3*1024*1024) { errors.push(`${file.name} exceeds 3MB`); continue; }
     try {
       const path = `products/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
       const { data, error } = await sb().storage.from('product-images').upload(path, file, { upsert: true });
       if (error) throw error;
       const { data: { publicUrl } } = sb().storage.from('product-images').getPublicUrl(data.path);
       uploadedUrls.push(publicUrl);
-    } catch(e) {
-      errors.push(`${file.name}: ${e.message}`);
-    }
+    } catch(e) { errors.push(`${file.name}: ${e.message}`); }
   }
 
   if (uploadedUrls.length) {
     const cur = document.getElementById('pm_images').value.trim();
-    document.getElementById('pm_images').value = cur
-      ? cur + ', ' + uploadedUrls.join(', ')
-      : uploadedUrls.join(', ');
-    const allImgs = document.getElementById('pm_images').value.split(',').map(s=>s.trim()).filter(Boolean);
-    renderProductImgPreviews(allImgs);
+    document.getElementById('pm_images').value = cur ? cur + ', ' + uploadedUrls.join(', ') : uploadedUrls.join(', ');
+    previewImagesFromTextarea();
     toast(`${uploadedUrls.length} image${uploadedUrls.length>1?'s':''} uploaded!`);
-    statusEl.innerHTML = `<div class="alert success"><i class="fas fa-check-circle"></i> ${uploadedUrls.length} image(s) uploaded successfully!</div>`;
+    statusEl.innerHTML = `<div class="alert success"><i class="fas fa-check-circle"></i> ${uploadedUrls.length} image(s) uploaded.</div>`;
   }
-  if (errors.length) {
-    statusEl.innerHTML += `<div class="alert error"><i class="fas fa-exclamation-circle"></i> ${errors.join(', ')}</div>`;
-  }
+  if (errors.length) statusEl.innerHTML += `<div class="alert error"><i class="fas fa-exclamation-circle"></i> ${errors.join(', ')}</div>`;
 }
 
-// ============================================================
-// DRAG & DROP SUPPORT
-// ============================================================
-function handleDragOver(e, dropZoneId) {
-  e.preventDefault();
-  document.getElementById(dropZoneId)?.classList.add('dragover');
-}
-function handleDragLeave(e, dropZoneId) {
-  document.getElementById(dropZoneId)?.classList.remove('dragover');
-}
+/* DRAG & DROP */
+function handleDragOver(e, id) { e.preventDefault(); document.getElementById(id)?.classList.add('dragover'); }
+function handleDragLeave(e, id) { document.getElementById(id)?.classList.remove('dragover'); }
 function handleDrop(e, type) {
   e.preventDefault();
-  const dropZoneId = type === 'logo' ? 'logoDrop' : 'heroDrop';
-  document.getElementById(dropZoneId)?.classList.remove('dragover');
+  const id = type === 'logo' ? 'logoDrop' : 'heroDrop';
+  document.getElementById(id)?.classList.remove('dragover');
   const file = e.dataTransfer.files[0];
-  if (file) {
-    const fakeInput = { files: [file] };
-    uploadBrandingAsset(type, fakeInput);
-  }
+  if (file) uploadBrandingAsset(type, { files:[file] });
 }
 function handleProductImgDrop(e) {
   e.preventDefault();
@@ -1528,18 +1429,16 @@ function handleProductImgDrop(e) {
   uploadProductImages(e.dataTransfer.files);
 }
 
-// ============================================================
-// ORDERS
-// ============================================================
+/* ═══════════════════════════════════════════════════
+   ORDERS
+═══════════════════════════════════════════════════ */
 async function loadOrders() {
   try {
     const { data, error } = await sb().from('orders').select('*').order('created_at',{ascending:false});
     if (error) throw error;
     allOrders = data || [];
     renderOrders(allOrders);
-  } catch(e) {
-    toast('Error loading orders: ' + e.message, 'error');
-  }
+  } catch(e) { toast('Error loading orders: ' + e.message, 'error'); }
 }
 
 function renderOrders(rows) {
@@ -1562,12 +1461,10 @@ function renderOrders(rows) {
   }).join('');
 }
 
-function filterOrdersByStatus(status) {
-  renderOrders(status ? allOrders.filter(o => o.status === status) : allOrders);
-}
+function filterOrdersByStatus(status) { renderOrders(status ? allOrders.filter(o=>o.status===status) : allOrders); }
 
 function viewOrder(id) {
-  const o = allOrders.find(x => x.id === id);
+  const o = allOrders.find(x=>x.id===id);
   if (!o) return;
   currentOrderId = id;
   const items = Array.isArray(o.items) ? o.items : [];
@@ -1577,38 +1474,34 @@ function viewOrder(id) {
       <span>KES ${Number(i.price*i.qty).toLocaleString()}</span>
     </div>`
   ).join('');
-
   document.getElementById('orderViewBody').innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
       <div style="background:var(--dark3);padding:16px;border-radius:var(--r)">
         <div style="font-family:var(--font-head);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Customer</div>
-        <p style="font-size:14px;color:var(--white);margin-bottom:4px">${esc(o.first_name || '')} ${esc(o.last_name || '')}</p>
-        <p style="font-size:13px;color:var(--muted2)"><i class="fas fa-phone" style="width:14px"></i> ${esc(o.phone || '—')}</p>
-        ${o.email ? `<p style="font-size:13px;color:var(--muted2)"><i class="fas fa-envelope" style="width:14px"></i> ${esc(o.email)}</p>` : ''}
+        <p style="font-size:14px;font-weight:600;margin-bottom:4px">${esc(o.first_name||'')} ${esc(o.last_name||'')}</p>
+        <p style="font-size:13px;color:var(--muted2)"><i class="fas fa-phone" style="width:14px"></i> ${esc(o.phone||'—')}</p>
+        ${o.email?`<p style="font-size:13px;color:var(--muted2)"><i class="fas fa-envelope" style="width:14px"></i> ${esc(o.email)}</p>`:''}
       </div>
       <div style="background:var(--dark3);padding:16px;border-radius:var(--r)">
         <div style="font-family:var(--font-head);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Delivery</div>
-        <p style="font-size:13px;color:var(--muted2)">${esc(o.address || '')}, ${esc(o.town || '')}, ${esc(o.county || '')}</p>
-        ${o.notes ? `<p style="font-size:12px;color:var(--muted);margin-top:6px">Note: ${esc(o.notes)}</p>` : ''}
-        ${o.mpesa_phone ? `<p style="font-size:12px;color:var(--green);margin-top:6px">M-Pesa: ${esc(o.mpesa_phone)}</p>` : ''}
+        <p style="font-size:13px;color:var(--muted2)">${esc(o.address||'')}, ${esc(o.town||'')}, ${esc(o.county||'')}</p>
+        ${o.notes?`<p style="font-size:12px;color:var(--muted);margin-top:6px">Note: ${esc(o.notes)}</p>`:''}
+        ${o.mpesa_phone?`<p style="font-size:12px;color:var(--green);margin-top:6px">M-Pesa: ${esc(o.mpesa_phone)}</p>`:''}
       </div>
     </div>
     <div style="background:var(--dark3);padding:16px;border-radius:var(--r);margin-bottom:16px">
       <div style="font-family:var(--font-head);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Items</div>
-      ${itemsHtml || '<p style="color:var(--muted);font-size:13px">No items data</p>'}
-      <div style="display:flex;justify-content:space-between;padding:10px 0 0;font-size:15px;font-weight:700;color:var(--white)"><span>Total</span><span>KES ${Number(o.total).toLocaleString()}</span></div>
+      ${itemsHtml||'<p style="color:var(--muted);font-size:13px">No items data</p>'}
+      <div style="display:flex;justify-content:space-between;padding:10px 0 0;font-size:15px;font-weight:700"><span>Total</span><span>KES ${Number(o.total).toLocaleString()}</span></div>
     </div>
     <div style="display:flex;gap:10px;font-size:13px;color:var(--muted2);flex-wrap:wrap">
-      <span>Payment: <strong style="color:var(--white)">${esc(o.payment_method)}</strong></span>
-      <span>·</span>
-      <span>Date: <strong style="color:var(--white)">${fmtDate(o.created_at)}</strong></span>
-      <span>·</span>
-      <span>Ref: <strong style="color:var(--white)">${esc(o.id)}</strong></span>
+      <span>Payment: <strong>${esc(o.payment_method)}</strong></span>
+      <span>·</span><span>Date: <strong>${fmtDate(o.created_at)}</strong></span>
+      <span>·</span><span>Ref: <code style="font-size:11px">${esc(o.id)}</code></span>
     </div>`;
-
   const sel = document.getElementById('orderStatusSelect');
   sel.innerHTML = ['pending','confirmed','processing','dispatched','delivered','cancelled']
-    .map(s => `<option value="${s}" ${s===o.status?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('');
+    .map(s=>`<option value="${s}" ${s===o.status?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('');
   openModal('orderViewModal');
 }
 
@@ -1620,9 +1513,7 @@ async function updateOrderStatus() {
     toast('Order status updated!');
     closeModal('orderViewModal');
     loadOrders();
-  } catch(e) {
-    toast('Error: ' + e.message, 'error');
-  }
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
 async function deleteOrder(id) {
@@ -1632,14 +1523,12 @@ async function deleteOrder(id) {
     if (error) throw error;
     toast('Order deleted');
     loadOrders();
-  } catch(e) {
-    toast('Error: ' + e.message, 'error');
-  }
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
-// ============================================================
-// CATEGORIES — full CRUD
-// ============================================================
+/* ═══════════════════════════════════════════════════
+   CATEGORIES
+═══════════════════════════════════════════════════ */
 async function loadCategories() {
   try {
     const { data, error } = await sb().from('categories').select('*').order('sort_order');
@@ -1655,9 +1544,7 @@ async function loadCategories() {
         <button class="tbl-btn edit" onclick="toggleCatActive('${esc(c.id)}',${c.active})"><i class="fas fa-toggle-${c.active?'on':'off'}"></i> ${c.active?'Disable':'Enable'}</button>
         <button class="tbl-btn del" onclick="deleteCategory('${esc(c.id)}')"><i class="fas fa-trash"></i></button>
       </td></tr>`).join('');
-  } catch(e) {
-    toast('Error loading categories: ' + e.message, 'error');
-  }
+  } catch(e) { toast('Error loading categories: ' + e.message, 'error'); }
 }
 
 async function addCategory() {
@@ -1666,46 +1553,37 @@ async function addCategory() {
   const icon = document.getElementById('newCatIcon').value.trim() || 'fas fa-tag';
   if (!name) { toast('Category name is required', 'error'); return; }
   if (!slug) { toast('Slug is required', 'error'); return; }
-  if (!/^[a-z0-9-]+$/.test(slug)) { toast('Slug can only contain lowercase letters, numbers and hyphens', 'error'); return; }
+  if (!/^[a-z0-9-]+$/.test(slug)) { toast('Slug: lowercase letters, numbers and hyphens only', 'error'); return; }
   try {
     const { error } = await sb().from('categories').insert({ name, slug, icon_class: icon, active: true });
     if (error) throw error;
     toast('Category added!');
-    document.getElementById('newCatName').value = '';
-    document.getElementById('newCatSlug').value = '';
-    document.getElementById('newCatIcon').value = '';
+    ['newCatName','newCatSlug','newCatIcon'].forEach(id => document.getElementById(id).value='');
     loadCategories();
-  } catch(e) {
-    toast('Error: ' + (e.message?.includes('unique') ? 'Slug already exists' : e.message), 'error');
-  }
+  } catch(e) { toast('Error: ' + (e.message?.includes('unique') ? 'Slug already exists' : e.message), 'error'); }
 }
 
 async function deleteCategory(id) {
-  if (!confirm('Delete this category? Products in this category will be uncategorized.')) return;
+  if (!confirm('Delete this category? Products will be uncategorized.')) return;
   try {
     const { error } = await sb().from('categories').delete().eq('id', id);
     if (error) throw error;
     toast('Category deleted');
     loadCategories();
-  } catch(e) {
-    toast('Error: ' + e.message, 'error');
-  }
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
 async function toggleCatActive(id, cur) {
   try {
-    const { error } = await sb().from('categories').update({ active: !cur }).eq('id', id);
-    if (error) throw error;
-    toast(`Category ${!cur ? 'activated' : 'deactivated'}`);
+    await sb().from('categories').update({ active: !cur }).eq('id', id);
+    toast(`Category ${!cur?'activated':'deactivated'}`);
     loadCategories();
-  } catch(e) {
-    toast('Error: ' + e.message, 'error');
-  }
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
-// ============================================================
-// BRANDS — full CRUD
-// ============================================================
+/* ═══════════════════════════════════════════════════
+   BRANDS
+═══════════════════════════════════════════════════ */
 async function loadBrands() {
   try {
     const { data, error } = await sb().from('brands').select('*').order('name');
@@ -1713,16 +1591,14 @@ async function loadBrands() {
     const tb = document.getElementById('brandsTable');
     if (!data?.length) { tb.innerHTML = emptyRow(4,'No brands yet — add one above'); return; }
     tb.innerHTML = data.map(b => `<tr>
-      <td>${b.image_url ? `<img src="${esc(b.image_url)}" alt="${esc(b.name)}" style="height:36px;object-fit:contain;border-radius:6px" loading="lazy">` : '<span style="color:var(--muted)">—</span>'}</td>
+      <td>${b.image_url?`<img src="${esc(b.image_url)}" alt="${esc(b.name)}" style="height:36px;object-fit:contain;border-radius:6px" loading="lazy">`:'<span style="color:var(--muted)">—</span>'}</td>
       <td><strong>${esc(b.name)}</strong></td>
       <td><span class="badge ${b.active?'active':'inactive'}">${b.active?'Active':'Inactive'}</span></td>
       <td class="actions-cell">
         <button class="tbl-btn edit" onclick="toggleBrandActive('${esc(b.id)}',${b.active})"><i class="fas fa-toggle-${b.active?'on':'off'}"></i></button>
         <button class="tbl-btn del" onclick="deleteBrand('${esc(b.id)}')"><i class="fas fa-trash"></i></button>
       </td></tr>`).join('');
-  } catch(e) {
-    toast('Error loading brands: ' + e.message, 'error');
-  }
+  } catch(e) { toast('Error loading brands: ' + e.message, 'error'); }
 }
 
 async function addBrand() {
@@ -1731,63 +1607,48 @@ async function addBrand() {
   if (!name) { toast('Brand name is required', 'error'); return; }
   const slug = name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
   try {
-    const { error } = await sb().from('brands').insert({ name, slug, image_url: img || null, active: true });
+    const { error } = await sb().from('brands').insert({ name, slug, image_url: img||null, active: true });
     if (error) throw error;
     toast('Brand added!');
     document.getElementById('newBrandName').value = '';
     document.getElementById('newBrandImage').value = '';
     loadBrands();
-  } catch(e) {
-    toast('Error: ' + (e.message?.includes('unique') ? 'Brand already exists' : e.message), 'error');
-  }
+  } catch(e) { toast('Error: ' + (e.message?.includes('unique') ? 'Brand already exists' : e.message), 'error'); }
 }
 
 async function deleteBrand(id) {
   if (!confirm('Delete this brand?')) return;
-  try {
-    const { error } = await sb().from('brands').delete().eq('id', id);
-    if (error) throw error;
-    toast('Brand deleted');
-    loadBrands();
-  } catch(e) {
-    toast('Error: ' + e.message, 'error');
-  }
+  try { await sb().from('brands').delete().eq('id', id); toast('Brand deleted'); loadBrands(); }
+  catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
 async function toggleBrandActive(id, cur) {
-  try {
-    await sb().from('brands').update({ active: !cur }).eq('id', id);
-    toast(`Brand ${!cur ? 'activated' : 'deactivated'}`);
-    loadBrands();
-  } catch(e) {
-    toast('Error: ' + e.message, 'error');
-  }
+  try { await sb().from('brands').update({ active: !cur }).eq('id', id); toast(`Brand ${!cur?'activated':'deactivated'}`); loadBrands(); }
+  catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
-// ============================================================
-// DEALS
-// ============================================================
+/* ═══════════════════════════════════════════════════
+   DEALS
+═══════════════════════════════════════════════════ */
 async function loadDeals() {
   try {
     const { data, error } = await sb().from('deals').select('*').order('sort_order');
     if (error) throw error;
-    const tb = document.getElementById('dealsTable');
     window._allDeals = data || [];
+    const tb = document.getElementById('dealsTable');
     if (!data?.length) { tb.innerHTML = emptyRow(7,'No deals yet'); return; }
     tb.innerHTML = data.map(d => `<tr>
-      <td>${d.image_url ? `<img src="${esc(d.image_url)}" alt="${esc(d.title)}" style="width:50px;height:50px;object-fit:cover;border-radius:8px" loading="lazy">` : '—'}</td>
+      <td>${d.image_url?`<img src="${esc(d.image_url)}" alt="${esc(d.title)}" style="width:50px;height:50px;object-fit:cover;border-radius:8px" loading="lazy">`:'—'}</td>
       <td><strong>${esc(d.title)}</strong></td>
-      <td>${d.price ? `KES ${Number(d.price).toLocaleString()}` : '—'}</td>
-      <td>${d.old_price ? `<s style="color:var(--muted)">KES ${Number(d.old_price).toLocaleString()}</s>` : '—'}</td>
-      <td>${d.badge ? `<span class="badge">${esc(d.badge)}</span>` : '—'}</td>
+      <td>${d.price?`KES ${Number(d.price).toLocaleString()}`:'—'}</td>
+      <td>${d.old_price?`<s style="color:var(--muted)">KES ${Number(d.old_price).toLocaleString()}</s>`:'—'}</td>
+      <td>${d.badge?`<span class="badge">${esc(d.badge)}</span>`:'—'}</td>
       <td><span class="badge ${d.active?'active':'inactive'}">${d.active?'Active':'Inactive'}</span></td>
       <td class="actions-cell">
         <button class="tbl-btn edit" onclick="editDeal('${esc(d.id)}')"><i class="fas fa-edit"></i></button>
         <button class="tbl-btn del" onclick="deleteDeal('${esc(d.id)}')"><i class="fas fa-trash"></i></button>
       </td></tr>`).join('');
-  } catch(e) {
-    toast('Error loading deals: ' + e.message, 'error');
-  }
+  } catch(e) { toast('Error loading deals: ' + e.message, 'error'); }
 }
 
 function openDealModal(d) {
@@ -1803,10 +1664,7 @@ function openDealModal(d) {
   openModal('dealModal');
 }
 
-function editDeal(id) {
-  const d = (window._allDeals||[]).find(x => x.id === id);
-  if (d) openDealModal(d);
-}
+function editDeal(id) { const d = (window._allDeals||[]).find(x=>x.id===id); if(d) openDealModal(d); }
 
 async function saveDeal() {
   const title = document.getElementById('dm_title').value.trim();
@@ -1829,20 +1687,13 @@ async function saveDeal() {
     toast(id ? 'Deal updated!' : 'Deal added!');
     closeModal('dealModal');
     loadDeals();
-  } catch(e) {
-    toast('Error: ' + e.message, 'error');
-  }
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
 async function deleteDeal(id) {
   if (!confirm('Delete this deal?')) return;
-  try {
-    await sb().from('deals').delete().eq('id', id);
-    toast('Deal deleted');
-    loadDeals();
-  } catch(e) {
-    toast('Error: ' + e.message, 'error');
-  }
+  try { await sb().from('deals').delete().eq('id', id); toast('Deal deleted'); loadDeals(); }
+  catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
 async function uploadDealImage(input) {
@@ -1856,20 +1707,18 @@ async function uploadDealImage(input) {
     const { data: { publicUrl } } = sb().storage.from('deal-images').getPublicUrl(data.path);
     document.getElementById('dm_image').value = publicUrl;
     toast('Image uploaded!');
-  } catch(e) {
-    toast('Upload error: ' + e.message, 'error');
-  }
+  } catch(e) { toast('Upload error: ' + e.message, 'error'); }
 }
 
-// ============================================================
-// HOMEPAGE SECTIONS
-// ============================================================
+/* ═══════════════════════════════════════════════════
+   HOMEPAGE SECTIONS
+═══════════════════════════════════════════════════ */
 async function loadHomepageSections() {
   try {
     const { data } = await sb().from('homepage_sections').select('*');
     if (!data) return;
     data.forEach(s => {
-      const set = (id, val) => { const el = document.getElementById(id); if(el && val !== undefined) el.value = val; };
+      const set = (id, val) => { const el = document.getElementById(id); if(el && val !== undefined && val !== null) el.value = val; };
       switch(s.section_name) {
         case 'hero':
           set('hs_hero_title', s.title);
@@ -1923,16 +1772,14 @@ async function saveSectionTitles() {
     { section_name:'brands',     title: document.getElementById('hs_brands_title').value.trim() },
   ];
   try {
-    for (const u of updates) {
-      await sb().from('homepage_sections').upsert(u, { onConflict: 'section_name' });
-    }
+    for (const u of updates) await sb().from('homepage_sections').upsert(u, { onConflict: 'section_name' });
     toast('Section titles saved!');
   } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
-// ============================================================
-// BRANDING
-// ============================================================
+/* ═══════════════════════════════════════════════════
+   BRANDING
+═══════════════════════════════════════════════════ */
 async function loadBranding() {
   try {
     const [{ data: logo }, { data: hero }, { data: ss }] = await Promise.all([
@@ -1954,39 +1801,30 @@ async function loadBranding() {
       document.getElementById('siteNameInput').value = ss.site_name || '';
       document.getElementById('siteDescInput').value = ss.description || '';
       document.getElementById('freeDeliveryThreshold').value = ss.free_delivery_threshold || '';
+      document.getElementById('globalWhatsapp').value = ss.whatsapp || '';
     }
   } catch(e) { /* tables may not exist yet */ }
 }
 
 async function uploadBrandingAsset(type, input) {
-  const file = input.files ? input.files[0] : input;
+  const file = input.files?.[0];
   if (!file) return;
-
   const maxSize = type === 'logo' ? 2*1024*1024 : 5*1024*1024;
-  if (file.size > maxSize) {
-    toast(`File too large (max ${type === 'logo' ? '2MB' : '5MB'})`, 'error');
-    return;
-  }
-
+  if (file.size > maxSize) { toast(`File too large (max ${type==='logo'?'2MB':'5MB'})`, 'error'); return; }
   const bucket = type === 'logo' ? 'logos' : 'hero-images';
   const statusId = type === 'logo' ? 'logoUploadStatus' : 'heroUploadStatus';
   document.getElementById(statusId).innerHTML = '<div class="alert info"><i class="fas fa-spinner fa-spin"></i> Uploading…</div>';
-
   try {
     const path = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
     const { data, error } = await sb().storage.from(bucket).upload(path, file, { upsert: true });
     if (error) throw error;
     const { data: { publicUrl } } = sb().storage.from(bucket).getPublicUrl(data.path);
     await saveBrandingUrl(type, publicUrl);
-    if (type === 'logo') {
-      const el = document.getElementById('currentLogoPreview');
-      el.src = publicUrl; el.classList.add('show');
-      document.getElementById('logoUrlInput').value = publicUrl;
-    } else {
-      const el = document.getElementById('currentHeroPreview');
-      el.src = publicUrl; el.classList.add('show');
-      document.getElementById('heroUrlInput').value = publicUrl;
-    }
+    const previewId = type === 'logo' ? 'currentLogoPreview' : 'currentHeroPreview';
+    const urlInputId = type === 'logo' ? 'logoUrlInput' : 'heroUrlInput';
+    const el = document.getElementById(previewId);
+    el.src = publicUrl; el.classList.add('show');
+    document.getElementById(urlInputId).value = publicUrl;
     document.getElementById(statusId).innerHTML = '<div class="alert success"><i class="fas fa-check-circle"></i> Uploaded successfully!</div>';
     toast('Asset uploaded!');
   } catch(e) {
@@ -2000,7 +1838,7 @@ async function saveBrandingUrl(type, url) {
   await sb().from('media_assets').insert({ type, file_url: url, active: true });
   if (type === 'hero_image') {
     const { data: hs } = await sb().from('homepage_sections').select('content').eq('section_name','hero').single();
-    const content = { ...(hs?.content || {}), bg_image: url };
+    const content = { ...(hs?.content||{}), bg_image: url };
     await sb().from('homepage_sections').upsert({ section_name:'hero', content }, { onConflict: 'section_name' });
   }
 }
@@ -2023,9 +1861,10 @@ async function saveSiteSettings() {
   const name = document.getElementById('siteNameInput').value.trim();
   const desc = document.getElementById('siteDescInput').value.trim();
   const threshold = parseInt(document.getElementById('freeDeliveryThreshold').value) || null;
+  const whatsapp = document.getElementById('globalWhatsapp').value.trim().replace(/[^0-9]/g,'');
   if (!name) { toast('Site name is required', 'error'); return; }
   try {
-    const payload = { site_name: name, description: desc, free_delivery_threshold: threshold, updated_at: new Date().toISOString() };
+    const payload = { site_name: name, description: desc, free_delivery_threshold: threshold, whatsapp, updated_at: new Date().toISOString() };
     const { data: existing } = await sb().from('site_settings').select('id').limit(1).single();
     const { error } = existing
       ? await sb().from('site_settings').update(payload).eq('id', existing.id)
@@ -2035,27 +1874,25 @@ async function saveSiteSettings() {
   } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
-// ============================================================
-// CONTACT INFO
-// ============================================================
+/* ═══════════════════════════════════════════════════
+   CONTACT INFO
+═══════════════════════════════════════════════════ */
 async function loadContactInfo() {
   try {
     const { data } = await sb().from('contact_info').select('*').limit(1).single();
     if (!data) return;
-    document.getElementById('ci_phone_cs').value  = data.phone_customer_service || '';
-    document.getElementById('ci_phone_del').value  = data.phone_delivery || '';
-    document.getElementById('ci_whatsapp').value   = data.whatsapp || '';
-    document.getElementById('ci_address').value    = data.address || '';
-    document.getElementById('ci_hours').value      = data.working_hours || '';
-    document.getElementById('ci_email').value      = data.email || '';
+    document.getElementById('ci_phone_cs').value = data.phone_customer_service || '';
+    document.getElementById('ci_phone_del').value = data.phone_delivery || '';
+    document.getElementById('ci_whatsapp').value  = data.whatsapp || '';
+    document.getElementById('ci_address').value   = data.address || '';
+    document.getElementById('ci_hours').value     = data.working_hours || '';
+    document.getElementById('ci_email').value     = data.email || '';
   } catch(e) { /* row may not exist yet */ }
 }
 
 async function saveContactInfo() {
   const email = document.getElementById('ci_email').value.trim();
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    toast('Enter a valid email address', 'error'); return;
-  }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('Enter a valid email address', 'error'); return; }
   const payload = {
     phone_customer_service: document.getElementById('ci_phone_cs').value.trim(),
     phone_delivery:         document.getElementById('ci_phone_del').value.trim(),
@@ -2063,7 +1900,7 @@ async function saveContactInfo() {
     address:                document.getElementById('ci_address').value.trim(),
     working_hours:          document.getElementById('ci_hours').value.trim(),
     email,
-    updated_at:             new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   };
   try {
     const { data: existing } = await sb().from('contact_info').select('id').limit(1).single();
@@ -2075,9 +1912,9 @@ async function saveContactInfo() {
   } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
-// ============================================================
-// MESSAGES
-// ============================================================
+/* ═══════════════════════════════════════════════════
+   MESSAGES
+═══════════════════════════════════════════════════ */
 async function loadMessages() {
   try {
     const { data, error } = await sb().from('contact_messages').select('*').order('created_at',{ascending:false});
@@ -2095,13 +1932,11 @@ async function loadMessages() {
         <button class="tbl-btn view" onclick="viewMessage('${esc(m.id)}')"><i class="fas fa-eye"></i></button>
         <button class="tbl-btn del" onclick="deleteMessage('${esc(m.id)}')"><i class="fas fa-trash"></i></button>
       </td></tr>`).join('');
-  } catch(e) {
-    toast('Error loading messages: ' + e.message, 'error');
-  }
+  } catch(e) { toast('Error loading messages: ' + e.message, 'error'); }
 }
 
 async function viewMessage(id) {
-  const m = allMessages.find(x => x.id === id);
+  const m = allMessages.find(x=>x.id===id);
   if (!m) return;
   currentMessageId = id;
   document.getElementById('messageViewBody').innerHTML = `
@@ -2112,21 +1947,14 @@ async function viewMessage(id) {
       <div style="display:flex;gap:8px"><span style="color:var(--muted);min-width:80px;font-size:13px">Date:</span><span style="font-size:13px;color:var(--muted2)">${fmtDate(m.created_at)}</span></div>
     </div>
     <div class="msg-body">${esc(m.message).replace(/\n/g,'<br>')}</div>`;
-  if (!m.read) {
-    await sb().from('contact_messages').update({ read: true }).eq('id', id);
-    loadMessages();
-  }
+  if (!m.read) { await sb().from('contact_messages').update({ read: true }).eq('id', id); loadMessages(); }
   openModal('messageViewModal');
 }
 
 async function deleteMessage(id) {
   if (!confirm('Delete this message?')) return;
-  try {
-    const { error } = await sb().from('contact_messages').delete().eq('id', id);
-    if (error) throw error;
-    toast('Message deleted');
-    loadMessages();
-  } catch(e) { toast('Error: ' + e.message, 'error'); }
+  try { const { error } = await sb().from('contact_messages').delete().eq('id', id); if (error) throw error; toast('Message deleted'); loadMessages(); }
+  catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
 async function deleteCurrentMessage() {
@@ -2135,14 +1963,10 @@ async function deleteCurrentMessage() {
   closeModal('messageViewModal');
 }
 
-// ============================================================
-// SOCIAL LINKS
-// ============================================================
-const SOCIAL_ICONS = {
-  facebook:'fab fa-facebook-f', twitter:'fab fa-x-twitter', instagram:'fab fa-instagram',
-  youtube:'fab fa-youtube', pinterest:'fab fa-pinterest-p', map:'fas fa-map-marker-alt',
-  whatsapp:'fab fa-whatsapp', tiktok:'fab fa-tiktok'
-};
+/* ═══════════════════════════════════════════════════
+   SOCIAL LINKS
+═══════════════════════════════════════════════════ */
+const SOCIAL_ICONS = { facebook:'fab fa-facebook-f', twitter:'fab fa-x-twitter', instagram:'fab fa-instagram', youtube:'fab fa-youtube', pinterest:'fab fa-pinterest-p', map:'fas fa-map-marker-alt', whatsapp:'fab fa-whatsapp', tiktok:'fab fa-tiktok' };
 
 async function loadSocial() {
   try {
@@ -2155,9 +1979,8 @@ async function loadSocial() {
       <td style="font-size:12px;color:var(--muted2)">${esc(s.icon_class)}</td>
       <td><a href="${esc(s.url)}" target="_blank" rel="noopener" style="color:var(--blue);font-size:12px;word-break:break-all">${esc(s.url)}</a></td>
       <td><span class="badge ${s.active?'active':'inactive'}">${s.active?'Active':'Inactive'}</span></td>
-      <td class="actions-cell">
-        <button class="tbl-btn del" onclick="deleteSocialLink('${esc(s.id)}')"><i class="fas fa-trash"></i></button>
-      </td></tr>`).join('');
+      <td class="actions-cell"><button class="tbl-btn del" onclick="deleteSocialLink('${esc(s.id)}')"><i class="fas fa-trash"></i></button></td>
+    </tr>`).join('');
   } catch(e) { toast('Error loading social links: ' + e.message, 'error'); }
 }
 
@@ -2178,16 +2001,13 @@ async function addSocialLink() {
 
 async function deleteSocialLink(id) {
   if (!confirm('Delete this link?')) return;
-  try {
-    await sb().from('social_links').delete().eq('id', id);
-    toast('Link deleted');
-    loadSocial();
-  } catch(e) { toast('Error: ' + e.message, 'error'); }
+  try { await sb().from('social_links').delete().eq('id', id); toast('Link deleted'); loadSocial(); }
+  catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
-// ============================================================
-// LEGAL HUB
-// ============================================================
+/* ═══════════════════════════════════════════════════
+   LEGAL HUB
+═══════════════════════════════════════════════════ */
 async function loadLegal() {
   try {
     const { data, error } = await sb().from('legal_pages').select('*').order('sort_order');
@@ -2214,43 +2034,33 @@ function openLegalModal(p) {
   document.getElementById('lm_slug').value   = p?.slug || '';
   document.getElementById('lm_sort').value   = p?.sort_order ?? 0;
   document.getElementById('lm_active').checked = p ? p.active : true;
-  // ✅ FIX: set innerHTML carefully — content from DB is trusted admin content
   document.getElementById('lm_content').innerHTML = p?.content || '';
   openModal('legalModal');
 }
 
-function editLegalPage(id) {
-  const p = allLegal.find(x => x.id === id);
-  if (p) openLegalModal(p);
-}
+function editLegalPage(id) { const p = allLegal.find(x=>x.id===id); if(p) openLegalModal(p); }
 
 function autoSlug() {
   const title = document.getElementById('lm_title').value;
-  const idEl = document.getElementById('lm_id');
-  if (!idEl?.value) {
+  if (!document.getElementById('lm_id').value) {
     document.getElementById('lm_slug').value = title.toLowerCase().trim()
       .replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/^-|-$/g,'');
   }
 }
 
 async function saveLegalPage() {
-  const id = document.getElementById('lm_id').value;
+  const id    = document.getElementById('lm_id').value;
   const title = document.getElementById('lm_title').value.trim();
   const slug  = document.getElementById('lm_slug').value.trim().toLowerCase().replace(/\s+/g,'-');
   if (!title) { toast('Title is required', 'error'); return; }
   if (!slug)  { toast('Slug is required', 'error'); return; }
-  if (!/^[a-z0-9-]+$/.test(slug)) { toast('Slug must only contain lowercase letters, numbers and hyphens', 'error'); return; }
+  if (!/^[a-z0-9-]+$/.test(slug)) { toast('Slug: lowercase letters, numbers and hyphens only', 'error'); return; }
 
-  // ✅ FIX: Sanitize rich editor content before saving
+  // FIXED: sanitize with DOMPurify before saving
   const rawContent = document.getElementById('lm_content').innerHTML;
   const content = sanitizeHtml(rawContent);
 
-  const payload = {
-    title, slug, content,
-    sort_order: parseInt(document.getElementById('lm_sort').value) || 0,
-    active:     document.getElementById('lm_active').checked,
-    updated_at: new Date().toISOString(),
-  };
+  const payload = { title, slug, content, sort_order: parseInt(document.getElementById('lm_sort').value)||0, active: document.getElementById('lm_active').checked, updated_at: new Date().toISOString() };
   try {
     const { error } = id
       ? await sb().from('legal_pages').update(payload).eq('id', id)
@@ -2259,40 +2069,25 @@ async function saveLegalPage() {
     toast(id ? 'Page updated!' : 'Page created!');
     closeModal('legalModal');
     loadLegal();
-  } catch(e) {
-    toast('Error: ' + (e.message?.includes('unique') ? 'Slug already in use' : e.message), 'error');
-  }
+  } catch(e) { toast('Error: ' + (e.message?.includes('unique') ? 'Slug already in use' : e.message), 'error'); }
 }
 
 async function deleteLegalPage(id) {
   if (!confirm('Delete this legal page?')) return;
-  try {
-    await sb().from('legal_pages').delete().eq('id', id);
-    toast('Page deleted');
-    loadLegal();
-  } catch(e) { toast('Error: ' + e.message, 'error'); }
+  try { await sb().from('legal_pages').delete().eq('id', id); toast('Page deleted'); loadLegal(); }
+  catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
-// Rich editor helpers
-function fmt(cmd) {
-  document.getElementById('lm_content').focus();
-  document.execCommand(cmd, false, null);
-}
-function fmtH(tag) {
-  document.getElementById('lm_content').focus();
-  document.execCommand('formatBlock', false, tag);
-}
+function fmt(cmd) { document.getElementById('lm_content').focus(); document.execCommand(cmd, false, null); }
+function fmtH(tag) { document.getElementById('lm_content').focus(); document.execCommand('formatBlock', false, tag); }
 function fmtLink() {
   const url = prompt('Enter URL:');
-  if (url && /^https?:\/\//.test(url)) {
-    document.getElementById('lm_content').focus();
-    document.execCommand('createLink', false, url);
-  }
+  if (url && /^https?:\/\//.test(url)) { document.getElementById('lm_content').focus(); document.execCommand('createLink', false, url); }
 }
 
-// ============================================================
-// TESTIMONIALS / REVIEWS
-// ============================================================
+/* ═══════════════════════════════════════════════════
+   TESTIMONIALS
+═══════════════════════════════════════════════════ */
 let editingTestimonialId = null;
 
 async function loadTestimonials() {
@@ -2301,40 +2096,36 @@ async function loadTestimonials() {
     const tb = document.getElementById('testimonialsTable');
     if (error || !data?.length) { tb.innerHTML = emptyRow(7, error ? error.message : 'No reviews yet — click Add Review to create one'); return; }
     tb.innerHTML = data.map(t => `<tr>
-      <td><strong>${esc(t.author_name || '—')}</strong></td>
-      <td>${esc(t.author_location || '—')}</td>
-      <td><span style="color:var(--gold)">${'★'.repeat(Math.min(5, t.rating||5))}${'☆'.repeat(5-Math.min(5,t.rating||5))}</span></td>
+      <td><strong>${esc(t.author_name||'—')}</strong></td>
+      <td>${esc(t.author_location||'—')}</td>
+      <td><span style="color:var(--gold)">${'★'.repeat(Math.min(5,t.rating||5))}${'☆'.repeat(5-Math.min(5,t.rating||5))}</span></td>
       <td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc((t.review_text||'').substring(0,80))}${(t.review_text||'').length>80?'…':''}</td>
       <td><span class="badge ${t.verified?'active':'inactive'}">${t.verified?'Verified':'Unverified'}</span></td>
       <td><span class="badge ${t.active!==false?'active':'inactive'}">${t.active!==false?'Active':'Hidden'}</span></td>
-      <td>
-        <button class="admin-btn ghost" style="padding:5px 10px;font-size:12px" onclick="openTestimonialModal(${JSON.stringify(t).replace(/"/g,'&quot;')})"><i class="fas fa-edit"></i></button>
-        <button class="admin-btn ghost" style="padding:5px 10px;font-size:12px;color:#e05050" onclick="deleteTestimonial(${t.id})"><i class="fas fa-trash"></i></button>
-      </td>
-    </tr>`).join('');
+      <td class="actions-cell">
+        <button class="tbl-btn edit" onclick='openTestimonialModal(${JSON.stringify(t).replace(/'/g,"&#39;")})' ><i class="fas fa-edit"></i></button>
+        <button class="tbl-btn del" onclick="deleteTestimonial('${esc(String(t.id))}')"><i class="fas fa-trash"></i></button>
+      </td></tr>`).join('');
   } catch(e) { document.getElementById('testimonialsTable').innerHTML = emptyRow(7,'Error: '+e.message); }
 }
 
 function openTestimonialModal(t) {
   editingTestimonialId = t?.id || null;
-  const title = document.getElementById('testimonialModalTitle');
-  if (title) title.textContent = t ? 'Edit Review' : 'Add Review';
-  const setVal = (id,v) => { const el=document.getElementById(id); if(el) el.value = v||''; };
-  setVal('tm_author', t?.author_name);
-  setVal('tm_location', t?.author_location);
-  setVal('tm_rating', t?.rating||5);
-  setVal('tm_text', t?.review_text);
-  setVal('tm_sort', t?.sort_order||0);
-  const verEl = document.getElementById('tm_verified');
-  if (verEl) verEl.checked = t?.verified !== false;
-  const actEl = document.getElementById('tm_active');
-  if (actEl) actEl.checked = t?.active !== false;
+  document.getElementById('testimonialModalTitle').textContent = t ? 'Edit Review' : 'Add Review';
+  const set = (id,v) => { const el=document.getElementById(id); if(el) el.value = v||''; };
+  set('tm_author', t?.author_name);
+  set('tm_location', t?.author_location);
+  set('tm_rating', t?.rating||5);
+  set('tm_text', t?.review_text);
+  set('tm_sort', t?.sort_order||0);
+  document.getElementById('tm_verified').checked = t?.verified !== false;
+  document.getElementById('tm_active').checked = t?.active !== false;
   openModal('testimonialModal');
 }
 
 async function saveTestimonial() {
   const author = document.getElementById('tm_author')?.value.trim();
-  const text = document.getElementById('tm_text')?.value.trim();
+  const text   = document.getElementById('tm_text')?.value.trim();
   if (!author || !text) { toast('Author name and review text are required', 'error'); return; }
   const payload = {
     author_name: author,
@@ -2363,16 +2154,13 @@ async function saveTestimonial() {
 
 async function deleteTestimonial(id) {
   if (!confirm('Delete this review?')) return;
-  try {
-    await sb().from('testimonials').delete().eq('id', id);
-    toast('Review deleted');
-    loadTestimonials();
-  } catch(e) { toast('Error: ' + e.message, 'error'); }
+  try { await sb().from('testimonials').delete().eq('id', id); toast('Review deleted'); loadTestimonials(); }
+  catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
-// ============================================================
-// NEWSLETTER
-// ============================================================
+/* ═══════════════════════════════════════════════════
+   NEWSLETTER
+═══════════════════════════════════════════════════ */
 async function loadNewsletter() {
   try {
     const { data, error } = await sb().from('newsletter_subscribers').select('*').order('subscribed_at',{ascending:false});
@@ -2381,7 +2169,7 @@ async function loadNewsletter() {
     if (!data?.length) { tb.innerHTML = emptyRow(4,'No subscribers yet'); return; }
     tb.innerHTML = data.map(s => `<tr>
       <td><strong>${esc(s.email)}</strong></td>
-      <td>${fmtDate(s.subscribed_at || s.created_at)}</td>
+      <td>${fmtDate(s.subscribed_at||s.created_at)}</td>
       <td><span class="badge ${s.active!==false?'active':'inactive'}">${s.active!==false?'Active':'Unsubscribed'}</span></td>
       <td class="actions-cell"><button class="tbl-btn del" onclick="deleteSubscriber('${esc(s.id)}')"><i class="fas fa-trash"></i></button></td>
     </tr>`).join('');
@@ -2390,16 +2178,13 @@ async function loadNewsletter() {
 
 async function deleteSubscriber(id) {
   if (!confirm('Remove this subscriber?')) return;
-  try {
-    await sb().from('newsletter_subscribers').delete().eq('id', id);
-    toast('Subscriber removed');
-    loadNewsletter();
-  } catch(e) { toast('Error: ' + e.message, 'error'); }
+  try { await sb().from('newsletter_subscribers').delete().eq('id', id); toast('Subscriber removed'); loadNewsletter(); }
+  catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
-// ============================================================
-// ANALYTICS
-// ============================================================
+/* ═══════════════════════════════════════════════════
+   ANALYTICS
+═══════════════════════════════════════════════════ */
 async function loadAnalytics() {
   try {
     const [{ count: uc }, { count: oc }, { count: mc }, { count: sc }] = await Promise.all([
@@ -2408,10 +2193,8 @@ async function loadAnalytics() {
       sb().from('contact_messages').select('*',{count:'exact',head:true}),
       sb().from('newsletter_subscribers').select('*',{count:'exact',head:true}),
     ]);
-    setText('an-users',    uc ?? 0);
-    setText('an-orders',   oc ?? 0);
-    setText('an-messages', mc ?? 0);
-    setText('an-subs',     sc ?? 0);
+    setText('an-users', uc ?? 0); setText('an-orders', oc ?? 0);
+    setText('an-messages', mc ?? 0); setText('an-subs', sc ?? 0);
 
     const { data } = await sb().from('analytics').select('*').order('created_at',{ascending:false}).limit(50);
     const el = document.getElementById('analyticsLog');
@@ -2419,23 +2202,22 @@ async function loadAnalytics() {
     el.innerHTML = data.map(e => {
       const type = (e.event_type||'').toLowerCase();
       const dot = type.includes('order') ? 'order' : type.includes('message') ? 'message' : type.includes('signup') ? 'signup' : 'other';
-      return `<div class="activity-item"><div class="activity-dot ${dot}" aria-hidden="true"></div><div class="activity-info"><p>${esc(e.description || e.event_type)}</p><span>${fmtDate(e.created_at)} · ${esc(e.event_type)}</span></div></div>`;
+      return `<div class="activity-item"><div class="activity-dot ${dot}"></div><div class="activity-info"><p>${esc(e.description||e.event_type)}</p><span>${fmtDate(e.created_at)} · ${esc(e.event_type)}</span></div></div>`;
     }).join('');
   } catch(e) { console.warn('Analytics error:', e); }
 }
 
-// ============================================================
-// TOAST
-// ============================================================
+/* ═══════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════ */
 let toastTimeout;
-function toast(msg, type = 'success') {
+function toast(msg, type='success') {
   const t = document.getElementById('toast');
   const m = document.getElementById('toastMsg');
   const i = document.getElementById('toastIcon');
   if (!t) return;
   clearTimeout(toastTimeout);
-  // ✅ FIX: Use textContent to prevent XSS via toast messages
-  m.textContent = msg;
+  m.textContent = msg; // FIX: textContent not innerHTML (XSS safe)
   t.className = 'toast ' + type;
   const icons = { success:'fa-check-circle', error:'fa-exclamation-circle', info:'fa-info-circle' };
   if (i) i.className = `fas ${icons[type]||'fa-check-circle'} toast-icon`;
@@ -2443,33 +2225,24 @@ function toast(msg, type = 'success') {
   toastTimeout = setTimeout(() => t.classList.remove('show'), 3500);
 }
 
-// ============================================================
-// KEYBOARD & MODAL CLOSE
-// ============================================================
+/* ═══════════════════════════════════════════════════
+   KEYBOARD & MODAL BACKDROP
+═══════════════════════════════════════════════════ */
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
-    document.querySelectorAll('.modal-overlay.open').forEach(m => {
-      m.classList.remove('open');
-      document.body.style.overflow = '';
-    });
+    document.querySelectorAll('.modal-overlay.open').forEach(m => { m.classList.remove('open'); document.body.style.overflow=''; });
     closeSidebar();
   }
 });
 
 document.querySelectorAll('.modal-overlay').forEach(mo => {
-  mo.addEventListener('click', e => {
-    if (e.target === mo) {
-      mo.classList.remove('open');
-      document.body.style.overflow = '';
-    }
-  });
+  mo.addEventListener('click', e => { if (e.target === mo) { mo.classList.remove('open'); document.body.style.overflow=''; } });
 });
 
-// ============================================================
-// BOOT
-// ============================================================
+/* ═══════════════════════════════════════════════════
+   BOOT
+═══════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
-  // Hide login screen initially (checkSession will show/hide as needed)
   document.getElementById('loginScreen').style.display = 'none';
   checkSession();
 });

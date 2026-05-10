@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zakhem — Seller Panel</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+  const SUPABASE_URL      = 'https://onhzqxdfbrzjmhyybteb.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uaHpxeGRmYnJ6am1oeXlidGViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwMTgyOTAsImV4cCI6MjA5MzU5NDI5MH0.yaUiBaNhU5F3JL3dszmEFKR6EEl3eQp0OqoI-T-NHQ0';
+  window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  window.history.replaceState({}, document.title, window.location.pathname);
+  window.dispatchEvent(new Event('supabase-ready'));
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --accent:#6ed930;--accent2:#8fef40;--accent-glow:rgba(110,217,48,0.25);
+  --bg:#f0fce6;--bg2:#e8fad8;--bg3:#daf5c0;
+  --border:rgba(110,217,48,0.22);--border2:rgba(110,217,48,0.38);
+  --text:#1c3309;--muted:#4a6a2a;--muted2:#2e5012;
+  --green:#16a34a;--gold:#e6870a;--blue:#2563eb;--red:#c0392b;
+  --font-head:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;
+  --r:10px;--r2:16px;
+  --shadow:0 4px 20px rgba(26,50,8,0.10);
+}
+html{font-size:16px}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:#d8f5b0}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
+
+/* LOGIN */
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#edfbd4,#f0fce6,#dcfaad);position:fixed;inset:0;z-index:9999;flex-direction:column;gap:24px}
+.login-box{background:#fff;border:1px solid var(--border2);border-radius:24px;padding:48px;width:100%;max-width:400px;text-align:center;box-shadow:var(--shadow)}
+.login-logo{width:56px;height:56px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:26px;font-weight:800;color:#0a1007;margin:0 auto 16px;box-shadow:0 8px 28px rgba(110,217,48,0.30)}
+.login-box h1{font-family:var(--font-head);font-size:22px;font-weight:800;margin-bottom:6px}
+.login-box p{color:var(--muted);margin-bottom:28px;font-size:13px}
+.role-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:rgba(37,99,235,0.1);border:1px solid rgba(37,99,235,0.3);border-radius:20px;font-size:11px;font-weight:700;color:#1d4ed8;margin-bottom:20px}
+.inp-wrap{position:relative;margin-bottom:10px}
+.inp{width:100%;padding:13px 16px;background:#f0fce6;border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .2s}
+.inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.eye-btn{position:absolute;right:13px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px}
+.login-btn{width:100%;padding:13px;background:var(--accent);border:none;border-radius:var(--r);color:#0a1007;font-family:var(--font-head);font-size:14px;font-weight:700;cursor:pointer;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s}
+.login-btn:hover:not(:disabled){background:var(--accent2)}
+.login-btn:disabled{opacity:.6;cursor:not-allowed}
+.login-err{color:#c0392b;font-size:12.5px;margin-top:8px;display:none;padding:9px 12px;background:rgba(192,57,43,0.07);border-radius:8px;border:1px solid rgba(192,57,43,0.2)}
+.admin-link-box{background:#fff;border:1px solid var(--border2);border-radius:12px;padding:14px 20px;font-size:12.5px;color:var(--muted2);display:flex;align-items:center;gap:10px}
+.admin-link-box a{color:var(--accent);font-weight:700;text-decoration:none}
+.admin-link-box a:hover{text-decoration:underline}
+
+/* FORGOT */
+#forgotView{display:none}
+.reset-ok{display:none;color:var(--green);font-size:12.5px;margin-top:10px;padding:10px 12px;background:rgba(22,163,74,0.07);border-radius:8px;border:1px solid rgba(22,163,74,0.2)}
+
+/* APP */
+.app{display:none;min-height:100vh;flex-direction:row}
+.app.show{display:flex}
+.sidebar{width:250px;background:#fff;border-right:1px solid var(--border2);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:100;overflow-y:auto;transition:transform .3s;box-shadow:2px 0 12px rgba(26,50,8,0.07)}
+.sb-head{padding:20px 16px;border-bottom:1px solid var(--border);background:#f8fef2;flex-shrink:0}
+.sb-logo{display:flex;align-items:center;gap:10px}
+.sb-mark{width:36px;height:36px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:17px;color:#0a1007;flex-shrink:0}
+.sb-name{font-family:var(--font-head);font-size:15px;font-weight:700}
+.sb-sub{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.sb-nav{flex:1;padding:14px 10px}
+.nav-g{margin-bottom:20px}
+.nav-g-title{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:0 8px;margin-bottom:6px}
+.nav-link{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:var(--r);color:var(--muted);font-size:13.5px;font-weight:500;cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:all .2s}
+.nav-link:hover{background:#e8fad8;color:var(--text)}
+.nav-link.active{background:rgba(110,217,48,0.14);color:var(--text);border:1px solid rgba(110,217,48,0.28)}
+.nav-link i{width:17px;text-align:center;font-size:14px}
+.nav-link.locked{opacity:.45;cursor:not-allowed;pointer-events:none}
+.nb{margin-left:auto;background:var(--accent);color:#0a1007;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:700}
+.nb.orange{background:var(--gold);color:#fff}
+.sb-foot{padding:14px;border-top:1px solid var(--border);background:#f8fef2;flex-shrink:0}
+.sb-user{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--r);background:#e8fad8;border:1px solid var(--border2)}
+.sb-av{width:34px;height:34px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:700;color:#fff;flex-shrink:0;font-size:15px}
+.sb-info strong{display:block;font-size:12.5px;word-break:break-all}
+.sb-info span{font-size:11px;color:var(--muted)}
+
+.main{flex:1;margin-left:250px;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:#fff;border-bottom:1px solid var(--border2);padding:0 26px;height:62px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(26,50,8,0.05)}
+.topbar h1{font-family:var(--font-head);font-size:17px;font-weight:700}
+.topbar-r{display:flex;align-items:center;gap:10px}
+.rt-dot{width:7px;height:7px;background:#22c55e;border-radius:50%;display:inline-block;margin-right:5px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--r);font-size:12.5px;font-weight:600;font-family:var(--font-head);cursor:pointer;border:none;transition:all .2s;text-decoration:none}
+.btn.primary{background:var(--accent);color:#0a1007}
+.btn.primary:hover{background:var(--accent2)}
+.btn.ghost{background:transparent;color:var(--muted2);border:1px solid var(--border2)}
+.btn.ghost:hover{background:#e8fad8}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.mob-btn{display:none;background:#e8fad8;border:1px solid var(--border2);border-radius:8px;padding:7px 9px;color:var(--text);font-size:17px;cursor:pointer}
+
+.content{flex:1;padding:26px;background:var(--bg)}
+.panel{display:none}.panel.active{display:block}
+
+/* READ-ONLY BANNER */
+.ro-banner{background:rgba(37,99,235,0.07);border:1px solid rgba(37,99,235,0.22);border-radius:var(--r);padding:11px 16px;margin-bottom:20px;font-size:13px;color:var(--blue);display:flex;align-items:center;gap:9px}
+
+/* NO ACCESS PANEL */
+.no-access{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;text-align:center;background:#fff;border:1px solid var(--border2);border-radius:var(--r2);box-shadow:var(--shadow)}
+.no-access i{font-size:42px;color:#c8eaa0;margin-bottom:14px}
+.no-access h3{font-family:var(--font-head);font-size:18px;font-weight:700;margin-bottom:8px}
+.no-access p{font-size:13px;color:var(--muted);max-width:320px}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:24px}
+.sc{background:#fff;border:1px solid var(--border2);border-radius:var(--r2);padding:20px;box-shadow:var(--shadow)}
+.sc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.sc-icon{width:42px;height:42px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.sc-icon.g{background:rgba(110,217,48,0.14);color:#3d8a12}
+.sc-icon.gr{background:rgba(22,163,74,0.11);color:var(--green)}
+.sc-icon.bl{background:rgba(37,99,235,0.11);color:var(--blue)}
+.sc-icon.go{background:rgba(230,135,10,0.11);color:var(--gold)}
+.sc-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(110,217,48,0.14);color:#2e5012}
+.sc-val{font-family:var(--font-head);font-size:26px;font-weight:800;margin-bottom:3px}
+.sc-lbl{font-size:12px;color:var(--muted)}
+
+/* CARDS & TABLES */
+.card{background:#fff;border:1px solid var(--border2);border-radius:var(--r2);overflow:hidden;margin-bottom:22px;box-shadow:var(--shadow)}
+.card-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;background:#f8fef2}
+.card-head h3{font-family:var(--font-head);font-size:15px;font-weight:700}
+.card-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.sf{padding:8px 14px;background:#f0fce6;border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:var(--font-body);font-size:12.5px;outline:none;min-width:170px;transition:border-color .2s}
+.sf:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:520px}
+thead{background:#e8fad8}
+th{padding:11px 18px;text-align:left;font-family:var(--font-head);font-size:10.5px;font-weight:700;color:#2e5012;text-transform:uppercase;letter-spacing:.7px;white-space:nowrap}
+td{padding:11px 18px;border-top:1px solid var(--border);font-size:12.5px;vertical-align:middle}
+tr:hover td{background:#f8fef2}
+.te{text-align:center;padding:36px;color:var(--muted)}
+.te i{font-size:32px;display:block;margin-bottom:8px;color:#c8eaa0}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:700}
+.badge.pending{background:rgba(230,135,10,0.11);color:var(--gold)}
+.badge.confirmed,.badge.processing,.badge.dispatched{background:rgba(37,99,235,0.11);color:var(--blue)}
+.badge.delivered{background:rgba(22,163,74,0.11);color:var(--green)}
+.badge.cancelled{background:rgba(192,57,43,0.11);color:var(--red)}
+.badge.active{background:rgba(22,163,74,0.11);color:var(--green)}
+.badge.inactive{background:rgba(74,106,42,0.11);color:var(--muted)}
+.badge.unread{background:rgba(230,135,10,0.11);color:var(--gold)}
+.tb{padding:4px 11px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:4px;font-family:var(--font-head);transition:all .2s}
+.tb.edit{background:rgba(37,99,235,0.09);color:var(--blue)}.tb.edit:hover{background:rgba(37,99,235,0.18)}
+.tb.view{background:rgba(124,58,237,0.09);color:#7c3aed}.tb.view:hover{background:rgba(124,58,237,0.18)}
+.tb.upd{background:rgba(22,163,74,0.09);color:var(--green)}.tb.upd:hover{background:rgba(22,163,74,0.18)}
+.ac{display:flex;gap:5px;flex-wrap:wrap}
+
+/* SETTINGS */
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
+.scard{background:#fff;border:1px solid var(--border2);border-radius:var(--r2);padding:22px;box-shadow:var(--shadow)}
+.scard h3{font-family:var(--font-head);font-size:14px;font-weight:700;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.fg{margin-bottom:16px}
+.fg label{display:block;font-size:11px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
+.fi,.fsel,.fta{width:100%;padding:10px 14px;background:#f0fce6;border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:var(--font-body);font-size:13.5px;outline:none;transition:border-color .2s}
+.fi:focus,.fsel:focus,.fta:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.fi[readonly]{background:#e8fad8;color:var(--muted2);cursor:default}
+.fsel option{background:#f0fce6}
+.fta{resize:vertical;min-height:90px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* MODALS */
+.mo{display:none;position:fixed;inset:0;background:rgba(26,50,8,0.8);z-index:2000;backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:18px}
+.mo.open{display:flex}
+.mb{background:#fff;border:1px solid var(--border2);border-radius:18px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(26,50,8,0.2)}
+.mb.sm{max-width:460px}.mb.md{max-width:640px}.mb.lg{max-width:840px}
+.mh{padding:22px 26px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#f8fef2;z-index:1}
+.mh h3{font-family:var(--font-head);font-size:17px;font-weight:700}
+.mc{background:#e8fad8;border:none;border-radius:7px;padding:5px 9px;color:#2e5012;font-size:17px;cursor:pointer;line-height:1}
+.mc:hover{background:var(--accent)}
+.mbody{padding:26px}
+.mfoot{padding:18px 26px;border-top:1px solid var(--border);display:flex;gap:9px;justify-content:flex-end;background:#f8fef2}
+.msg-body{font-size:13px;color:var(--muted2);line-height:1.6;padding:13px;background:#f0fce6;border-radius:var(--r);margin-top:9px;border:1px solid var(--border)}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.detail-box{background:var(--bg3);padding:14px;border-radius:var(--r)}
+.detail-box .lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+
+/* PRODUCT UPLOAD */
+.mi-grid{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+.mi-thumb{width:60px;height:60px;border-radius:7px;object-fit:cover;border:2px solid var(--border2)}
+.drop{border:2px dashed var(--border2);border-radius:var(--r);padding:24px;text-align:center;cursor:pointer;transition:all .2s;position:relative;margin-bottom:10px;background:#f8fef2}
+.drop:hover,.drop.over{border-color:var(--accent);background:rgba(110,217,48,0.07)}
+.drop i{font-size:26px;color:var(--muted);display:block;margin-bottom:7px}
+.drop p{font-size:12.5px;color:var(--muted2);margin:0}
+.drop span{font-size:11.5px;color:var(--muted)}
+.ffile{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+
+/* TOAST */
+.tw-wrap{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:9px;pointer-events:none}
+.toast{background:#fff;border:1px solid var(--border2);border-radius:11px;padding:13px 16px;display:flex;align-items:center;gap:9px;font-size:13px;min-width:260px;box-shadow:0 8px 28px rgba(26,50,8,0.14);pointer-events:all;transform:translateX(120%);transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.toast.show{transform:translateX(0)}
+.toast.success .ti{color:var(--green)}.toast.error .ti{color:var(--red)}.toast.info .ti{color:var(--blue)}
+
+/* LOADER */
+.loader{position:fixed;inset:0;background:var(--bg);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .5s}
+.loader.done{opacity:0;pointer-events:none}
+.lb{width:190px;height:3px;background:#daf5c0;border-radius:2px;overflow:hidden}
+.lbf{height:100%;background:var(--accent);border-radius:2px;animation:lf 1.5s ease-in-out infinite}
+@keyframes lf{0%{width:0;margin-left:0}50%{width:100%;margin-left:0}100%{width:0;margin-left:100%}}
+
+/* SIDEBAR OVERLAY */
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(26,50,8,0.5);z-index:99;backdrop-filter:blur(2px)}
+.sb-overlay.show{display:block}
+
+/* DEALS READ-ONLY CARD */
+.deal-card{background:#fff;border:1px solid var(--border2);border-radius:var(--r2);padding:18px;display:flex;gap:14px;align-items:flex-start;box-shadow:var(--shadow);transition:transform .15s}
+.deal-card:hover{transform:translateY(-2px)}
+.deal-img{width:72px;height:72px;object-fit:cover;border-radius:9px;flex-shrink:0;background:#e8fad8}
+.deal-img.placeholder{display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--muted)}
+.deal-info{flex:1;min-width:0}
+.deal-title{font-family:var(--font-head);font-size:14px;font-weight:700;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.deal-price{font-size:15px;font-weight:700;color:var(--text)}
+.deal-old{font-size:12px;color:var(--muted);text-decoration:line-through;margin-left:6px}
+.deal-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(230,135,10,0.12);color:var(--gold);margin-bottom:5px}
+.deals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;padding:18px 22px}
+
+/* SOCIAL ICON PLATFORM COLOURS */
+.sip{width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.platform-facebook{background:rgba(24,119,242,0.13);color:#1877f2}
+.platform-twitter{background:rgba(29,161,242,0.13);color:#1da1f2}
+.platform-instagram{background:rgba(225,48,108,0.13);color:#e1306c}
+.platform-youtube{background:rgba(255,0,0,0.13);color:red}
+.platform-map{background:rgba(22,163,74,0.13);color:var(--green)}
+.platform-whatsapp{background:rgba(37,211,102,0.13);color:#25d366}
+.platform-tiktok{background:rgba(26,50,8,0.09);color:var(--text)}
+.platform-pinterest{background:rgba(189,8,28,0.13);color:#bd081c}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}.fr{grid-template-columns:1fr}
+  .mob-btn{display:flex}.topbar{padding:0 14px}.content{padding:14px}
+  .detail-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="loader" id="loader">
+  <div style="width:54px;height:54px;background:var(--accent);border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#0a1007;box-shadow:0 8px 28px rgba(110,217,48,0.30)">Z</div>
+  <div class="lb"><div class="lbf"></div></div>
+</div>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen" style="display:none">
+  <div class="login-box" id="loginView">
+    <div class="login-logo">Z</div>
+    <div class="role-tag"><i class="fas fa-store"></i> Seller Account</div>
+    <h1>Zakhem Seller</h1>
+    <p>Sign in to manage orders and products</p>
+    <div class="inp-wrap">
+      <input type="email" class="inp" id="loginEmail" placeholder="Email address" onkeydown="if(event.key==='Enter')document.getElementById('loginPw').focus()">
+    </div>
+    <div class="inp-wrap">
+      <input type="password" class="inp" id="loginPw" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()" style="padding-right:42px">
+      <button class="eye-btn" onclick="togglePw()" type="button"><i class="fas fa-eye" id="eyeIcon"></i></button>
+    </div>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+    <div class="login-err" id="loginErr"></div>
+    <button onclick="showForgot()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;margin-top:12px;text-decoration:underline">Forgot password?</button>
+  </div>
+  <div id="forgotView">
+    <div class="login-box">
+      <div class="login-logo">Z</div>
+      <h1>Reset Password</h1>
+      <p style="margin-bottom:20px">Enter your email to receive a reset link.</p>
+      <div class="inp-wrap"><input type="email" class="inp" id="resetEmail" placeholder="Your email address"></div>
+      <button class="login-btn" id="resetBtn" onclick="doReset()"><i class="fas fa-paper-plane"></i> Send Reset Link</button>
+      <div class="login-err" id="resetErr" style="margin-top:8px;display:none"></div>
+      <div class="reset-ok" id="resetOk"><i class="fas fa-check-circle"></i> Reset link sent! Check your inbox.</div>
+      <button onclick="showLogin()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;margin-top:12px;text-decoration:underline">← Back to sign in</button>
+    </div>
+  </div>
+  <div class="admin-link-box">
+    <i class="fas fa-crown" style="color:var(--gold)"></i>
+    Master Admin? <a href="admin-master.html">Go to Master Admin Panel →</a>
+  </div>
+</div>
+
+<div class="sb-overlay" id="sbOverlay" onclick="closeSB()"></div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-head">
+      <div class="sb-logo">
+        <div class="sb-mark">Z</div>
+        <div><div class="sb-name">Zakhem</div><div class="sb-sub">Seller Panel</div></div>
+      </div>
+    </div>
+    <nav class="sb-nav">
+      <div class="nav-g">
+        <div class="nav-g-title">Overview</div>
+        <button class="nav-link active" onclick="showPanel('dashboard',this)"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
+      </div>
+      <div class="nav-g" id="navStore">
+        <div class="nav-g-title">Store</div>
+        <button class="nav-link" id="nav-orders" onclick="showPanel('orders',this)"><i class="fas fa-shopping-bag"></i> Orders <span class="nb orange" id="pendBadge" style="display:none">0</span></button>
+        <button class="nav-link" id="nav-products" onclick="showPanel('products',this)"><i class="fas fa-box"></i> Products</button>
+        <button class="nav-link" id="nav-deals" onclick="showPanel('deals',this)"><i class="fas fa-tags"></i> Today's Deals</button>
+        <button class="nav-link" id="nav-categories" onclick="showPanel('categories',this)"><i class="fas fa-th-large"></i> Categories &amp; Brands</button>
+      </div>
+      <div class="nav-g" id="navContent">
+        <div class="nav-g-title">Communication</div>
+        <button class="nav-link" id="nav-messages" onclick="showPanel('messages',this)"><i class="fas fa-envelope"></i> Messages <span class="nb" id="unreadBadge" style="display:none">0</span></button>
+        <button class="nav-link" id="nav-newsletter" onclick="showPanel('newsletter',this)"><i class="fas fa-newspaper"></i> Newsletter</button>
+        <button class="nav-link" id="nav-social" onclick="showPanel('social',this)"><i class="fas fa-share-alt"></i> Social Media</button>
+        <button class="nav-link" id="nav-contact" onclick="showPanel('contact',this)"><i class="fas fa-address-card"></i> Contact Info</button>
+      </div>
+      <div class="nav-g" id="navSite">
+        <div class="nav-g-title">Content &amp; Site</div>
+        <button class="nav-link" id="nav-homepage" onclick="showPanel('homepage',this)"><i class="fas fa-home"></i> Homepage</button>
+        <button class="nav-link" id="nav-branding" onclick="showPanel('branding',this)"><i class="fas fa-paint-brush"></i> Branding</button>
+        <button class="nav-link" id="nav-testimonials" onclick="showPanel('testimonials',this)"><i class="fas fa-star"></i> Reviews</button>
+        <button class="nav-link" id="nav-legal" onclick="showPanel('legal',this)"><i class="fas fa-file-contract"></i> Legal Pages</button>
+      </div>
+      <div class="nav-g">
+        <div class="nav-g-title">Account</div>
+        <button class="nav-link" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </div>
+    </nav>
+    <div class="sb-foot">
+      <div class="sb-user">
+        <div class="sb-av" id="sbAv">S</div>
+        <div class="sb-info">
+          <strong id="sbName">Seller</strong>
+          <span><span class="badge" style="background:rgba(37,99,235,0.11);color:var(--blue);border:1px solid rgba(37,99,235,0.23)"><i class="fas fa-store"></i> Seller</span></span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:11px">
+        <button class="mob-btn" onclick="openSB()"><i class="fas fa-bars"></i></button>
+        <h1 id="topTitle">Dashboard</h1>
+      </div>
+      <div class="topbar-r">
+        <span id="rtStatus" style="font-size:11.5px;color:var(--muted);display:flex;align-items:center"></span>
+        <a href="index.html" target="_blank" class="btn ghost"><i class="fas fa-external-link-alt"></i> Store</a>
+        <button class="btn ghost" onclick="refreshPanel()"><i class="fas fa-sync-alt"></i></button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="panel active" id="panel-dashboard">
+        <div class="stats">
+          <div class="sc"><div class="sc-top"><div class="sc-icon go"><i class="fas fa-clock"></i></div><span class="sc-badge">Now</span></div><div class="sc-val" id="s-pending">—</div><div class="sc-lbl">Pending Orders</div></div>
+          <div class="sc"><div class="sc-top"><div class="sc-icon gr"><i class="fas fa-shopping-bag"></i></div><span class="sc-badge">Total</span></div><div class="sc-val" id="s-orders">—</div><div class="sc-lbl">All Orders</div></div>
+          <div class="sc"><div class="sc-top"><div class="sc-icon bl"><i class="fas fa-envelope"></i></div><span class="sc-badge">Inbox</span></div><div class="sc-val" id="s-msgs">—</div><div class="sc-lbl">Messages</div></div>
+          <div class="sc"><div class="sc-top"><div class="sc-icon g"><i class="fas fa-box"></i></div><span class="sc-badge">Active</span></div><div class="sc-val" id="s-products">—</div><div class="sc-lbl">Live Products</div></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3><i class="fas fa-clock" style="color:var(--gold);margin-right:7px"></i>Pending Orders — Needs Action</h3><button class="btn ghost" onclick="showPanel('orders',null)">View All Orders</button></div>
+          <div class="tw"><table><thead><tr><th>Customer</th><th>Phone</th><th>Items</th><th>Total</th><th>Payment</th><th>Date</th><th>Action</th></tr></thead>
+          <tbody id="pendT"><tr><td colspan="7" class="te"><i class="fas fa-spinner fa-spin"></i><br>Loading...</td></tr></tbody></table></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3><i class="fas fa-envelope" style="color:var(--blue);margin-right:7px"></i>Unread Messages</h3><button class="btn ghost" onclick="showPanel('messages',null)">View All</button></div>
+          <div class="tw"><table><thead><tr><th>From</th><th>Subject</th><th>Date</th><th>Action</th></tr></thead>
+          <tbody id="unreadT"><tr><td colspan="4" class="te"><i class="fas fa-spinner fa-spin"></i><br>Loading...</td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ORDERS -->
+      <div class="panel" id="panel-orders">
+        <div class="ro-banner"><i class="fas fa-info-circle"></i> You can view order details and update the delivery status. Deleting orders is restricted to the master admin.</div>
+        <div class="card">
+          <div class="card-head"><h3>All Orders</h3>
+            <div class="card-actions">
+              <input class="sf" placeholder="Search…" oninput="filterT('oT',this.value)">
+              <select class="sf" onchange="filterOS(this.value)">
+                <option value="">All Statuses</option>
+                <option>pending</option><option>confirmed</option><option>processing</option>
+                <option>dispatched</option><option>delivered</option><option>cancelled</option>
+              </select>
+            </div>
+          </div>
+          <div class="tw"><table><thead><tr><th>Customer</th><th>Phone</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody id="oT"><tr><td colspan="8" class="te"><i class="fas fa-inbox"></i><br>Loading…</td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- PRODUCTS -->
+      <div class="panel" id="panel-products">
+        <div class="ro-banner"><i class="fas fa-pencil-alt"></i> You can add new products and edit existing ones. Deleting products is restricted to the master admin.</div>
+        <div class="card">
+          <div class="card-head"><h3>Products</h3>
+            <div class="card-actions">
+              <input class="sf" placeholder="Search…" oninput="filterT('pT',this.value)">
+              <button class="btn primary" onclick="openPM()"><i class="fas fa-plus"></i> Add Product</button>
+            </div>
+          </div>
+          <div class="tw"><table><thead><tr><th>Img</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="pT"><tr><td colspan="7" class="te"><i class="fas fa-box"></i><br>Loading…</td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- DEALS (READ-ONLY) -->
+      <div class="panel" id="panel-deals">
+        <div class="ro-banner"><i class="fas fa-eye"></i> Today's Best Deals are managed by the master admin. You can view them here for reference.</div>
+        <div class="card">
+          <div class="card-head"><h3><i class="fas fa-tags" style="color:var(--gold);margin-right:7px"></i>Today's Best Deals</h3><span style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px"><i class="fas fa-lock"></i> View only</span></div>
+          <div class="deals-grid" id="dealsGrid"><div class="te" style="grid-column:1/-1"><i class="fas fa-spinner fa-spin"></i><br>Loading…</div></div>
+        </div>
+      </div>
+
+      <!-- CATEGORIES & BRANDS (READ-ONLY) -->
+      <div class="panel" id="panel-categories">
+        <div class="ro-banner"><i class="fas fa-eye"></i> Categories and brands are managed by the master admin. You can view them here for reference when adding products.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;flex-wrap:wrap">
+          <div class="card" style="margin-bottom:0">
+            <div class="card-head"><h3>Categories</h3></div>
+            <div class="tw"><table><thead><tr><th>Name</th><th>Slug</th><th>Status</th></tr></thead>
+            <tbody id="catT"><tr><td colspan="3" class="te"><i class="fas fa-spinner fa-spin"></i></td></tr></tbody></table></div>
+          </div>
+          <div class="card" style="margin-bottom:0">
+            <div class="card-head"><h3>Brands</h3></div>
+            <div class="tw"><table><thead><tr><th>Name</th><th>Status</th></tr></thead>
+            <tbody id="brandT"><tr><td colspan="2" class="te"><i class="fas fa-spinner fa-spin"></i></td></tr></tbody></table></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MESSAGES -->
+      <div class="panel" id="panel-messages">
+        <div class="ro-banner"><i class="fas fa-eye"></i> You can read all customer messages. Deleting messages is restricted to the master admin.</div>
+        <div class="card">
+          <div class="card-head"><h3>Customer Messages</h3>
+            <div class="card-actions"><input class="sf" placeholder="Search…" oninput="filterT('msgT',this.value)"></div>
+          </div>
+          <div class="tw"><table><thead><tr><th>From</th><th>Email</th><th>Subject</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="msgT"><tr><td colspan="6" class="te"><i class="fas fa-envelope"></i><br>Loading…</td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- NEWSLETTER (READ-ONLY) -->
+      <div class="panel" id="panel-newsletter">
+        <div class="ro-banner"><i class="fas fa-eye"></i> Newsletter subscribers — view only. Contact master admin to manage subscriptions.</div>
+        <div class="card">
+          <div class="card-head"><h3>Newsletter Subscribers</h3></div>
+          <div class="tw"><table><thead><tr><th>Email</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody id="newsT"><tr><td colspan="3" class="te"><i class="fas fa-spinner fa-spin"></i></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- SOCIAL (READ-ONLY) -->
+      <div class="panel" id="panel-social">
+        <div class="ro-banner"><i class="fas fa-eye"></i> Social media links are managed by the master admin.</div>
+        <div class="card">
+          <div class="card-head"><h3>Social Links</h3></div>
+          <div class="tw"><table><thead><tr><th>Platform</th><th>URL</th><th>Status</th></tr></thead>
+          <tbody id="socT"><tr><td colspan="3" class="te"><i class="fas fa-spinner fa-spin"></i></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- CONTACT (READ-ONLY) -->
+      <div class="panel" id="panel-contact">
+        <div class="ro-banner"><i class="fas fa-eye"></i> Contact info is managed by the master admin. You can view it here for reference.</div>
+        <div class="sg">
+          <div class="scard">
+            <h3><i class="fas fa-phone" style="color:var(--green);margin-right:7px"></i>Phone Numbers</h3>
+            <div class="fg"><label>Customer Service</label><input class="fi" id="c_cs" readonly></div>
+            <div class="fg"><label>Delivery / WhatsApp</label><input class="fi" id="c_del" readonly></div>
+            <div class="fg"><label>WhatsApp (digits)</label><input class="fi" id="c_wa" readonly></div>
+          </div>
+          <div class="scard">
+            <h3><i class="fas fa-map-marker-alt" style="color:var(--accent);margin-right:7px"></i>Location &amp; Hours</h3>
+            <div class="fg"><label>Address</label><textarea class="fta" id="c_addr" readonly style="background:#e8fad8;color:var(--muted2);cursor:default"></textarea></div>
+            <div class="fg"><label>Working Hours</label><input class="fi" id="c_hrs" readonly></div>
+            <div class="fg"><label>Email</label><input class="fi" id="c_email" readonly></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOMEPAGE (READ-ONLY) -->
+      <div class="panel" id="panel-homepage">
+        <div class="ro-banner"><i class="fas fa-eye"></i> Homepage sections are managed by the master admin. Changes here are view-only.</div>
+        <div class="sg">
+          <div class="scard">
+            <h3><i class="fas fa-image" style="color:var(--accent);margin-right:7px"></i>Hero Section</h3>
+            <div class="fg"><label>Title</label><input class="fi" id="h_title" readonly></div>
+            <div class="fg"><label>Subtitle</label><input class="fi" id="h_sub" readonly></div>
+            <div class="fg"><label>Badge</label><input class="fi" id="h_badge" readonly></div>
+            <div class="fg"><label>CTA Button</label><input class="fi" id="h_cta" readonly></div>
+          </div>
+          <div class="scard">
+            <h3><i class="fas fa-bullhorn" style="color:var(--gold);margin-right:7px"></i>Announcement &amp; Titles</h3>
+            <div class="fg"><label>Announcement</label><input class="fi" id="h_ann" readonly></div>
+            <div class="fg"><label>Deals Title</label><input class="fi" id="h_dt" readonly></div>
+            <div class="fg"><label>Categories Title</label><input class="fi" id="h_ct" readonly></div>
+            <div class="fg"><label>Brands Title</label><input class="fi" id="h_bt" readonly></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BRANDING (READ-ONLY) -->
+      <div class="panel" id="panel-branding">
+        <div class="ro-banner"><i class="fas fa-eye"></i> Branding and site settings are managed by the master admin.</div>
+        <div class="sg">
+          <div class="scard">
+            <h3><i class="fas fa-image" style="color:var(--accent);margin-right:7px"></i>Store Logo</h3>
+            <img id="logoP" style="width:100%;max-height:110px;object-fit:contain;border-radius:7px;background:#e8fad8;display:none;margin-bottom:10px" alt="Logo">
+            <div class="fg"><label>Logo URL</label><input class="fi" id="logoURL" readonly></div>
+          </div>
+          <div class="scard">
+            <h3><i class="fas fa-cog" style="color:var(--gold);margin-right:7px"></i>Site Settings</h3>
+            <div class="fg"><label>Site Name</label><input class="fi" id="siteName" readonly></div>
+            <div class="fg"><label>Description</label><textarea class="fta" id="siteDesc" readonly style="background:#e8fad8;color:var(--muted2);cursor:default"></textarea></div>
+            <div class="fg"><label>Free Delivery Threshold (KES)</label><input class="fi" id="siteDel" readonly></div>
+            <div class="fg"><label>WhatsApp</label><input class="fi" id="siteWA" readonly></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TESTIMONIALS (READ-ONLY) -->
+      <div class="panel" id="panel-testimonials">
+        <div class="ro-banner"><i class="fas fa-eye"></i> Customer reviews are managed by the master admin.</div>
+        <div class="card">
+          <div class="card-head"><h3>Customer Reviews</h3></div>
+          <div class="tw"><table><thead><tr><th>Author</th><th>Location</th><th>Rating</th><th>Review</th><th>Status</th></tr></thead>
+          <tbody id="revT"><tr><td colspan="5" class="te"><i class="fas fa-spinner fa-spin"></i></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- LEGAL (READ-ONLY) -->
+      <div class="panel" id="panel-legal">
+        <div class="ro-banner"><i class="fas fa-eye"></i> Legal pages are managed by the master admin.</div>
+        <div class="card">
+          <div class="card-head"><h3>Legal Pages</h3></div>
+          <div class="tw"><table><thead><tr><th>Title</th><th>Slug</th><th>Updated</th><th>Status</th></tr></thead>
+          <tbody id="legalT"><tr><td colspan="4" class="te"><i class="fas fa-spinner fa-spin"></i></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ORDER VIEW MODAL -->
+<div class="mo" id="ordModal"><div class="mb md">
+  <div class="mh"><h3>Order Details</h3><button class="mc" onclick="closeMo('ordModal')">×</button></div>
+  <div class="mbody" id="ordBody"></div>
+  <div class="mfoot">
+    <button class="btn ghost" onclick="closeMo('ordModal')">Close</button>
+    <div style="display:flex;align-items:center;gap:9px">
+      <select class="fsel" id="ordStatus" style="min-width:140px;padding:10px 14px;background:#f0fce6;border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:var(--font-body);font-size:13.5px;outline:none"></select>
+      <button class="btn primary" onclick="updateOrdStatus()"><i class="fas fa-save"></i> Update Status</button>
+    </div>
+  </div>
+</div></div>
+
+<!-- PRODUCT MODAL -->
+<div class="mo" id="pmModal"><div class="mb lg">
+  <div class="mh"><h3 id="pmTitle">Add Product</h3><button class="mc" onclick="closeMo('pmModal')">×</button></div>
+  <div class="mbody">
+    <input type="hidden" id="pm_id">
+    <div class="ro-banner" style="margin-bottom:18px"><i class="fas fa-info-circle"></i> You can add and edit products. To delete a product, contact the master admin.</div>
+    <div class="fr"><div class="fg"><label>Name *</label><input class="fi" id="pm_name" placeholder="e.g. Samsung 55″ 4K TV"></div><div class="fg"><label>SKU</label><input class="fi" id="pm_sku" placeholder="SKU-001"></div></div>
+    <div class="fr"><div class="fg"><label>Price (KES) *</label><input type="number" class="fi" id="pm_price" placeholder="45000" min="0"></div><div class="fg"><label>Old Price</label><input type="number" class="fi" id="pm_old" placeholder="55000" min="0"></div></div>
+    <div class="fr"><div class="fg"><label>Category</label><select class="fsel" id="pm_cat"><option value="">— None —</option></select></div><div class="fg"><label>Brand</label><select class="fsel" id="pm_brand"><option value="">— None —</option></select></div></div>
+    <div class="fr"><div class="fg"><label>Badge</label><select class="fsel" id="pm_badge"><option value="">None</option><option value="NEW">NEW</option><option value="SALE">SALE</option><option value="HOT">HOT</option><option value="DEAL">DEAL</option></select></div><div class="fg"><label>Stock</label><input type="number" class="fi" id="pm_stock" placeholder="0" min="0"></div></div>
+    <div class="fg"><label>Description</label><textarea class="fta" id="pm_desc" rows="3" placeholder="Product description…"></textarea></div>
+    <div class="fg"><label>Images (URLs, comma-separated)</label><textarea class="fta" id="pm_imgs" rows="2" oninput="previewImgs()"></textarea><div class="mi-grid" id="imgGrid"></div></div>
+    <div class="fg"><label>Upload Images</label>
+      <div class="drop" onclick="document.getElementById('pmFiles').click()"><i class="fas fa-cloud-upload-alt"></i><p>Click to upload</p><span>Max 3MB each</span><input type="file" id="pmFiles" class="ffile" accept="image/*" multiple onchange="uploadProdImgs(this.files)"></div>
+      <div id="pmUpSt"></div>
+    </div>
+    <div class="fr"><div class="fg"><label>Rating (0–5)</label><input type="number" class="fi" id="pm_rating" placeholder="4.5" step="0.1" min="0" max="5"></div><div class="fg"><label>Reviews Count</label><input type="number" class="fi" id="pm_reviews" placeholder="0" min="0"></div></div>
+    <div style="display:flex;gap:18px;flex-wrap:wrap">
+      <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13.5px;color:var(--muted2)"><input type="checkbox" id="pm_active" checked> Active</label>
+      <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13.5px;color:var(--muted2)"><input type="checkbox" id="pm_feat"> Featured</label>
+    </div>
+  </div>
+  <div class="mfoot"><button class="btn ghost" onclick="closeMo('pmModal')">Cancel</button><button class="btn primary" id="savePMBtn" onclick="saveProd()"><i class="fas fa-save"></i> Save Product</button></div>
+</div></div>
+
+<!-- MESSAGE VIEW MODAL -->
+<div class="mo" id="msgModal"><div class="mb md">
+  <div class="mh"><h3>Message Details</h3><button class="mc" onclick="closeMo('msgModal')">×</button></div>
+  <div class="mbody" id="msgBody"></div>
+  <div class="mfoot"><button class="btn ghost" onclick="closeMo('msgModal')">Close</button></div>
+</div></div>
+
+<div class="tw-wrap"><div class="toast" id="toast"><i class="fas fa-check-circle ti" id="toastIcon"></i><span id="toastMsg"></span></div></div>
+
+<script>
+'use strict';
+let CU=null, curPanel='dashboard', rtCh=null, CU_PERMS=[];
+let allOrders=[], allProducts=[], allMsgs=[];
+let curOrdId=null;
+const sb=()=>window.supabase;
+const SELLER_ROLE='seller';
+const ALL_PERMS=['orders','products','deals','categories','messages','newsletter','social','contact','homepage','branding','testimonials','legal'];
+
+function waitSB(){return new Promise(r=>{if(window.supabase){r();return;}window.addEventListener('supabase-ready',r,{once:true});const t=setInterval(()=>{if(window.supabase){clearInterval(t);r();}},50);})}
+
+/* ═══ HELPERS ═══ */
+function esc(s){if(!s&&s!==0)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
+function setText(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+function fmtD(d){if(!d)return'—';return new Date(d).toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'});}
+function emptyR(c,m){return`<tr><td colspan="${c}" class="te"><i class="fas fa-inbox"></i><br>${esc(m)}</td></tr>`;}
+function openMo(id){document.getElementById(id)?.classList.add('open');document.body.style.overflow='hidden';}
+function closeMo(id){document.getElementById(id)?.classList.remove('open');document.body.style.overflow='';}
+function filterT(id,q){const rows=document.querySelectorAll(`#${id} tr`);const ql=q.toLowerCase();rows.forEach(r=>r.style.display=r.textContent.toLowerCase().includes(ql)?'':'none');}
+function togglePw(){const i=document.getElementById('loginPw'),e=document.getElementById('eyeIcon');if(!i||!e)return;const s=i.type==='password';i.type=s?'text':'password';e.className=s?'fas fa-eye-slash':'fas fa-eye';}
+function popSel(id,items,valFn,lblFn){const s=document.getElementById(id);if(!s)return;s.innerHTML='<option value="">— None —</option>'+(items||[]).map(i=>`<option value="${esc(valFn(i))}">${esc(lblFn(i))}</option>`).join('');}
+function hasPerm(p){return CU_PERMS.includes(p);}
+
+/* ═══ PERMISSIONS — APPLY TO NAV ═══ */
+function applyPermissions(){
+  // Map permission key → nav button ids and panel ids
+  const map={
+    orders:['nav-orders'],products:['nav-products'],deals:['nav-deals'],
+    categories:['nav-categories'],messages:['nav-messages'],newsletter:['nav-newsletter'],
+    social:['nav-social'],contact:['nav-contact'],homepage:['nav-homepage'],
+    branding:['nav-branding'],testimonials:['nav-testimonials'],legal:['nav-legal']
+  };
+  ALL_PERMS.forEach(p=>{
+    const hasIt=hasPerm(p);
+    (map[p]||[]).forEach(btnId=>{
+      const btn=document.getElementById(btnId);
+      if(btn){
+        if(!hasIt){btn.classList.add('locked');btn.title='No access — contact master admin';}
+        else{btn.classList.remove('locked');}
+      }
+    });
+  });
+}
+
+/* ═══ AUTH ═══ */
+function showForgot(){document.getElementById('loginView').style.display='none';document.getElementById('forgotView').style.display='block';}
+function showLogin(){document.getElementById('forgotView').style.display='none';document.getElementById('loginView').style.display='block';}
+
+async function doReset(){
+  const email=document.getElementById('resetEmail')?.value.trim();
+  const eEl=document.getElementById('resetErr'),okEl=document.getElementById('resetOk'),btn=document.getElementById('resetBtn');
+  eEl.style.display='none';okEl.style.display='none';
+  if(!email){eEl.textContent='Enter your email';eEl.style.display='block';return;}
+  btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending…';
+  await waitSB();
+  try{const{error}=await sb().auth.resetPasswordForEmail(email,{redirectTo:window.location.href});if(error)throw error;okEl.style.display='block';}
+  catch(e){eEl.textContent='Error: '+e.message;eEl.style.display='block';}
+  finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Reset Link';}
+}
+
+async function getProfile(uid){
+  try{const{data,error}=await sb().from('profiles').select('role,full_name,active,permissions').eq('id',uid).single();
+  if(error||!data||data.active===false)return null;return data;}catch(e){return null;}
+}
+
+async function doLogin(){
+  const email=document.getElementById('loginEmail')?.value.trim()||'';
+  const pw=document.getElementById('loginPw')?.value||'';
+  const eEl=document.getElementById('loginErr'),btn=document.getElementById('loginBtn');
+  eEl.style.display='none';
+  if(!email){showErr('Enter your email');return;}
+  if(!pw){showErr('Enter your password');return;}
+  btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Signing in…';
+  await waitSB();
+  try{
+    const{data,error}=await sb().auth.signInWithPassword({email,password:pw});
+    if(error){showErr('Incorrect email or password.');return;}
+    const profile=await getProfile(data.user.id);
+    if(!profile){await sb().auth.signOut();showErr('Account suspended or not found. Contact your admin.');return;}
+    if(profile.role==='admin'){await sb().auth.signOut();showErr('This is the Seller panel. Master admins should use the Master Admin panel.');return;}
+    if(profile.role!==SELLER_ROLE){await sb().auth.signOut();showErr('Access denied. Seller account required.');return;}
+    CU={user:data.user,name:profile.full_name||data.user.email};
+    CU_PERMS=Array.isArray(profile.permissions)?profile.permissions:ALL_PERMS;
+    showApp();
+  }catch(e){showErr('Login failed: '+(e.message||'Unknown error'));}
+  finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-sign-in-alt"></i> Sign In';}
+}
+
+function showErr(m){const e=document.getElementById('loginErr');if(e){e.textContent=m;e.style.display='block';}}
+
+async function checkSession(){
+  await waitSB();
+  try{
+    const{data:{session}}=await sb().auth.getSession();
+    if(session){
+      const profile=await getProfile(session.user.id);
+      if(profile?.role===SELLER_ROLE){
+        CU={user:session.user,name:profile.full_name||session.user.email};
+        CU_PERMS=Array.isArray(profile.permissions)?profile.permissions:ALL_PERMS;
+        showApp();return;
+      }else if(profile?.role==='admin'){window.location.href='admin-master.html';return;}
+      else await sb().auth.signOut();
+    }
+  }catch(e){console.warn(e);}
+  hideLoader();document.getElementById('loginScreen').style.display='flex';
+}
+
+function hideLoader(){const l=document.getElementById('loader');if(l){l.classList.add('done');setTimeout(()=>l.remove(),600);}}
+
+function showApp(){
+  hideLoader();
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').classList.add('show');
+  document.getElementById('sbName').textContent=CU.name;
+  document.getElementById('sbAv').textContent=(CU.name||'S')[0].toUpperCase();
+  applyPermissions();
+  sb().auth.onAuthStateChange((ev,s)=>{if(ev==='SIGNED_OUT'||!s)location.reload();});
+  initDash();
+  setupRT();
+}
+
+function doLogout(){if(confirm('Sign out?')){if(rtCh)sb().removeChannel(rtCh);sb().auth.signOut().then(()=>location.reload());}}
+
+/* ═══ REALTIME ═══ */
+function setupRT(){
+  const el=document.getElementById('rtStatus');
+  rtCh=sb().channel('seller-rt')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'orders'},()=>{toast('🛍️ New order!','info');loadStats();if(curPanel==='orders')loadOrders();if(curPanel==='dashboard')initDash();})
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'contact_messages'},()=>{toast('💬 New message!','info');loadStats();if(curPanel==='messages')loadMsgs();if(curPanel==='dashboard')loadUnreadMsgs();})
+    .subscribe(s=>{if(el)el.innerHTML=s==='SUBSCRIBED'?'<span class="rt-dot"></span> Live':'';});
+}
+
+/* ═══ SIDEBAR ═══ */
+function openSB(){document.getElementById('sidebar')?.classList.add('open');document.getElementById('sbOverlay')?.classList.add('show');}
+function closeSB(){document.getElementById('sidebar')?.classList.remove('open');document.getElementById('sbOverlay')?.classList.remove('show');}
+
+/* ═══ PANELS ═══ */
+const TITLES={dashboard:'Dashboard',orders:'Orders',products:'Products',deals:"Today's Deals",categories:'Categories & Brands',messages:'Messages',newsletter:'Newsletter',social:'Social Media',contact:'Contact Info',homepage:'Homepage',branding:'Branding',testimonials:'Reviews',legal:'Legal Pages'};
+
+function showPanel(name,btn){
+  // Check permission (dashboard always allowed)
+  if(name!=='dashboard'&&!hasPerm(name)){
+    toast('You do not have permission to access this section.','error');return;
+  }
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name)?.classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  document.getElementById('topTitle').textContent=TITLES[name]||name;
+  curPanel=name;loadPanel(name);closeSB();
+}
+function loadPanel(n){
+  switch(n){
+    case 'dashboard':initDash();break;
+    case 'orders':loadOrders();break;
+    case 'products':loadProducts();break;
+    case 'deals':loadDeals();break;
+    case 'categories':loadCatsAndBrands();break;
+    case 'messages':loadMsgs();break;
+    case 'newsletter':loadNewsletter();break;
+    case 'social':loadSocial();break;
+    case 'contact':loadContact();break;
+    case 'homepage':loadHomepage();break;
+    case 'branding':loadBranding();break;
+    case 'testimonials':loadTestimonials();break;
+    case 'legal':loadLegal();break;
+  }
+}
+function refreshPanel(){loadPanel(curPanel);}
+
+/* ═══ DASHBOARD ═══ */
+async function initDash(){await Promise.all([loadStats(),loadPendingOrders(),loadUnreadMsgs()]);}
+
+async function loadStats(){
+  try{
+    const[{count:oc},{count:mc},{count:pc},{count:pend}]=await Promise.all([
+      sb().from('orders').select('*',{count:'exact',head:true}),
+      sb().from('contact_messages').select('*',{count:'exact',head:true}),
+      sb().from('products').select('*',{count:'exact',head:true}).eq('active',true),
+      sb().from('orders').select('*',{count:'exact',head:true}).eq('status','pending'),
+    ]);
+    setText('s-orders',oc??'—');setText('s-msgs',mc??'—');setText('s-products',pc??'—');setText('s-pending',pend??'—');
+    if(pend>0){const b=document.getElementById('pendBadge');if(b){b.textContent=pend;b.style.display='inline';}}
+    const{count:unread}=await sb().from('contact_messages').select('*',{count:'exact',head:true}).eq('read',false);
+    if(unread>0){const b=document.getElementById('unreadBadge');if(b){b.textContent=unread;b.style.display='inline';}}
+  }catch(e){console.warn(e);}
+}
+
+async function loadPendingOrders(){
+  try{
+    const{data}=await sb().from('orders').select('*').eq('status','pending').order('created_at',{ascending:false}).limit(10);
+    const tb=document.getElementById('pendT');if(!tb)return;
+    if(!data?.length){tb.innerHTML=`<tr><td colspan="7" class="te" style="color:var(--green)"><i class="fas fa-check-circle" style="color:var(--green)"></i><br>No pending orders — all clear!</td></tr>`;return;}
+    tb.innerHTML=data.map(o=>{
+      const n=[o.first_name,o.last_name].filter(Boolean).join(' ')||'—';
+      return`<tr><td><strong>${esc(n)}</strong></td><td>${esc(o.phone||'—')}</td><td>${Array.isArray(o.items)?o.items.length:'—'}</td><td>KES ${Number(o.total).toLocaleString()}</td><td>${esc(o.payment_method)}</td><td>${fmtD(o.created_at)}</td><td><button class="tb view" onclick="viewOrd('${esc(o.id)}')"><i class="fas fa-eye"></i> View</button></td></tr>`;
+    }).join('');
+  }catch(e){}
+}
+
+async function loadUnreadMsgs(){
+  try{
+    const{data}=await sb().from('contact_messages').select('*').eq('read',false).order('created_at',{ascending:false}).limit(8);
+    const tb=document.getElementById('unreadT');if(!tb)return;
+    if(!data?.length){tb.innerHTML=`<tr><td colspan="4" class="te" style="color:var(--green)"><i class="fas fa-check-circle" style="color:var(--green)"></i><br>No unread messages</td></tr>`;return;}
+    tb.innerHTML=data.map(m=>`<tr><td><strong>${esc(m.first_name)} ${esc(m.last_name)}</strong></td><td>${esc(m.subject)}</td><td>${fmtD(m.created_at)}</td><td><button class="tb view" onclick="viewMsg('${esc(m.id)}')"><i class="fas fa-eye"></i> Read</button></td></tr>`).join('');
+  }catch(e){}
+}
+
+/* ═══ ORDERS ═══ */
+async function loadOrders(){
+  try{const{data,error}=await sb().from('orders').select('*').order('created_at',{ascending:false});if(error)throw error;allOrders=data||[];renderOrders(allOrders);}
+  catch(e){toast('Error: '+e.message,'error');}
+}
+function renderOrders(rows){
+  const tb=document.getElementById('oT');
+  if(!rows?.length){tb.innerHTML=emptyR(8,'No orders yet');return;}
+  tb.innerHTML=rows.map(o=>{
+    const n=[o.first_name,o.last_name].filter(Boolean).join(' ')||'—';
+    return`<tr><td><strong>${esc(n)}</strong></td><td>${esc(o.phone||'—')}</td><td>${Array.isArray(o.items)?o.items.length:'—'}</td><td><strong>KES ${Number(o.total).toLocaleString()}</strong></td><td>${esc(o.payment_method)}</td><td><span class="badge ${esc(o.status)}">${esc(o.status)}</span></td><td>${fmtD(o.created_at)}</td><td><button class="tb view" onclick="viewOrd('${esc(o.id)}')"><i class="fas fa-eye"></i> View</button></td></tr>`;
+  }).join('');
+}
+function filterOS(s){renderOrders(s?allOrders.filter(o=>o.status===s):allOrders);}
+
+function viewOrd(id){
+  const open=(o)=>{
+    curOrdId=o.id;
+    const items=Array.isArray(o.items)?o.items:[];
+    document.getElementById('ordBody').innerHTML=`
+      <div class="detail-grid">
+        <div class="detail-box"><div class="lbl">Customer</div><p style="font-size:13.5px;font-weight:600;margin-bottom:3px">${esc(o.first_name||'')} ${esc(o.last_name||'')}</p><p style="font-size:12.5px;color:var(--muted2)"><i class="fas fa-phone" style="width:13px"></i> ${esc(o.phone||'—')}</p>${o.email?`<p style="font-size:12.5px;color:var(--muted2)"><i class="fas fa-envelope" style="width:13px"></i> ${esc(o.email)}</p>`:''}</div>
+        <div class="detail-box"><div class="lbl">Delivery</div><p style="font-size:12.5px;color:var(--muted2)">${esc(o.address||'')}, ${esc(o.town||'')}, ${esc(o.county||'')}</p>${o.notes?`<p style="font-size:11.5px;color:var(--muted);margin-top:5px">Note: ${esc(o.notes)}</p>`:''}${o.mpesa_phone?`<p style="font-size:12px;color:var(--green);margin-top:5px">M-Pesa: ${esc(o.mpesa_phone)}</p>`:''}</div>
+      </div>
+      <div class="detail-box" style="margin-bottom:14px"><div class="lbl">Items</div>
+        ${items.map(i=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12.5px"><span>${esc(i.name)} ×${i.qty}</span><span>KES ${Number(i.price*i.qty).toLocaleString()}</span></div>`).join('')||'<p style="color:var(--muted);font-size:12.5px">No items data</p>'}
+        <div style="display:flex;justify-content:space-between;padding:9px 0 0;font-size:14.5px;font-weight:700"><span>Total</span><span>KES ${Number(o.total).toLocaleString()}</span></div>
+      </div>
+      <div style="display:flex;gap:9px;font-size:12.5px;color:var(--muted2);flex-wrap:wrap"><span>Payment: <strong>${esc(o.payment_method)}</strong></span><span>·</span><span>Date: <strong>${fmtD(o.created_at)}</strong></span></div>`;
+    const sel=document.getElementById('ordStatus');
+    sel.innerHTML=['pending','confirmed','processing','dispatched','delivered','cancelled'].map(s=>`<option value="${s}" ${s===o.status?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('');
+    openMo('ordModal');
+  };
+  const cached=allOrders.find(x=>x.id===id);
+  if(cached){open(cached);return;}
+  sb().from('orders').select('*').eq('id',id).single().then(({data})=>{if(data)open(data);});
+}
+
+async function updateOrdStatus(){
+  const s=document.getElementById('ordStatus').value;
+  try{const{error}=await sb().from('orders').update({status:s,updated_at:new Date().toISOString()}).eq('id',curOrdId);if(error)throw error;toast('Status updated!');closeMo('ordModal');loadOrders();loadStats();}
+  catch(e){toast('Error: '+e.message,'error');}
+}
+
+/* ═══ PRODUCTS ═══ */
+async function loadProducts(){
+  try{
+    const[{data:cats},{data:brands},{data}]=await Promise.all([
+      sb().from('categories').select('id,name').eq('active',true).order('sort_order'),
+      sb().from('brands').select('id,name').eq('active',true).order('name'),
+      sb().from('products').select('*').order('created_at',{ascending:false}),
+    ]);
+    allProducts=data||[];renderProducts(allProducts);
+    popSel('pm_cat',cats,c=>c.name,c=>c.name);
+    popSel('pm_brand',brands,b=>b.name,b=>b.name);
+  }catch(e){toast('Error: '+e.message,'error');}
+}
+function renderProducts(rows){
+  const tb=document.getElementById('pT');
+  if(!rows?.length){tb.innerHTML=emptyR(7,'No products yet');return;}
+  tb.innerHTML=rows.map(p=>{const imgs=Array.isArray(p.images)?p.images.filter(Boolean):[];const img=imgs[0]||'';
+  return`<tr><td>${img?`<img src="${esc(img)}" alt="${esc(p.name)}" style="width:42px;height:42px;object-fit:cover;border-radius:7px" loading="lazy" onerror="this.style.display='none'">`:'—'}</td><td><strong>${esc(p.name)}</strong></td><td>${esc(p.category_name||p.category||'—')}</td><td>KES ${Number(p.price).toLocaleString()}</td><td>${p.stock??'—'}</td><td><span class="badge ${p.active?'active':'inactive'}">${p.active?'Active':'Inactive'}</span></td><td><button class="tb edit" onclick="editProd('${esc(p.id)}')"><i class="fas fa-edit"></i> Edit</button></td></tr>`;
+  }).join('');
+}
+function openPM(p){
+  document.getElementById('pmTitle').textContent=p?'Edit Product':'Add Product';
+  document.getElementById('pm_id').value=p?.id||'';
+  document.getElementById('pm_name').value=p?.name||'';
+  document.getElementById('pm_sku').value=p?.sku||'';
+  document.getElementById('pm_price').value=p?.price||'';
+  document.getElementById('pm_old').value=p?.old_price||'';
+  document.getElementById('pm_desc').value=p?.description||'';
+  document.getElementById('pm_stock').value=p?.stock??0;
+  document.getElementById('pm_rating').value=p?.rating||'';
+  document.getElementById('pm_reviews').value=p?.reviews||0;
+  const imgs=Array.isArray(p?.images)?p.images.filter(Boolean):[];
+  document.getElementById('pm_imgs').value=imgs.join(', ');
+  document.getElementById('pm_badge').value=p?.badge||'';
+  document.getElementById('pm_active').checked=p?p.active:true;
+  document.getElementById('pm_feat').checked=p?.featured||false;
+  document.getElementById('pmUpSt').innerHTML='';
+  previewImgs();
+  const cs=document.getElementById('pm_cat'),bs=document.getElementById('pm_brand');
+  if(cs)cs.value=p?.category_name||p?.category||'';
+  if(bs)bs.value=p?.brand_name||p?.brand||'';
+  openMo('pmModal');
+}
+function previewImgs(){const imgs=(document.getElementById('pm_imgs').value||'').split(',').map(s=>s.trim()).filter(Boolean);document.getElementById('imgGrid').innerHTML=imgs.map((u,i)=>`<img class="mi-thumb" src="${esc(u)}" alt="img ${i+1}" loading="lazy" onerror="this.style.opacity='.3'">`).join('');}
+function editProd(id){const p=allProducts.find(x=>x.id===id);if(p)openPM(p);}
+async function saveProd(){
+  const name=document.getElementById('pm_name').value.trim();
+  const price=document.getElementById('pm_price').value;
+  if(!name){toast('Name required','error');return;}
+  if(!price||parseFloat(price)<0){toast('Valid price required','error');return;}
+  const btn=document.getElementById('savePMBtn');
+  btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Saving…';
+  const id=document.getElementById('pm_id').value;
+  const images=(document.getElementById('pm_imgs').value||'').split(',').map(s=>s.trim()).filter(Boolean);
+  const catV=document.getElementById('pm_cat').value||'';
+  const brandV=document.getElementById('pm_brand').value||'';
+  const payload={name,sku:document.getElementById('pm_sku').value.trim()||null,price:parseFloat(price)||0,old_price:parseFloat(document.getElementById('pm_old').value)||null,description:document.getElementById('pm_desc').value.trim(),stock:parseInt(document.getElementById('pm_stock').value)||0,rating:parseFloat(document.getElementById('pm_rating').value)||0,reviews:parseInt(document.getElementById('pm_reviews').value)||0,images,badge:document.getElementById('pm_badge').value||null,category:catV||null,brand:brandV||null,category_name:catV||null,brand_name:brandV||null,active:document.getElementById('pm_active').checked,featured:document.getElementById('pm_feat').checked,updated_at:new Date().toISOString()};
+  try{const{error}=id?await sb().from('products').update(payload).eq('id',id):await sb().from('products').insert({...payload,created_at:new Date().toISOString()});if(error)throw error;toast(id?'Product updated!':'Product added!');closeMo('pmModal');loadProducts();}
+  catch(e){toast('Error: '+e.message,'error');}
+  finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-save"></i> Save Product';}
+}
+async function uploadProdImgs(files){
+  if(!files?.length)return;
+  const st=document.getElementById('pmUpSt');st.innerHTML='<div style="color:var(--blue);font-size:12.5px;padding:8px;background:rgba(37,99,235,0.07);border-radius:7px;border:1px solid rgba(37,99,235,0.18)"><i class="fas fa-spinner fa-spin"></i> Uploading…</div>';
+  const urls=[],errs=[];
+  for(const f of files){
+    if(f.size>3*1024*1024){errs.push(`${f.name} too large`);continue;}
+    try{const path=`products/${Date.now()}_${f.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;const{data,error}=await sb().storage.from('product-images').upload(path,f,{upsert:true});if(error)throw error;const{data:{publicUrl}}=sb().storage.from('product-images').getPublicUrl(data.path);urls.push(publicUrl);}
+    catch(e){errs.push(`${f.name}: ${e.message}`);}
+  }
+  if(urls.length){const cur=document.getElementById('pm_imgs').value.trim();document.getElementById('pm_imgs').value=cur?cur+', '+urls.join(', '):urls.join(', ');previewImgs();toast(`${urls.length} image(s) uploaded!`);st.innerHTML=`<div style="color:var(--green);font-size:12.5px;padding:8px;background:rgba(22,163,74,0.07);border-radius:7px;border:1px solid rgba(22,163,74,0.18)"><i class="fas fa-check-circle"></i> ${urls.length} uploaded.</div>`;}
+  if(errs.length)st.innerHTML+=`<div style="color:var(--red);font-size:12px;margin-top:5px">${errs.join(', ')}</div>`;
+}
+
+/* ═══ DEALS (READ-ONLY) ═══ */
+async function loadDeals(){
+  try{
+    const{data,error}=await sb().from('deals').select('*').eq('active',true).order('sort_order');
+    if(error)throw error;
+    const grid=document.getElementById('dealsGrid');
+    if(!data?.length){grid.innerHTML='<div class="te" style="grid-column:1/-1"><i class="fas fa-tags"></i><br>No active deals right now</div>';return;}
+    grid.innerHTML=data.map(d=>`
+      <div class="deal-card">
+        ${d.image_url?`<img class="deal-img" src="${esc(d.image_url)}" alt="${esc(d.title)}" loading="lazy" onerror="this.style.display='none'">`:`<div class="deal-img placeholder"><i class="fas fa-tag"></i></div>`}
+        <div class="deal-info">
+          ${d.badge?`<span class="deal-badge">${esc(d.badge)}</span>`:''}
+          <div class="deal-title">${esc(d.title)}</div>
+          ${d.description?`<p style="font-size:11.5px;color:var(--muted);margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(d.description)}</p>`:''}
+          <div style="display:flex;align-items:baseline">
+            ${d.price?`<span class="deal-price">KES ${Number(d.price).toLocaleString()}</span>`:''}
+            ${d.old_price?`<span class="deal-old">KES ${Number(d.old_price).toLocaleString()}</span>`:''}
+            ${d.price&&d.old_price?`<span style="margin-left:8px;font-size:11px;font-weight:700;color:var(--green)">-${Math.round((1-d.price/d.old_price)*100)}%</span>`:''}
+          </div>
+        </div>
+      </div>`).join('');
+  }catch(e){toast('Error loading deals: '+e.message,'error');}
+}
+
+/* ═══ CATEGORIES & BRANDS (READ-ONLY) ═══ */
+async function loadCatsAndBrands(){
+  try{
+    const[{data:cats,error:ce},{data:brands,error:be}]=await Promise.all([
+      sb().from('categories').select('*').order('sort_order'),
+      sb().from('brands').select('*').order('name'),
+    ]);
+    const catTb=document.getElementById('catT');
+    if(ce||!cats?.length){catTb.innerHTML=emptyR(3,ce?ce.message:'No categories yet');}
+    else catTb.innerHTML=cats.map(c=>`<tr><td><strong>${esc(c.name)}</strong></td><td style="color:var(--muted2)">${esc(c.slug)}</td><td><span class="badge ${c.active?'active':'inactive'}">${c.active?'Active':'Inactive'}</span></td></tr>`).join('');
+    const brandTb=document.getElementById('brandT');
+    if(be||!brands?.length){brandTb.innerHTML=emptyR(2,be?be.message:'No brands yet');}
+    else brandTb.innerHTML=brands.map(b=>`<tr><td><strong>${esc(b.name)}</strong></td><td><span class="badge ${b.active?'active':'inactive'}">${b.active?'Active':'Inactive'}</span></td></tr>`).join('');
+  }catch(e){toast('Error: '+e.message,'error');}
+}
+
+/* ═══ MESSAGES ═══ */
+async function loadMsgs(){
+  try{const{data,error}=await sb().from('contact_messages').select('*').order('created_at',{ascending:false});if(error)throw error;allMsgs=data||[];
+  const tb=document.getElementById('msgT');
+  if(!allMsgs.length){tb.innerHTML=emptyR(6,'No messages yet');return;}
+  tb.innerHTML=allMsgs.map(m=>`<tr><td><strong>${esc(m.first_name)} ${esc(m.last_name)}</strong></td><td>${esc(m.email)}</td><td>${esc(m.subject)}</td><td>${fmtD(m.created_at)}</td><td><span class="badge ${m.read?'active':'unread'}">${m.read?'Read':'Unread'}</span></td><td><button class="tb view" onclick="viewMsg('${esc(m.id)}')"><i class="fas fa-eye"></i> Read</button></td></tr>`).join('');}
+  catch(e){toast('Error: '+e.message,'error');}
+}
+
+async function viewMsg(id){
+  const m=allMsgs.find(x=>x.id===id);
+  const show=(m)=>{
+    document.getElementById('msgBody').innerHTML=`
+      <div style="display:grid;gap:9px;margin-bottom:14px">
+        <div style="display:flex;gap:7px"><span style="color:var(--muted);min-width:75px;font-size:12.5px">From:</span><strong>${esc(m.first_name)} ${esc(m.last_name)}</strong></div>
+        <div style="display:flex;gap:7px"><span style="color:var(--muted);min-width:75px;font-size:12.5px">Email:</span><a href="mailto:${esc(m.email)}" style="color:var(--accent);font-size:13px">${esc(m.email)}</a></div>
+        <div style="display:flex;gap:7px"><span style="color:var(--muted);min-width:75px;font-size:12.5px">Subject:</span>${esc(m.subject)}</div>
+        <div style="display:flex;gap:7px"><span style="color:var(--muted);min-width:75px;font-size:12.5px">Date:</span><span style="color:var(--muted2)">${fmtD(m.created_at)}</span></div>
+      </div>
+      <div class="msg-body">${esc(m.message||'').replace(/\n/g,'<br>')}</div>
+      <div style="margin-top:12px;padding:9px 13px;background:rgba(37,99,235,0.06);border-radius:7px;border:1px solid rgba(37,99,235,0.18);font-size:12px;color:var(--blue)"><i class="fas fa-info-circle"></i> To reply, email the customer directly at <a href="mailto:${esc(m.email)}" style="color:var(--blue);font-weight:600">${esc(m.email)}</a></div>`;
+    openMo('msgModal');
+  };
+  if(m){
+    show(m);
+    if(!m.read){await sb().from('contact_messages').update({read:true}).eq('id',id);loadMsgs();loadStats();}
+    return;
+  }
+  const{data}=await sb().from('contact_messages').select('*').eq('id',id).single();
+  if(data){show(data);if(!data.read){await sb().from('contact_messages').update({read:true}).eq('id',id);loadMsgs();loadStats();}}
+}
+
+/* ═══ NEWSLETTER (READ-ONLY) ═══ */
+async function loadNewsletter(){
+  try{
+    const{data,error}=await sb().from('newsletter_subscribers').select('*').order('subscribed_at',{ascending:false});
+    if(error)throw error;
+    const tb=document.getElementById('newsT');
+    if(!data?.length){tb.innerHTML=emptyR(3,'No subscribers yet');return;}
+    tb.innerHTML=data.map(s=>`<tr><td><strong>${esc(s.email)}</strong></td><td>${fmtD(s.subscribed_at||s.created_at)}</td><td><span class="badge ${s.active!==false?'active':'inactive'}">${s.active!==false?'Active':'Unsubscribed'}</span></td></tr>`).join('');
+  }catch(e){toast('Error: '+e.message,'error');}
+}
+
+/* ═══ SOCIAL (READ-ONLY) ═══ */
+async function loadSocial(){
+  try{
+    const{data,error}=await sb().from('social_links').select('*').order('sort_order');
+    if(error)throw error;
+    const tb=document.getElementById('socT');
+    if(!data?.length){tb.innerHTML=emptyR(3,'No social links yet');return;}
+    tb.innerHTML=data.map(s=>`<tr><td><div style="display:flex;align-items:center;gap:9px"><div class="sip platform-${esc(s.platform_name)}"><i class="${esc(s.icon_class)}"></i></div><strong>${esc(s.platform_name)}</strong></div></td><td><a href="${esc(s.url)}" target="_blank" rel="noopener" style="color:var(--blue);font-size:11.5px;word-break:break-all">${esc(s.url)}</a></td><td><span class="badge ${s.active?'active':'inactive'}">${s.active?'Active':'Inactive'}</span></td></tr>`).join('');
+  }catch(e){toast('Error: '+e.message,'error');}
+}
+
+/* ═══ CONTACT (READ-ONLY) ═══ */
+async function loadContact(){
+  try{
+    const{data}=await sb().from('contact_info').select('*').limit(1).single();
+    if(!data)return;
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v||'';};
+    set('c_cs',data.phone_customer_service);set('c_del',data.phone_delivery);
+    set('c_wa',data.whatsapp);set('c_addr',data.address);
+    set('c_hrs',data.working_hours);set('c_email',data.email);
+  }catch(e){}
+}
+
+/* ═══ HOMEPAGE (READ-ONLY) ═══ */
+async function loadHomepage(){
+  try{
+    const{data}=await sb().from('homepage_sections').select('*');
+    if(!data)return;
+    data.forEach(s=>{
+      const set=(id,v)=>{const e=document.getElementById(id);if(e&&v!=null)e.value=v;};
+      switch(s.section_name){
+        case'hero':set('h_title',s.title);set('h_sub',s.subtitle);set('h_badge',s.content?.badge);set('h_cta',s.content?.cta_primary);break;
+        case'announcement':set('h_ann',s.title);break;
+        case'deals':set('h_dt',s.title);break;
+        case'categories':set('h_ct',s.title);break;
+        case'brands':set('h_bt',s.title);break;
+      }
+    });
+  }catch(e){}
+}
+
+/* ═══ BRANDING (READ-ONLY) ═══ */
+async function loadBranding(){
+  try{
+    const[{data:logo},{data:ss}]=await Promise.all([
+      sb().from('media_assets').select('file_url').eq('type','logo').eq('active',true).order('created_at',{ascending:false}).limit(1).single(),
+      sb().from('site_settings').select('*').limit(1).single(),
+    ]);
+    if(logo?.file_url){const e=document.getElementById('logoP');if(e){e.src=logo.file_url;e.style.display='block';}const u=document.getElementById('logoURL');if(u)u.value=logo.file_url;}
+    if(ss){
+      const set=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v||'';};
+      set('siteName',ss.site_name);set('siteDesc',ss.description);set('siteDel',ss.free_delivery_threshold);set('siteWA',ss.whatsapp);
+    }
+  }catch(e){}
+}
+
+/* ═══ TESTIMONIALS (READ-ONLY) ═══ */
+async function loadTestimonials(){
+  try{
+    const{data,error}=await sb().from('testimonials').select('*').order('sort_order',{ascending:true});
+    const tb=document.getElementById('revT');
+    if(error||!data?.length){tb.innerHTML=emptyR(5,error?error.message:'No reviews yet');return;}
+    tb.innerHTML=data.map(t=>`<tr><td><strong>${esc(t.author_name||'—')}</strong></td><td>${esc(t.author_location||'—')}</td><td style="color:var(--gold)">${'★'.repeat(Math.min(5,t.rating||5))}${'☆'.repeat(5-Math.min(5,t.rating||5))}</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc((t.review_text||'').substring(0,80))}${(t.review_text||'').length>80?'…':''}</td><td><span class="badge ${t.active!==false?'active':'inactive'}">${t.active!==false?'Active':'Hidden'}</span></td></tr>`).join('');
+  }catch(e){document.getElementById('revT').innerHTML=emptyR(5,'Error: '+e.message);}
+}
+
+/* ═══ LEGAL (READ-ONLY) ═══ */
+async function loadLegal(){
+  try{
+    const{data,error}=await sb().from('legal_pages').select('*').order('sort_order');
+    if(error)throw error;
+    const tb=document.getElementById('legalT');
+    if(!data?.length){tb.innerHTML=emptyR(4,'No pages yet');return;}
+    tb.innerHTML=data.map(p=>`<tr><td><strong>${esc(p.title)}</strong></td><td style="color:var(--muted2);font-size:11.5px">${esc(p.slug)}</td><td style="font-size:11.5px;color:var(--muted2)">${fmtD(p.updated_at)}</td><td><span class="badge ${p.active?'active':'inactive'}">${p.active?'Active':'Inactive'}</span></td></tr>`).join('');
+  }catch(e){toast('Error: '+e.message,'error');}
+}
+
+/* ═══ TOAST ═══ */
+let tt;
+function toast(msg,type='success'){const t=document.getElementById('toast'),m=document.getElementById('toastMsg'),i=document.getElementById('toastIcon');if(!t)return;clearTimeout(tt);m.textContent=msg;t.className='toast '+type;i.className=`fas ${type==='error'?'fa-exclamation-circle':type==='info'?'fa-info-circle':'fa-check-circle'} ti`;t.classList.add('show');tt=setTimeout(()=>t.classList.remove('show'),3500);}
+
+/* ═══ KEYBOARD / BACKDROP ═══ */
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.mo.open').forEach(m=>{m.classList.remove('open');document.body.style.overflow='';});closeSB();}});
+document.querySelectorAll('.mo').forEach(mo=>mo.addEventListener('click',e=>{if(e.target===mo){mo.classList.remove('open');document.body.style.overflow='';}}));
+document.addEventListener('DOMContentLoaded',()=>checkSession());
+</script>
+</body>
+</html>

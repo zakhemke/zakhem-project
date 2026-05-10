@@ -115,6 +115,9 @@ button{font-family:var(--font-body);cursor:pointer}
 .trust-item i{color:var(--green);font-size:14px}
 .hero-visual{position:relative;display:flex;align-items:center;justify-content:center}
 .hero-img-box{width:100%;max-width:480px;aspect-ratio:4/3;border-radius:24px;overflow:hidden;box-shadow:var(--shadow-lg);background:#e8fad8;position:relative}
+.hero-img-box::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#e8fad8 25%,#d4f5b0 50%,#e8fad8 75%);background-size:200% 100%;animation:shimmer 1.6s infinite;z-index:0}
+.hero-img-box.loaded::before{display:none}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .hero-slide-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .9s ease-in-out}
 .hero-slide-img.active{opacity:1}
 /* keep hero-img rule so old .show logic is harmless */
@@ -442,8 +445,8 @@ footer{background:#1c3309;color:#d4ffa0;padding:56px 24px 0}
         <i class="fas fa-shopping-bag"></i>
         Cart <span class="cart-badge" id="cartBadge">0</span>
       </button>
-      <button class="hdr-btn cta" onclick="document.getElementById('contact')?.scrollIntoView({behavior:'smooth'})">
-        <i class="fas fa-whatsapp"></i> WhatsApp
+      <button class="hdr-btn cta" onclick="openWhatsApp('Hello, I have a question about your products.')">
+        <i class="fab fa-whatsapp"></i> WhatsApp
       </button>
       <button class="mob-menu-btn" onclick="openMobNav()" aria-label="Menu"><i class="fas fa-bars"></i></button>
     </div>
@@ -693,7 +696,7 @@ footer{background:#1c3309;color:#d4ffa0;padding:56px 24px 0}
         <a href="legal.html?policy=privacy-policy">Privacy</a>
         <a href="legal.html?policy=terms-and-conditions">Terms</a>
         <a href="legal.html">Legal Hub</a>
-        <a href="admin.html">Admin</a>
+        
       </div>
     </div>
   </div>
@@ -1231,6 +1234,7 @@ function handleSearch(q) {
     (p.badge||'').toLowerCase().includes(ql)
   );
   renderProducts();
+  if (ql) document.getElementById('products')?.scrollIntoView({behavior:'smooth'});
 }
 
 /* ═══════════════════════════════════════════════════
@@ -1313,10 +1317,12 @@ let heroSlideTimer = null;
 function startHeroSlideshow(images) {
   const box = document.getElementById('heroSlideBox');
   if (!box || !images.length) return;
-  // Build img elements
   box.innerHTML = images.map((url, i) =>
     `<img class="hero-slide-img${i===0?' active':''}" src="${esc(url)}" alt="Product" loading="${i===0?'eager':'lazy'}" onerror="this.style.display='none'">`
   ).join('');
+  // Remove shimmer once first image loads
+  const first = box.querySelector('.hero-slide-img.active');
+  if (first) first.addEventListener('load', () => box.classList.add('loaded'), {once:true});
   if (images.length < 2) return;
   heroSlideTimer = setInterval(() => {
     const imgs = box.querySelectorAll('.hero-slide-img');

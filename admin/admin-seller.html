@@ -13,7 +13,9 @@
   const SUPABASE_URL      = 'https://onhzqxdfbrzjmhyybteb.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uaHpxeGRmYnJ6am1oeXlidGViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwMTgyOTAsImV4cCI6MjA5MzU5NDI5MH0.yaUiBaNhU5F3JL3dszmEFKR6EEl3eQp0OqoI-T-NHQ0';
   window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  window.history.replaceState({}, document.title, window.location.pathname);
+  window.supabase.auth.onAuthStateChange(() => {
+    if (window.location.hash) window.history.replaceState({}, document.title, window.location.pathname);
+  });
   window.dispatchEvent(new Event('supabase-ready'));
 </script>
 <style>
@@ -243,7 +245,7 @@ tr:hover td{background:#f8fef2}
 </div>
 
 <!-- LOGIN -->
-<div class="login-screen" id="loginScreen" style="display:none">
+<div class="login-screen" id="loginScreen">
   <div class="login-box" id="loginView">
     <div class="login-logo">Z</div>
     <div class="role-tag"><i class="fas fa-store"></i> Seller Account</div>
@@ -649,8 +651,8 @@ async function doReset(){
 }
 
 async function getProfile(uid){
-  try{const{data,error}=await sb().from('profiles').select('role,full_name,active,permissions').eq('id',uid).single();
-  if(error||!data||data.active===false)return null;return data;}catch(e){return null;}
+  try{const{data,error}=await sb().from('profiles').select('role,full_name,active,permissions').eq('id',uid).maybeSingle();
+  if(error)throw error;if(!data)return null;if(data.active===false)return{...data,_suspended:true};return data;}catch(e){console.error('getProfile:',e.message);return null;}
 }
 
 async function doLogin(){
@@ -679,12 +681,13 @@ async function doLogin(){
 function showErr(m){const e=document.getElementById('loginErr');if(e){e.textContent=m;e.style.display='block';}}
 
 async function checkSession(){
-  await waitSB();
+  document.getElementById('loginScreen').style.display='none';
   try{
+    await Promise.race([waitSB(),new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),8000))]);
     const{data:{session}}=await sb().auth.getSession();
     if(session){
       const profile=await getProfile(session.user.id);
-      if(profile?.role===SELLER_ROLE){
+      if(profile&&!profile._suspended&&profile.role===SELLER_ROLE){
         CU={user:session.user,name:profile.full_name||session.user.email};
         CU_PERMS=Array.isArray(profile.permissions)?profile.permissions:ALL_PERMS;
         showApp();return;

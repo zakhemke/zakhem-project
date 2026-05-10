@@ -1,8 +1,13 @@
 RewriteEngine On
 
-RewriteCond %{REQUEST_FILENAME} !-f
+# Hide .html extension
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}.html -f
-RewriteRule ^(.*)$ $1.html [L]
+RewriteRule ^([^/.]+)$ $1.html [L]
 
+# Redirect .html URLs to clean URLs
+RewriteCond %{THE_REQUEST} \s/+(.+?)\.html[\s?] [NC]
+RewriteRule ^(.+)\.html$ /$1 [R=301,L]
+
+# Default homepage
 DirectoryIndex index.html

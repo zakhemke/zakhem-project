@@ -402,6 +402,7 @@ tr:hover td{background:#f8fef2}
                 <option>pending</option><option>confirmed</option><option>processing</option>
                 <option>dispatched</option><option>delivered</option><option>cancelled</option>
               </select>
+              <button class="btn ghost" onclick="exportOrdersCSV()" title="Export to CSV"><i class="fas fa-download"></i> Export CSV</button>
             </div>
           </div>
           <div class="tw"><table><thead><tr><th>Customer</th><th>Phone</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
@@ -786,11 +787,12 @@ tr:hover td{background:#f8fef2}
   <div class="mh"><h3>Reset Seller Password</h3><button class="mc" onclick="closeMo('rspModal')">×</button></div>
   <div class="mbody">
     <input type="hidden" id="rsp_uid">
-    <p style="font-size:13px;color:var(--muted2);margin-bottom:18px">Set a new password for <strong id="rsp_name"></strong>.</p>
-    <div class="fg"><label>New Password *</label><div style="position:relative"><input type="password" class="fi" id="rsp_pw" placeholder="Min 8 characters" style="padding-right:42px"><button type="button" onclick="togglePw('rsp_pw','eyeR')" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px"><i class="fas fa-eye" id="eyeR"></i></button></div></div>
-    <div class="alert warn"><i class="fas fa-exclamation-triangle"></i> Click "Copy SQL" then paste and run it in your Supabase SQL Editor.</div>
+    <input type="hidden" id="rsp_email">
+    <p style="font-size:13px;color:var(--muted2);margin-bottom:14px">Send a password reset email to <strong id="rsp_name"></strong>. They'll receive a secure link to set a new password.</p>
+    <div class="alert info" style="margin-bottom:0"><i class="fas fa-info-circle"></i> The reset link will redirect the seller to the seller panel login page.</div>
+    <div id="rspStatus" style="margin-top:12px"></div>
   </div>
-  <div class="mfoot"><button class="btn ghost" onclick="closeMo('rspModal')">Cancel</button><button class="btn danger" onclick="copyResetSQL()"><i class="fas fa-copy"></i> Copy SQL to Run</button></div>
+  <div class="mfoot"><button class="btn ghost" onclick="closeMo('rspModal')">Cancel</button><button class="btn primary" onclick="sendResetEmail()"><i class="fas fa-paper-plane"></i> Send Reset Email</button></div>
 </div></div>
 
 <div class="tw-wrap"><div class="toast" id="toast"><i class="fas fa-check-circle ti" id="toastIcon"></i><span id="toastMsg"></span></div></div>
@@ -901,19 +903,19 @@ function refreshPanel(){loadPanel(curPanel);}
 async function initDash(){await Promise.all([loadStats(),loadActivity(),loadRecentOrders()]);}
 async function loadStats(){
   try{
-    const[{count:pc},{count:oc},{count:mc},{count:sc},{count:uc}]=await Promise.all([
+    const results=await Promise.allSettled([
       sb().from('products').select('*',{count:'exact',head:true}).eq('active',true),
       sb().from('orders').select('*',{count:'exact',head:true}),
       sb().from('contact_messages').select('*',{count:'exact',head:true}),
       sb().from('newsletter_subscribers').select('*',{count:'exact',head:true}),
       sb().from('profiles').select('*',{count:'exact',head:true}),
     ]);
-    setText('s-products',pc??'—');setText('s-orders',oc??'—');setText('s-messages',mc??'—');setText('s-subs',sc??'—');setText('s-users',uc??'—');
-    const{count:unread}=await sb().from('contact_messages').select('*',{count:'exact',head:true}).eq('read',false);
-    if(unread>0){const b=document.getElementById('unreadBadge');if(b){b.textContent=unread;b.style.display='inline';}}
-    const{count:pend}=await sb().from('orders').select('*',{count:'exact',head:true}).eq('status','pending');
-    if(pend>0){const b=document.getElementById('pendBadge');if(b){b.textContent=pend;b.style.display='inline';}}
-  }catch(e){console.warn(e);}
+    const counts=results.map(r=>r.status==='fulfilled'?r.value.count??'—':'—');
+    const[pc,oc,mc,sc,uc]=counts;
+    setText('s-products',pc);setText('s-orders',oc);setText('s-messages',mc);setText('s-subs',sc);setText('s-users',uc);
+    try{const{count:unread}=await sb().from('contact_messages').select('*',{count:'exact',head:true}).eq('read',false);if(unread>0){const b=document.getElementById('unreadBadge');if(b){b.textContent=unread;b.style.display='inline';}}}catch(e){}
+    try{const{count:pend}=await sb().from('orders').select('*',{count:'exact',head:true}).eq('status','pending');if(pend>0){const b=document.getElementById('pendBadge');if(b){b.textContent=pend;b.style.display='inline';}}}catch(e){}
+  }catch(e){console.warn('loadStats:',e);}
 }
 async function loadActivity(){
   try{
@@ -948,7 +950,7 @@ async function loadProducts(){
 function renderProducts(rows){
   const tb=document.getElementById('pT');
   if(!rows?.length){tb.innerHTML=emptyR(8,'No products yet');return;}
-  tb.innerHTML=rows.map(p=>{const imgs=Array.isArray(p.images)?p.images.filter(Boolean):[];const img=imgs[0]||'';return`<tr><td>${img?`<img src="${esc(img)}" alt="${esc(p.name)}" style="width:42px;height:42px;object-fit:cover;border-radius:7px" loading="lazy" onerror="this.style.display='none'">`:'—'}</td><td><strong>${esc(p.name)}</strong>${p.featured?' <span class="badge active" style="font-size:9px">FEAT</span>':''}</td><td>${esc(p.category_name||p.category||'—')}</td><td>${esc(p.brand_name||p.brand||'—')}</td><td>KES ${Number(p.price).toLocaleString()}</td><td>${p.badge?`<span class="badge">${esc(p.badge)}</span>`:'—'}</td><td><span class="badge ${p.active?'active':'inactive'}">${p.active?'Active':'Inactive'}</span></td><td class="ac"><button class="tb edit" onclick="editProd('${esc(p.id)}')"><i class="fas fa-edit"></i></button><button class="tb del" onclick="delProd('${esc(p.id)}')"><i class="fas fa-trash"></i></button></td></tr>`;}).join('');
+  tb.innerHTML=rows.map(p=>{const imgs=Array.isArray(p.images)?p.images.filter(Boolean):[];const img=imgs[0]||'';const lowStock=p.stock!=null&&p.stock<=5&&p.stock>0;const noStock=p.stock===0;return`<tr><td>${img?`<img src="${esc(img)}" alt="${esc(p.name)}" style="width:42px;height:42px;object-fit:cover;border-radius:7px" loading="lazy" onerror="this.style.display='none'">`:'—'}</td><td><strong>${esc(p.name)}</strong>${p.featured?' <span class="badge active" style="font-size:9px">FEAT</span>':''}${noStock?' <span class="badge inactive" style="font-size:9px;background:rgba(192,57,43,0.11);color:var(--red)">OUT</span>':lowStock?` <span class="badge" style="font-size:9px;background:rgba(230,135,10,0.11);color:var(--gold)">LOW:${p.stock}</span>':''}</td><td>${esc(p.category_name||p.category||'—')}</td><td>${esc(p.brand_name||p.brand||'—')}</td><td>KES ${Number(p.price).toLocaleString()}</td><td>${p.badge?`<span class="badge">${esc(p.badge)}</span>`:'—'}</td><td><span class="badge ${p.active?'active':'inactive'}">${p.active?'Active':'Inactive'}</span></td><td class="ac"><button class="tb edit" onclick="editProd('${esc(p.id)}')"><i class="fas fa-edit"></i></button><button class="tb del" onclick="delProd('${esc(p.id)}')"><i class="fas fa-trash"></i></button></td></tr>`;}).join('');
 }
 function openPM(p){
   document.getElementById('pmTitle').textContent=p?'Edit Product':'Add Product';
@@ -997,6 +999,21 @@ async function uploadProdImgs(files){if(!files?.length)return;const st=document.
 async function loadOrders(){try{const{data,error}=await sb().from('orders').select('*').order('created_at',{ascending:false});if(error)throw error;allOrders=data||[];renderOrders(allOrders);}catch(e){toast('Error: '+e.message,'error');}}
 function renderOrders(rows){const tb=document.getElementById('oT');if(!rows?.length){tb.innerHTML=emptyR(8,'No orders yet');return;}tb.innerHTML=rows.map(o=>{const n=[o.first_name,o.last_name].filter(Boolean).join(' ')||'—';return`<tr><td>${esc(n)}</td><td>${esc(o.phone||'—')}</td><td>${Array.isArray(o.items)?o.items.length:'—'}</td><td><strong>KES ${Number(o.total).toLocaleString()}</strong></td><td>${esc(o.payment_method)}</td><td><span class="badge ${esc(o.status)}">${esc(o.status)}</span></td><td>${fmtD(o.created_at)}</td><td class="ac"><button class="tb view" onclick="viewOrd('${esc(o.id)}')"><i class="fas fa-eye"></i></button><button class="tb del" onclick="delOrd('${esc(o.id)}')"><i class="fas fa-trash"></i></button></td></tr>`;}).join('');}
 function filterOS(s){renderOrders(s?allOrders.filter(o=>o.status===s):allOrders);}
+function exportOrdersCSV(){
+  if(!allOrders.length){toast('No orders to export','error');return;}
+  const headers=['Order ID','First Name','Last Name','Phone','Email','County','Town','Address','Items','Total (KES)','Payment','Status','Date'];
+  const rows=allOrders.map(o=>[
+    o.id||'',o.first_name||'',o.last_name||'',o.phone||'',o.email||'',
+    o.county||'',o.town||'',o.address||'',
+    Array.isArray(o.items)?o.items.map(i=>`${i.name} x${i.qty}`).join(' | '):'',
+    o.total||0,o.payment_method||'',o.status||'',
+    o.created_at?new Date(o.created_at).toLocaleString('en-KE'):''
+  ].map(v=>'"'+String(v).replace(/"/g,'""')+'"'));
+  const csv=[headers.map(h=>'"'+h+'"').join(','),...rows.map(r=>r.join(','))].join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=`zakhem-orders-${new Date().toISOString().slice(0,10)}.csv`;a.click();
+  toast('Orders exported!');
+}
 function viewOrd(id){
   const o=allOrders.find(x=>x.id===id);if(!o)return;
   curOrdId=id;
@@ -1134,17 +1151,24 @@ async function addSeller(){
     const{data:sd,error:se}=await sb().auth.signUp({email,password:pw,options:{data:{full_name:name,role:'seller'},emailRedirectTo:null}});
     if(se)throw se;
     if(!sd?.user)throw new Error('No user data returned.');
-    const{error:pe}=await sb().from('profiles').upsert({id:sd.user.id,full_name:name,email,role:'seller',active:true,permissions:perms,created_at:new Date().toISOString()},{onConflict:'id'});
+    // FIX: retry upsert up to 3 times with delay — Supabase may not commit auth.users instantly
+    let pe=null;
+    for(let attempt=0;attempt<3;attempt++){
+      if(attempt>0)await new Promise(r=>setTimeout(r,800*attempt));
+      ({error:pe}=await sb().from('profiles').upsert({id:sd.user.id,full_name:name,email,role:'seller',active:true,permissions:perms,created_at:new Date().toISOString()},{onConflict:'id'}));
+      if(!pe)break;
+    }
     if(pe)throw pe;
     ['sName','sEmail','sPw','sPw2'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('pwBar').className='pw-bar';document.getElementById('pwHint').textContent='';
     selectAllPerms(false);
     ['orders','products','messages'].forEach(v=>{const cb=document.querySelector(`input[name="perm"][value="${v}"]`);if(cb){cb.checked=true;updatePermItem(cb);}});
-    st.innerHTML=`<div class="alert ok"><strong><i class="fas fa-check-circle"></i> Seller created!</strong><br><span style="font-size:12px">${esc(name)} (${esc(email)}) — <strong>${perms.length}</strong> permission(s) granted. They can log in at <a href="admin-seller.html" style="color:var(--green);font-weight:700">admin-seller.html</a>${!sd.user.confirmed_at?' — <em>disable email confirmation in Supabase Auth for instant access</em>':''}</span></div>`;
+    const needsConfirm=!sd.user.confirmed_at&&!sd.user.email_confirmed_at;
+    st.innerHTML=`<div class="alert ok"><strong><i class="fas fa-check-circle"></i> Seller created!</strong><br><span style="font-size:12px">${esc(name)} (${esc(email)}) — <strong>${perms.length}</strong> permission(s) granted. They can log in at <a href="admin-seller.html" style="color:var(--green);font-weight:700">admin-seller.html</a>${needsConfirm?' — <em style="color:var(--gold)">⚠ Disable email confirmation in Supabase Auth → Settings for instant access</em>':''}</span></div>`;
     toast(`Seller account created for ${name}!`);
     loadStaff();
   }catch(e){
-    const msg=e.message?.includes('already registered')?'That email is already registered.':e.message;
+    const msg=e.message?.includes('already registered')||e.message?.includes('already been registered')?'That email is already registered.':e.message;
     st.innerHTML=`<div class="alert err"><i class="fas fa-exclamation-circle"></i> ${esc(msg)}</div>`;
     toast('Error: '+msg,'error');
   }finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-user-plus"></i> Create Seller Account';}
@@ -1162,7 +1186,7 @@ async function loadStaff(){
       const ab=susp?'<span class="badge inactive">Suspended</span>':'<span class="badge active">Active</span>';
       const perms=Array.isArray(u.permissions)?u.permissions:ALL_PERMS;
       const permDisplay=isAdmin?'<span style="color:var(--muted);font-size:11.5px">Full access</span>':`<span class="perms-badge">${perms.length}/${ALL_PERMS.length}</span> <span style="font-size:11px;color:var(--muted)">${perms.slice(0,3).join(', ')}${perms.length>3?'…':''}</span>`;
-      const acts=isAdmin?'<span style="color:var(--muted);font-size:11.5px">Protected</span>':`<button class="tb edit" onclick="openEditPerms('${esc(u.id)}','${esc(u.full_name||u.email)}',${JSON.stringify(perms).replace(/'/g,'&#39;')})" title="Edit permissions"><i class="fas fa-shield-alt"></i> Perms</button><button class="tb edit" onclick="toggleStaff('${esc(u.id)}',${!susp})" title="${susp?'Restore':'Suspend'}"><i class="fas fa-toggle-${susp?'off':'on'}"></i></button><button class="tb view" onclick="openRSP('${esc(u.id)}','${esc(u.full_name||u.email)}')" title="Reset pw"><i class="fas fa-key"></i></button><button class="tb del" onclick="removeStaff('${esc(u.id)}','${esc(u.full_name||u.email)}')" title="Remove"><i class="fas fa-user-minus"></i></button>`;
+      const acts=isAdmin?'<span style="color:var(--muted);font-size:11.5px">Protected</span>':`<button class="tb edit" onclick="openEditPerms('${esc(u.id)}','${esc(u.full_name||u.email)}',${JSON.stringify(perms).replace(/'/g,'&#39;')})" title="Edit permissions"><i class="fas fa-shield-alt"></i> Perms</button><button class="tb edit" onclick="toggleStaff('${esc(u.id)}',${!susp})" title="${susp?'Restore':'Suspend'}"><i class="fas fa-toggle-${susp?'off':'on'}"></i></button><button class="tb view" onclick="openRSP('${esc(u.id)}','${esc(u.full_name||u.email)}','${esc(u.email||'')}')" title="Reset password"><i class="fas fa-key"></i></button><button class="tb del" onclick="removeStaff('${esc(u.id)}','${esc(u.full_name||u.email)}')" title="Remove"><i class="fas fa-user-minus"></i></button>`;
       return`<tr><td><strong>${esc(u.full_name||'—')}</strong></td><td>${esc(u.email||'—')}</td><td>${rb}</td><td>${permDisplay}</td><td>${ab}</td><td>${fmtD(u.created_at)}</td><td class="ac">${acts}</td></tr>`;
     }).join('');
   }catch(e){document.getElementById('staffT').innerHTML=emptyR(7,'Error: '+e.message);}
@@ -1182,8 +1206,23 @@ async function savePerms(){
 }
 async function toggleStaff(id,active){try{const{error}=await sb().from('profiles').update({active}).eq('id',id);if(error)throw error;toast(active?'Account restored.':'Account suspended.');loadStaff();}catch(e){toast('Error: '+e.message,'error');}}
 async function removeStaff(id,name){if(!confirm(`Remove ${name} from staff?`))return;try{const{error}=await sb().from('profiles').update({role:'revoked',active:false}).eq('id',id);if(error)throw error;toast(`${name} removed.`);loadStaff();}catch(e){toast('Error: '+e.message,'error');}}
-function openRSP(uid,name){document.getElementById('rsp_uid').value=uid;document.getElementById('rsp_name').textContent=name;document.getElementById('rsp_pw').value='';openMo('rspModal');}
-function copyResetSQL(){const uid=document.getElementById('rsp_uid').value;const pw=document.getElementById('rsp_pw').value.trim();if(!pw||pw.length<8){toast('Enter password (min 8 chars)','error');return;}const sql=`-- Run in Supabase SQL Editor:\nSELECT auth.update_user_password('${uid}', '${pw.replace(/'/g,"''")}');\n-- Alternative:\n-- UPDATE auth.users SET encrypted_password = crypt('${pw.replace(/'/g,"''")}', gen_salt('bf')) WHERE id = '${uid}';`;navigator.clipboard?.writeText(sql).then(()=>{toast('SQL copied! Paste in Supabase SQL Editor.','info');closeMo('rspModal');}).catch(()=>{prompt('Copy this SQL:',sql);});}
+function openRSP(uid,name,email){document.getElementById('rsp_uid').value=uid;document.getElementById('rsp_email').value=email||'';document.getElementById('rsp_name').textContent=name;document.getElementById('rspStatus').innerHTML='';openMo('rspModal');}
+async function sendResetEmail(){
+  const email=document.getElementById('rsp_email').value.trim();
+  const st=document.getElementById('rspStatus');
+  if(!email){st.innerHTML='<div class="alert err"><i class="fas fa-exclamation-circle"></i> No email address found.</div>';return;}
+  const btn=document.querySelector('#rspModal .btn.primary');
+  if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending…';}
+  try{
+    const{error}=await sb().auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+'/admin-seller.html'});
+    if(error)throw error;
+    st.innerHTML=`<div class="alert ok"><i class="fas fa-check-circle"></i> Password reset email sent to <strong>${esc(email)}</strong>. The seller will receive a link to set a new password.</div>`;
+    toast('Reset email sent!');
+  }catch(e){
+    st.innerHTML=`<div class="alert err"><i class="fas fa-exclamation-circle"></i> ${esc(e.message)}</div>`;
+    toast('Error: '+e.message,'error');
+  }finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Reset Email';}}
+}
 
 /* TOAST */
 let tt;

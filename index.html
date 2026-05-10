@@ -838,9 +838,6 @@ footer{background:#1c3309;color:#d4ffa0;padding:56px 24px 0}
 /* ═══════════════════════════════════════════════════
    SUPABASE INIT
 ═══════════════════════════════════════════════════ */
-const SUPABASE_URL      = 'https://onhzqxdfbrzjmhyybteb.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uaHpxeGRmYnJ6am1oeXlidGViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwMTgyOTAsImV4cCI6MjA5MzU5NDI5MH0.yaUiBaNhU5F3JL3dszmEFKR6EEl3eQp0OqoI-T-NHQ0';
-
 function sb() { return window.supabase; }
 
 function waitForSupabase() {
@@ -1482,6 +1479,66 @@ function selectPayment(val) {
 
 function openCheckout() {
   if (!cart.length) { toast('Your cart is empty!', 'error'); return; }
+
+  // Restore form if it was replaced by the success screen
+  if (!document.getElementById('checkoutSummary')) {
+    document.getElementById('checkoutContent').innerHTML = `
+      <div class="checkout-body">
+        <div class="checkout-section">
+          <h4><i class="fas fa-shopping-cart" style="color:var(--green);margin-right:6px"></i> Order Summary</h4>
+          <div class="checkout-order-summary" id="checkoutSummary"></div>
+        </div>
+        <div class="checkout-section">
+          <h4><i class="fas fa-user" style="color:var(--green);margin-right:6px"></i> Your Details</h4>
+          <div class="form-row-2">
+            <div class="form-group"><label>First Name *</label><input type="text" class="form-input" id="co_fname" placeholder="John" required></div>
+            <div class="form-group"><label>Last Name *</label><input type="text" class="form-input" id="co_lname" placeholder="Doe" required></div>
+          </div>
+          <div class="form-group"><label>Phone *</label><input type="tel" class="form-input" id="co_phone" placeholder="+254 7XX XXX XXX" required></div>
+          <div class="form-group"><label>Email (optional)</label><input type="email" class="form-input" id="co_email" placeholder="john@example.com"></div>
+        </div>
+        <div class="checkout-section">
+          <h4><i class="fas fa-map-marker-alt" style="color:var(--green);margin-right:6px"></i> Delivery Address</h4>
+          <div class="form-row-2">
+            <div class="form-group"><label>County *</label><input type="text" class="form-input" id="co_county" placeholder="Nairobi" required></div>
+            <div class="form-group"><label>Town *</label><input type="text" class="form-input" id="co_town" placeholder="Westlands" required></div>
+          </div>
+          <div class="form-group"><label>Street / Estate *</label><input type="text" class="form-input" id="co_address" placeholder="e.g. Highridge Estate, House 5A" required></div>
+          <div class="form-group"><label>Order Notes (optional)</label><textarea class="form-input" id="co_notes" rows="2" placeholder="Special delivery instructions…"></textarea></div>
+        </div>
+        <div class="checkout-section">
+          <h4><i class="fas fa-money-bill-wave" style="color:var(--green);margin-right:6px"></i> Payment Method</h4>
+          <div class="payment-options">
+            <label class="payment-opt selected" id="payOptMpesa">
+              <input type="radio" name="payment" value="mpesa" checked onchange="selectPayment('mpesa')">
+              <i class="fas fa-mobile-alt" style="color:var(--green)"></i> M-Pesa
+            </label>
+            <label class="payment-opt" id="payOptCash">
+              <input type="radio" name="payment" value="cash" onchange="selectPayment('cash')">
+              <i class="fas fa-money-bill" style="color:var(--gold)"></i> Cash on Delivery
+            </label>
+            <label class="payment-opt" id="payOptBank">
+              <input type="radio" name="payment" value="bank" onchange="selectPayment('bank')">
+              <i class="fas fa-university" style="color:var(--blue)"></i> Bank Transfer
+            </label>
+            <label class="payment-opt" id="payOptWa">
+              <input type="radio" name="payment" value="whatsapp" onchange="selectPayment('whatsapp')">
+              <i class="fab fa-whatsapp" style="color:#25d366"></i> Via WhatsApp
+            </label>
+          </div>
+          <div id="mpesaPhoneRow" class="form-group" style="margin-top:12px">
+            <label>M-Pesa Phone Number *</label>
+            <input type="tel" class="form-input" id="co_mpesa" placeholder="254 7XX XXX XXX">
+          </div>
+        </div>
+      </div>
+      <div class="checkout-footer">
+        <button class="place-order-btn" id="placeOrderBtn" onclick="placeOrder()">
+          <i class="fas fa-check-circle"></i> Place Order
+        </button>
+      </div>`;
+  }
+
   // Build summary
   const subtotal = cart.reduce((s,i)=>s+i.price*i.qty,0);
   let summary = cart.map(i =>
@@ -1520,7 +1577,15 @@ async function placeOrder() {
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Placing order…';
 
   const subtotal = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  // Get current session so user_id is attached (required by RLS)
+  let userId = null;
+  try {
+    const { data: { session } } = await sb().auth.getSession();
+    userId = session?.user?.id || null;
+  } catch(e) {}
+
   const orderData = {
+    user_id:        userId,
     first_name:     fname,
     last_name:      lname,
     phone,
@@ -1538,9 +1603,9 @@ async function placeOrder() {
   };
 
   try {
-    const { data, error } = await sb().from('orders').insert(orderData).select('id').single();
+    const { data, error } = await sb().from('orders').insert(orderData).select('id');
     if (error) throw error;
-    currentOrderId = data?.id;
+    currentOrderId = data?.[0]?.id;
 
     // FIX: WhatsApp notification uses dynamic number from DB (not hardcoded)
     // FIX: The "WhatsApp" payment option is a separate choice — not mislabeled as M-Pesa
@@ -1562,13 +1627,14 @@ async function placeOrder() {
     updateCartUI();
 
     // Show success
+    const mpesaNote = selectedPayment === 'mpesa' ? '<p style="font-size:13px;color:var(--muted);margin-bottom:20px">Our team will send you an M-Pesa payment request shortly.</p>' : '';
     document.getElementById('checkoutContent').innerHTML = `
       <div class="order-success">
         <div class="check-icon"><i class="fas fa-check"></i></div>
         <h2>Order Placed! 🎉</h2>
         <p>Thank you <strong>${esc(fname)}</strong>! Your order has been received and we'll contact you at <strong>${esc(phone)}</strong> to confirm delivery details.</p>
         <div class="order-ref">Order Reference: <strong>${esc(currentOrderId||'—')}</strong></div>
-        ${selectedPayment === 'mpesa' ? `<p style="font-size:13px;color:var(--muted);margin-bottom:20px">Our team will send you an M-Pesa payment request shortly.</p>` : ''}
+        ${mpesaNote}
         <button class="btn-primary" onclick="closeCheckout();document.getElementById('products')?.scrollIntoView({behavior:'smooth'})">
           <i class="fas fa-shopping-bag"></i> Continue Shopping
         </button>

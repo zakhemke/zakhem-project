@@ -13,7 +13,9 @@
   const SUPABASE_URL      = 'https://onhzqxdfbrzjmhyybteb.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uaHpxeGRmYnJ6am1oeXlidGViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwMTgyOTAsImV4cCI6MjA5MzU5NDI5MH0.yaUiBaNhU5F3JL3dszmEFKR6EEl3eQp0OqoI-T-NHQ0';
   window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  window.history.replaceState({}, document.title, window.location.pathname);
+  window.supabase.auth.onAuthStateChange(() => {
+    if (window.location.hash) window.history.replaceState({}, document.title, window.location.pathname);
+  });
   window.dispatchEvent(new Event('supabase-ready'));
 </script>
 <style>
@@ -252,7 +254,7 @@ tr:hover td{background:#f8fef2}
   <div class="lb"><div class="lbf"></div></div>
 </div>
 
-<div class="login-screen" id="loginScreen" style="display:none">
+<div class="login-screen" id="loginScreen">
   <div class="login-box" id="loginView">
     <div class="login-logo">Z</div>
     <div class="role-tag"><i class="fas fa-crown"></i> Master Admin Access</div>
@@ -843,7 +845,7 @@ function showForgot(){document.getElementById('loginView').style.display='none';
 function showLogin(){document.getElementById('forgotView').style.display='none';document.getElementById('loginView').style.display='block';}
 async function doReset(){const email=document.getElementById('resetEmail')?.value.trim();const eEl=document.getElementById('resetErr'),okEl=document.getElementById('resetOk'),btn=document.getElementById('resetBtn');eEl.style.display='none';okEl.style.display='none';if(!email){eEl.textContent='Enter your email';eEl.style.display='block';return;}btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i>';await waitSB();try{const{error}=await sb().auth.resetPasswordForEmail(email,{redirectTo:window.location.href});if(error)throw error;okEl.style.display='block';}catch(e){eEl.textContent='Error: '+e.message;eEl.style.display='block';}finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Reset Link';}}
 
-async function getProfile(uid){try{const{data,error}=await sb().from('profiles').select('role,full_name,active').eq('id',uid).single();if(error||!data||data.active===false)return null;return data;}catch(e){return null;}}
+async function getProfile(uid){try{const{data,error}=await sb().from('profiles').select('role,full_name,active').eq('id',uid).maybeSingle();if(error)throw error;if(!data)return null;if(data.active===false)return{...data,_suspended:true};return data;}catch(e){console.error('getProfile:',e.message);return null;}}
 
 async function doLogin(){
   const email=document.getElementById('loginEmail')?.value.trim()||'';
@@ -859,14 +861,16 @@ async function doLogin(){
     const{data,error}=await sb().auth.signInWithPassword({email,password:pw});
     if(error){loginAttempts++;if(loginAttempts>=MAX_ATT){loginLocked=Date.now()+30000;lEl.textContent='Too many attempts. Locked 30s.';lEl.style.display='block';loginAttempts=0;}else showErr('Incorrect credentials.');return;}
     const profile=await getProfile(data.user.id);
-    if(!profile||profile.role!=='admin'){await sb().auth.signOut();if(profile?.role==='seller'){window.location.href='admin-seller.html';return;}showErr('Access denied. Master Admins only.');return;}
+    if(!profile){await sb().auth.signOut();showErr('Profile not found — check Supabase RLS on profiles table.');return;}
+    if(profile._suspended){await sb().auth.signOut();showErr('This account has been suspended.');return;}
+    if(profile.role!=='admin'){await sb().auth.signOut();if(profile.role==='seller'){window.location.href='admin-seller.html';return;}showErr('Access denied. Master Admins only.');return;}
     loginAttempts=0;CU={user:data.user,role:profile.role,name:profile.full_name||data.user.email};showApp();
   }catch(e){showErr('Login failed: '+(e.message||'Unknown'));}
   finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-lock"></i> Sign In';}
 }
 function showErr(m){const e=document.getElementById('loginErr');if(e){e.textContent=m;e.style.display='block';}}
 
-async function checkSession(){await waitSB();try{const{data:{session}}=await sb().auth.getSession();if(session){const profile=await getProfile(session.user.id);if(profile?.role==='admin'){CU={user:session.user,role:profile.role,name:profile.full_name||session.user.email};showApp();return;}else if(profile?.role==='seller'){window.location.href='admin-seller.html';return;}else await sb().auth.signOut();}}catch(e){console.warn(e);}hideLoader();document.getElementById('loginScreen').style.display='flex';}
+async function checkSession(){document.getElementById('loginScreen').style.display='none';try{await Promise.race([waitSB(),new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),8000))]);const{data:{session}}=await sb().auth.getSession();if(session){const profile=await getProfile(session.user.id);if(profile&&!profile._suspended&&profile.role==='admin'){CU={user:session.user,role:profile.role,name:profile.full_name||session.user.email};showApp();return;}else if(profile?.role==='seller'){window.location.href='admin-seller.html';return;}else await sb().auth.signOut();}}catch(e){console.warn(e);}hideLoader();document.getElementById('loginScreen').style.display='flex';}
 
 function hideLoader(){const l=document.getElementById('loader');if(l){l.classList.add('done');setTimeout(()=>l.remove(),600);}}
 function showApp(){hideLoader();document.getElementById('loginScreen').style.display='none';document.getElementById('app').classList.add('show');document.getElementById('sbEmail').textContent=CU.name;document.getElementById('sbAv').textContent=(CU.name||'A')[0].toUpperCase();sb().auth.onAuthStateChange((ev,s)=>{if(ev==='SIGNED_OUT'||!s)location.reload();});initDash();setupRT();}
@@ -950,7 +954,7 @@ async function loadProducts(){
 function renderProducts(rows){
   const tb=document.getElementById('pT');
   if(!rows?.length){tb.innerHTML=emptyR(8,'No products yet');return;}
-  tb.innerHTML=rows.map(p=>{const imgs=Array.isArray(p.images)?p.images.filter(Boolean):[];const img=imgs[0]||'';const lowStock=p.stock!=null&&p.stock<=5&&p.stock>0;const noStock=p.stock===0;return`<tr><td>${img?`<img src="${esc(img)}" alt="${esc(p.name)}" style="width:42px;height:42px;object-fit:cover;border-radius:7px" loading="lazy" onerror="this.style.display='none'">`:'—'}</td><td><strong>${esc(p.name)}</strong>${p.featured?' <span class="badge active" style="font-size:9px">FEAT</span>':''}${noStock?' <span class="badge inactive" style="font-size:9px;background:rgba(192,57,43,0.11);color:var(--red)">OUT</span>':lowStock?` <span class="badge" style="font-size:9px;background:rgba(230,135,10,0.11);color:var(--gold)">LOW:${p.stock}</span>':''}</td><td>${esc(p.category_name||p.category||'—')}</td><td>${esc(p.brand_name||p.brand||'—')}</td><td>KES ${Number(p.price).toLocaleString()}</td><td>${p.badge?`<span class="badge">${esc(p.badge)}</span>`:'—'}</td><td><span class="badge ${p.active?'active':'inactive'}">${p.active?'Active':'Inactive'}</span></td><td class="ac"><button class="tb edit" onclick="editProd('${esc(p.id)}')"><i class="fas fa-edit"></i></button><button class="tb del" onclick="delProd('${esc(p.id)}')"><i class="fas fa-trash"></i></button></td></tr>`;}).join('');
+  tb.innerHTML=rows.map(p=>{const imgs=Array.isArray(p.images)?p.images.filter(Boolean):[];const img=imgs[0]||'';const lowStock=p.stock!=null&&p.stock<=5&&p.stock>0;const noStock=p.stock===0;return`<tr><td>${img?`<img src="${esc(img)}" alt="${esc(p.name)}" style="width:42px;height:42px;object-fit:cover;border-radius:7px" loading="lazy" onerror="this.style.display='none'">`:'—'}</td><td><strong>${esc(p.name)}</strong>${p.featured?' <span class="badge active" style="font-size:9px">FEAT</span>':''}${noStock?' <span class="badge inactive" style="font-size:9px;background:rgba(192,57,43,0.11);color:var(--red)">OUT</span>':lowStock?` <span class="badge" style="font-size:9px;background:rgba(230,135,10,0.11);color:var(--gold)">LOW:${p.stock}</span>`:''}</td><td>${esc(p.category_name||p.category||'—')}</td><td>${esc(p.brand_name||p.brand||'—')}</td><td>KES ${Number(p.price).toLocaleString()}</td><td>${p.badge?`<span class="badge">${esc(p.badge)}</span>`:'—'}</td><td><span class="badge ${p.active?'active':'inactive'}">${p.active?'Active':'Inactive'}</span></td><td class="ac"><button class="tb edit" onclick="editProd('${esc(p.id)}')"><i class="fas fa-edit"></i></button><button class="tb del" onclick="delProd('${esc(p.id)}')"><i class="fas fa-trash"></i></button></td></tr>`;}).join('');
 }
 function openPM(p){
   document.getElementById('pmTitle').textContent=p?'Edit Product':'Add Product';

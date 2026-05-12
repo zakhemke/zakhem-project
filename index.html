@@ -120,7 +120,6 @@ button{font-family:var(--font-body);cursor:pointer}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .hero-slide-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .9s ease-in-out}
 .hero-slide-img.active{opacity:1}
-/* keep hero-img rule so old .show logic is harmless */
 .hero-img{display:none!important}
 .hero-float-card{position:absolute;background:#fff;border-radius:16px;padding:14px 18px;box-shadow:var(--shadow-lg);border:1px solid #c8eaa0;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:#1c3309;animation:float-card 3s ease-in-out infinite}
 @keyframes float-card{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
@@ -144,7 +143,9 @@ section{padding:64px 24px}
 .cat-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(110,217,48,0.08),transparent);opacity:0;transition:opacity .3s}
 .cat-card:hover{border-color:var(--green);transform:translateY(-3px);box-shadow:var(--shadow-green)}
 .cat-card:hover::before{opacity:1}
-.cat-card.active-filter{border-color:var(--green);background:rgba(110,217,48,0.08)}
+.cat-card.active-filter{border-color:var(--green);background:rgba(110,217,48,0.08);transform:translateY(-3px);box-shadow:var(--shadow-green)}
+.cat-card.active-filter::before{opacity:1}
+.cat-card.active-filter .cat-icon{background:var(--green);color:#0a1007}
 .cat-icon{width:36px;height:36px;background:rgba(110,217,48,0.12);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--green);margin:0 auto 8px;transition:var(--transition)}
 .cat-card:hover .cat-icon{background:var(--green);color:#0a1007}
 .cat-card h4{font-family:var(--font-head);font-size:11.5px;font-weight:700;color:#1c3309;line-height:1.2}
@@ -233,8 +234,7 @@ section{padding:64px 24px}
 .contact-item{display:flex;gap:16px;align-items:flex-start}
 .contact-icon{width:46px;height:46px;background:rgba(110,217,48,0.12);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--green);flex-shrink:0}
 .contact-item h4{font-family:var(--font-head);font-size:14px;font-weight:700;color:#1c3309;margin-bottom:4px}
-.contact-item p,
-.contact-item a{font-size:14px;color:#4a6a2a;line-height:1.6;display:block}
+.contact-item p,.contact-item a{font-size:14px;color:#4a6a2a;line-height:1.6;display:block}
 .contact-item a:hover{color:var(--green)}
 .wa-btn{display:inline-flex;align-items:center;gap:8px;background:#25d366;color:#fff;padding:12px 24px;border-radius:50px;font-family:var(--font-head);font-size:14px;font-weight:700;margin-top:24px;transition:var(--transition);border:none;cursor:pointer}
 .wa-btn:hover{background:#1ebe5d;transform:translateY(-2px);box-shadow:0 8px 24px rgba(37,211,102,0.35)}
@@ -517,7 +517,7 @@ footer{background:#1c3309;color:#d4ffa0;padding:56px 24px 0}
   </div>
 </section>
 
-<!-- DEALS — FIX: now reads from deals table -->
+<!-- DEALS -->
 <section class="deals-section" id="deals">
   <div class="section-inner">
     <div class="section-head">
@@ -674,7 +674,7 @@ footer{background:#1c3309;color:#d4ffa0;padding:56px 24px 0}
       <div class="footer-col">
         <h4>Legal</h4>
         <div id="footerLegal">
-          <a href="legal.html">Terms & Conditions</a>
+          <a href="legal.html">Terms &amp; Conditions</a>
           <a href="legal.html?policy=privacy-policy">Privacy Policy</a>
           <a href="legal.html?policy=returns-refunds-policy">Returns Policy</a>
           <a href="legal.html?policy=shipping-policy">Shipping Policy</a>
@@ -696,7 +696,6 @@ footer{background:#1c3309;color:#d4ffa0;padding:56px 24px 0}
         <a href="legal.html?policy=privacy-policy">Privacy</a>
         <a href="legal.html?policy=terms-and-conditions">Terms</a>
         <a href="legal.html">Legal Hub</a>
-        
       </div>
     </div>
   </div>
@@ -858,23 +857,19 @@ let currentSort = 'newest';
 let modalQty = 1;
 let modalProduct = null;
 let currentOrderId = null;
-let siteWhatsApp = '254716833833'; // FIX: single source — overwritten by DB
-let freeDeliveryThreshold = 25000; // overwritten by DB
-
-// FIX: cart with localStorage fallback (works in private browsing)
+let siteWhatsApp = '254716833833';
+let freeDeliveryThreshold = 25000;
 let cart = [];
 
 function loadCart() {
   try {
     const saved = localStorage.getItem('zakhem_cart');
     cart = saved ? JSON.parse(saved) : [];
-  } catch(e) {
-    cart = []; // incognito / storage blocked — in-memory fallback
-  }
+  } catch(e) { cart = []; }
 }
 
 function saveCart() {
-  try { localStorage.setItem('zakhem_cart', JSON.stringify(cart)); } catch(e) { /* in-memory only */ }
+  try { localStorage.setItem('zakhem_cart', JSON.stringify(cart)); } catch(e) {}
 }
 
 /* ═══════════════════════════════════════════════════
@@ -887,9 +882,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   await waitForSupabase();
   await Promise.allSettled([
     loadSiteData(),
-    loadHomepageSections(),  // FIX: now actually called
+    loadHomepageSections(),
     loadCategories(),
-    loadDeals(),             // FIX: now reads from deals table
+    loadDeals(),
     loadProducts(),
     loadBrands(),
     loadReviews(),
@@ -901,7 +896,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function hideLoader() {
   const el = document.getElementById('pageLoader');
-  if (el) { el.classList.add('hidden'); setTimeout(()=>el.remove(), 600); }
+  if (el) { el.classList.add('hidden'); setTimeout(() => el.remove(), 600); }
 }
 
 window.addEventListener('scroll', () => {
@@ -910,10 +905,9 @@ window.addEventListener('scroll', () => {
 });
 
 /* ═══════════════════════════════════════════════════
-   SITE DATA (contact info, logo, settings)
+   SITE DATA
 ═══════════════════════════════════════════════════ */
 async function loadSiteData() {
-  // Logo
   try {
     const { data: logoData } = await sb()
       .from('media_assets').select('file_url').eq('type','logo').eq('active',true)
@@ -925,7 +919,6 @@ async function loadSiteData() {
     }
   } catch(e) {}
 
-  // Site settings — FIX: consolidate whatsapp from single DB source
   try {
     const { data: ss } = await sb().from('site_settings').select('*').limit(1).single();
     if (ss) {
@@ -943,12 +936,10 @@ async function loadSiteData() {
         const formatted = 'KES ' + Number(ss.free_delivery_threshold).toLocaleString() + '+';
         document.getElementById('freeDeliveryText').textContent = 'Free Delivery ' + formatted;
       }
-      // FIX: single WhatsApp source from DB
       if (ss.whatsapp) siteWhatsApp = ss.whatsapp;
     }
   } catch(e) {}
 
-  // Contact info
   try {
     const { data: ci } = await sb().from('contact_info').select('*').limit(1).single();
     if (ci) {
@@ -975,14 +966,13 @@ async function loadSiteData() {
         document.getElementById('footerEmail').textContent = ci.email;
         document.getElementById('footerEmail').href = 'mailto:' + ci.email;
       }
-      // FIX: WhatsApp from contact_info as fallback
       if (ci.whatsapp && siteWhatsApp === '254716833833') siteWhatsApp = ci.whatsapp;
     }
   } catch(e) {}
 }
 
 /* ═══════════════════════════════════════════════════
-   FIX #4A: HOMEPAGE SECTIONS — now wired to the store
+   HOMEPAGE SECTIONS
 ═══════════════════════════════════════════════════ */
 async function loadHomepageSections() {
   try {
@@ -996,33 +986,20 @@ async function loadHomepageSections() {
           set('heroSubtitle', s.subtitle);
           if (s.content?.badge)       { const el=document.getElementById('heroBadge'); if(el) el.innerHTML=`<i class="fas fa-bolt"></i> ${s.content.badge}`; }
           if (s.content?.cta_primary) { const el=document.getElementById('heroCtaBtn'); if(el) el.innerHTML=`<i class="fas fa-shopping-bag"></i> ${s.content.cta_primary}`; }
-          // Only update the subtle background — never touch the visual box
-          if (s.content?.bg_image) {
-            const bg = document.getElementById('heroBgImg');
-            if (bg) { bg.src = s.content.bg_image; bg.style.opacity='0.15'; }
-          }
+          if (s.content?.bg_image)    { const bg=document.getElementById('heroBgImg'); if(bg) { bg.src=s.content.bg_image; bg.style.opacity='0.15'; } }
           break;
         case 'announcement':
           set('announcementText', s.title);
           break;
         case 'deals':
-          if (s.title) {
-            const el = document.getElementById('dealsSectionTitle');
-            if (el) el.innerHTML = s.title.replace(/(Deals|Best|Today)/gi, '<span>$1</span>');
-          }
+          if (s.title) { const el=document.getElementById('dealsSectionTitle'); if(el) el.innerHTML=s.title.replace(/(Deals|Best|Today)/gi,'<span>$1</span>'); }
           set('dealsSectionSub', s.subtitle);
           break;
         case 'categories':
-          if (s.title) {
-            const el = document.getElementById('catSectionTitle');
-            if (el) el.innerHTML = s.title.replace(/(Category|Categories)/gi,'<span>$1</span>');
-          }
+          if (s.title) { const el=document.getElementById('catSectionTitle'); if(el) el.innerHTML=s.title.replace(/(Category|Categories)/gi,'<span>$1</span>'); }
           break;
         case 'brands':
-          if (s.title) {
-            const el = document.getElementById('brandsSectionTitle');
-            if (el) el.innerHTML = s.title.replace(/(Brands?)/gi,'<span>$1</span>');
-          }
+          if (s.title) { const el=document.getElementById('brandsSectionTitle'); if(el) el.innerHTML=s.title.replace(/(Brands?)/gi,'<span>$1</span>'); }
           break;
       }
     });
@@ -1043,7 +1020,7 @@ async function loadSocialLinks() {
 }
 
 /* ═══════════════════════════════════════════════════
-   LEGAL LINKS (footer)
+   LEGAL LINKS
 ═══════════════════════════════════════════════════ */
 async function loadLegalLinks() {
   try {
@@ -1056,22 +1033,26 @@ async function loadLegalLinks() {
 }
 
 /* ═══════════════════════════════════════════════════
-   CATEGORIES
+   CATEGORIES — FIXED
 ═══════════════════════════════════════════════════ */
 async function loadCategories() {
   try {
     const { data, error } = await sb().from('categories').select('*').eq('active',true).order('sort_order');
     if (error) throw error;
     const grid = document.getElementById('catGrid');
-    if (!data?.length) { grid.innerHTML = '<div style="color:var(--muted);text-align:center;grid-column:1/-1;padding:40px">No categories yet</div>'; return; }
+    if (!data?.length) {
+      grid.innerHTML = '<div style="color:var(--muted);text-align:center;grid-column:1/-1;padding:40px">No categories yet</div>';
+      return;
+    }
 
     // Populate filter tabs
     const tabs = document.getElementById('filterTabs');
     tabs.innerHTML = `<button class="filter-tab active" onclick="filterByCategory('all',this)">All</button>` +
       data.map(c => `<button class="filter-tab" onclick="filterByCategory('${esc(c.slug)}',this)">${esc(c.name)}</button>`).join('');
 
+    // Category cards — clicking finds and activates the matching tab too
     grid.innerHTML = data.map(c => `
-      <div class="cat-card" onclick="filterByCategory('${esc(c.slug)}',null);document.getElementById('products')?.scrollIntoView({behavior:'smooth'})">
+      <div class="cat-card" data-slug="${esc(c.slug)}" onclick="handleCatCardClick('${esc(c.slug)}')">
         <div class="cat-icon"><i class="${esc(c.icon_class||'fas fa-tag')}"></i></div>
         <h4>${esc(c.name)}</h4>
       </div>
@@ -1079,8 +1060,19 @@ async function loadCategories() {
   } catch(e) { console.warn('loadCategories:', e); }
 }
 
+/* Called when a category card is clicked */
+function handleCatCardClick(slug) {
+  // Find matching filter tab
+  const tab = Array.from(document.querySelectorAll('.filter-tab'))
+    .find(t => t.textContent.trim().toLowerCase() ===
+      slug.replace(/-/g,' ').toLowerCase() ||
+      t.onclick?.toString().includes(`'${slug}'`));
+  filterByCategory(slug, tab || null);
+  document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+}
+
 /* ═══════════════════════════════════════════════════
-   FIX #4B: DEALS — now reads from deals table
+   DEALS
 ═══════════════════════════════════════════════════ */
 async function loadDeals() {
   const grid = document.getElementById('dealsGrid');
@@ -1116,19 +1108,12 @@ async function loadDeals() {
 }
 
 function openDealDetail(d) {
-  // Show deal as product modal
   modalProduct = {
-    id: d.id,
-    name: d.title,
-    price: d.price || 0,
-    old_price: d.old_price || null,
-    description: d.description || '',
+    id: d.id, name: d.title, price: d.price || 0,
+    old_price: d.old_price || null, description: d.description || '',
     images: d.image_url ? [d.image_url] : [],
-    badge: d.badge || 'DEAL',
-    category_name: 'Deal',
-    brand_name: '',
-    rating: 0,
-    reviews: 0,
+    badge: d.badge || 'DEAL', category_name: 'Deal', brand_name: '',
+    rating: 0, reviews: 0,
   };
   populateProductModal(modalProduct);
   modalQty = 1;
@@ -1147,11 +1132,9 @@ async function loadProducts() {
     allProducts = data || [];
     filteredProducts = [...allProducts];
     renderProducts();
-    // Start hero slideshow from product images
     const slideImgs = allProducts
       .filter(p => Array.isArray(p.images) && p.images[0])
-      .slice(0, 12)
-      .map(p => p.images[0]);
+      .slice(0, 12).map(p => p.images[0]);
     if (slideImgs.length) startHeroSlideshow(slideImgs);
   } catch(e) {
     document.getElementById('productsGrid').innerHTML =
@@ -1169,7 +1152,6 @@ function renderProducts() {
   grid.innerHTML = filteredProducts.map(p => {
     const imgs = Array.isArray(p.images) ? p.images.filter(Boolean) : [];
     const img  = imgs[0] || '';
-    // FIX: use category_name text column (consistent with admin)
     const cat  = p.category_name || p.category || '';
     const off  = p.old_price ? Math.round((1-p.price/p.old_price)*100) : 0;
     const stars = p.rating ? '★'.repeat(Math.round(p.rating)) + '☆'.repeat(5-Math.round(p.rating)) : '';
@@ -1197,25 +1179,54 @@ function renderProducts() {
   }).join('');
 }
 
+/* ═══════════════════════════════════════════════════
+   FILTER BY CATEGORY — FIXED
+   Highlights both the tab AND the category card
+═══════════════════════════════════════════════════ */
 function filterByCategory(slug, btnEl) {
   activeCategory = slug;
+
+  // Highlight filter tab
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
   if (btnEl) {
-    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
     btnEl.classList.add('active');
+  } else if (slug !== 'all') {
+    // Try to find matching tab by text or onclick attr
+    const match = Array.from(document.querySelectorAll('.filter-tab')).find(t => {
+      const onclickStr = t.getAttribute('onclick') || '';
+      return onclickStr.includes(`'${slug}'`);
+    });
+    if (match) match.classList.add('active');
+  } else {
+    // "All" tab
+    const allTab = document.querySelector('.filter-tab');
+    if (allTab) allTab.classList.add('active');
   }
+
+  // Highlight matching category card
+  document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active-filter'));
+  if (slug !== 'all') {
+    const matchCard = document.querySelector(`.cat-card[data-slug="${slug}"]`);
+    if (matchCard) matchCard.classList.add('active-filter');
+  }
+
+  // Filter products — match by name or slug
   filteredProducts = slug === 'all'
     ? [...allProducts]
-    : allProducts.filter(p => (p.category || p.category_name || '') === slug ||
-        (p.category_name||'').toLowerCase() === slug.replace(/-/g,' ') ||
-        (p.category||'').toLowerCase().replace(/\s+/g,'-') === slug);
+    : allProducts.filter(p => {
+        const cat = (p.category_name || p.category || '').toLowerCase().trim();
+        const catSlug = cat.replace(/\s+/g, '-');
+        return cat === slug.toLowerCase() || catSlug === slug.toLowerCase();
+      });
+
   sortProducts(currentSort);
 }
 
 function sortProducts(val) {
   currentSort = val;
-  if (val === 'price-asc')  filteredProducts.sort((a,b) => a.price - b.price);
+  if (val === 'price-asc')   filteredProducts.sort((a,b) => a.price - b.price);
   else if (val === 'price-desc') filteredProducts.sort((a,b) => b.price - a.price);
-  else if (val === 'rating') filteredProducts.sort((a,b) => (b.rating||0) - (a.rating||0));
+  else if (val === 'rating')     filteredProducts.sort((a,b) => (b.rating||0) - (a.rating||0));
   else filteredProducts.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
   renderProducts();
 }
@@ -1231,7 +1242,7 @@ function handleSearch(q) {
     (p.badge||'').toLowerCase().includes(ql)
   );
   renderProducts();
-  if (ql) document.getElementById('products')?.scrollIntoView({behavior:'smooth'});
+  if (ql) document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
 }
 
 /* ═══════════════════════════════════════════════════
@@ -1306,7 +1317,7 @@ async function loadBrands() {
 }
 
 /* ═══════════════════════════════════════════════════
-   HERO PRODUCT SLIDESHOW
+   HERO SLIDESHOW
 ═══════════════════════════════════════════════════ */
 let heroSlideIndex = 0;
 let heroSlideTimer = null;
@@ -1317,9 +1328,8 @@ function startHeroSlideshow(images) {
   box.innerHTML = images.map((url, i) =>
     `<img class="hero-slide-img${i===0?' active':''}" src="${esc(url)}" alt="Product" loading="${i===0?'eager':'lazy'}" onerror="this.style.display='none'">`
   ).join('');
-  // Remove shimmer once first image loads
   const first = box.querySelector('.hero-slide-img.active');
-  if (first) first.addEventListener('load', () => box.classList.add('loaded'), {once:true});
+  if (first) first.addEventListener('load', () => box.classList.add('loaded'), { once: true });
   if (images.length < 2) return;
   heroSlideTimer = setInterval(() => {
     const imgs = box.querySelectorAll('.hero-slide-img');
@@ -1330,7 +1340,9 @@ function startHeroSlideshow(images) {
   }, 3000);
 }
 
-
+/* ═══════════════════════════════════════════════════
+   REVIEWS
+═══════════════════════════════════════════════════ */
 async function loadReviews() {
   try {
     const { data } = await sb().from('testimonials').select('*').eq('active',true).order('sort_order').limit(6);
@@ -1364,9 +1376,7 @@ function addToCart(product, qty=1) {
     existing.qty = Math.min(existing.qty + qty, 99);
   } else {
     cart.push({
-      id: product.id,
-      name: product.name,
-      price: product.price,
+      id: product.id, name: product.name, price: product.price,
       image: (Array.isArray(product.images) ? product.images[0] : '') || '',
       qty,
     });
@@ -1398,17 +1408,16 @@ function changeCartQty(id, delta) {
 }
 
 function updateCartUI() {
-  const total = cart.reduce((s,i)=>s+i.qty,0);
-  const subtotal = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const total    = cart.reduce((s,i) => s+i.qty, 0);
+  const subtotal = cart.reduce((s,i) => s+i.price*i.qty, 0);
   document.getElementById('cartBadge').textContent = total;
   document.getElementById('mobCartCount').textContent = total;
   document.getElementById('cartSubtotal').textContent = 'KES ' + subtotal.toLocaleString();
-  document.getElementById('cartTotal').textContent = 'KES ' + subtotal.toLocaleString();
+  document.getElementById('cartTotal').textContent    = 'KES ' + subtotal.toLocaleString();
   const footerEl = document.getElementById('cartFooter');
   if (footerEl) footerEl.style.display = cart.length ? '' : 'none';
 
-  // Free delivery note
-  const noteEl = document.getElementById('freeDeliveryNote');
+  const noteEl   = document.getElementById('freeDeliveryNote');
   const noteText = document.getElementById('freeDeliveryNoteText');
   if (noteEl && noteText) {
     if (subtotal >= freeDeliveryThreshold) {
@@ -1480,7 +1489,6 @@ function selectPayment(val) {
 function openCheckout() {
   if (!cart.length) { toast('Your cart is empty!', 'error'); return; }
 
-  // Restore form if it was replaced by the success screen
   if (!document.getElementById('checkoutSummary')) {
     document.getElementById('checkoutContent').innerHTML = `
       <div class="checkout-body">
@@ -1539,8 +1547,7 @@ function openCheckout() {
       </div>`;
   }
 
-  // Build summary
-  const subtotal = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const subtotal = cart.reduce((s,i) => s+i.price*i.qty, 0);
   let summary = cart.map(i =>
     `<div class="checkout-item-row"><span>${esc(i.name)} ×${i.qty}</span><span>KES ${Number(i.price*i.qty).toLocaleString()}</span></div>`
   ).join('');
@@ -1549,7 +1556,6 @@ function openCheckout() {
   document.getElementById('checkoutContent').style.display = '';
   document.getElementById('checkoutTitle').innerHTML = '<i class="fas fa-credit-card" style="color:var(--green);margin-right:8px"></i> Checkout';
   selectPayment('mpesa');
-  // Close cart first
   document.getElementById('cartDrawer').classList.remove('open');
   document.getElementById('cartOverlay').classList.remove('open');
   openModal('checkoutModal');
@@ -1566,7 +1572,7 @@ async function placeOrder() {
   const addr   = document.getElementById('co_address').value.trim();
 
   if (!fname || !lname) { toast('Please enter your full name', 'error'); return; }
-  if (!phone) { toast('Please enter your phone number', 'error'); return; }
+  if (!phone)            { toast('Please enter your phone number', 'error'); return; }
   if (!county || !town || !addr) { toast('Please complete the delivery address', 'error'); return; }
   if (selectedPayment === 'mpesa' && !document.getElementById('co_mpesa').value.trim()) {
     toast('Please enter your M-Pesa phone number', 'error'); return;
@@ -1576,8 +1582,7 @@ async function placeOrder() {
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Placing order…';
 
-  const subtotal = cart.reduce((s,i)=>s+i.price*i.qty,0);
-  // Get current session so user_id is attached (required by RLS)
+  const subtotal = cart.reduce((s,i) => s+i.price*i.qty, 0);
   let userId = null;
   try {
     const { data: { session } } = await sb().auth.getSession();
@@ -1585,21 +1590,14 @@ async function placeOrder() {
   } catch(e) {}
 
   const orderData = {
-    user_id:        userId,
-    first_name:     fname,
-    last_name:      lname,
-    phone,
-    email:          document.getElementById('co_email').value.trim() || null,
-    county,
-    town,
-    address:        addr,
-    notes:          document.getElementById('co_notes').value.trim() || null,
-    items:          cart.map(i => ({ id:i.id, name:i.name, price:i.price, qty:i.qty })),
-    total:          subtotal,
-    payment_method: selectedPayment,
-    mpesa_phone:    selectedPayment === 'mpesa' ? document.getElementById('co_mpesa').value.trim() : null,
-    status:         'pending',
-    created_at:     new Date().toISOString(),
+    user_id: userId, first_name: fname, last_name: lname, phone,
+    email: document.getElementById('co_email').value.trim() || null,
+    county, town, address: addr,
+    notes: document.getElementById('co_notes').value.trim() || null,
+    items: cart.map(i => ({ id:i.id, name:i.name, price:i.price, qty:i.qty })),
+    total: subtotal, payment_method: selectedPayment,
+    mpesa_phone: selectedPayment === 'mpesa' ? document.getElementById('co_mpesa').value.trim() : null,
+    status: 'pending', created_at: new Date().toISOString(),
   };
 
   try {
@@ -1607,8 +1605,6 @@ async function placeOrder() {
     if (error) throw error;
     currentOrderId = data?.[0]?.id;
 
-    // FIX: WhatsApp notification uses dynamic number from DB (not hardcoded)
-    // FIX: The "WhatsApp" payment option is a separate choice — not mislabeled as M-Pesa
     if (selectedPayment === 'whatsapp') {
       const msg = encodeURIComponent(
         `Hi Zakhem! I just placed an order.\n\nName: ${fname} ${lname}\nPhone: ${phone}\nItems: ${cart.map(i=>`${i.name} x${i.qty}`).join(', ')}\nTotal: KES ${subtotal.toLocaleString()}\nAddress: ${addr}, ${town}, ${county}\nOrder Ref: ${currentOrderId||'N/A'}`
@@ -1616,17 +1612,14 @@ async function placeOrder() {
       window.open(`https://wa.me/${siteWhatsApp}?text=${msg}`, '_blank');
     }
 
-    // Log to analytics
     try {
       await sb().from('analytics').insert({ event_type:'order', description:`New order from ${fname} ${lname} — KES ${subtotal.toLocaleString()}`, created_at: new Date().toISOString() });
     } catch(e) {}
 
-    // Clear cart
     cart = [];
     saveCart();
     updateCartUI();
 
-    // Show success
     const mpesaNote = selectedPayment === 'mpesa' ? '<p style="font-size:13px;color:var(--muted);margin-bottom:20px">Our team will send you an M-Pesa payment request shortly.</p>' : '';
     document.getElementById('checkoutContent').innerHTML = `
       <div class="order-success">
@@ -1663,18 +1656,15 @@ async function submitContactForm(e) {
     email:      document.getElementById('cf_email').value.trim(),
     subject:    document.getElementById('cf_subject').value.trim(),
     message:    document.getElementById('cf_message').value.trim(),
-    read:       false,
-    created_at: new Date().toISOString(),
+    read: false, created_at: new Date().toISOString(),
   };
 
   try {
     const { error } = await sb().from('contact_messages').insert(payload);
     if (error) throw error;
-
     try {
       await sb().from('analytics').insert({ event_type:'message', description:`Message from ${payload.first_name} ${payload.last_name}: ${payload.subject}`, created_at: new Date().toISOString() });
     } catch(ae) {}
-
     document.getElementById('cfSuccess').classList.add('show');
     document.getElementById('contactForm').reset();
   } catch(er) {
@@ -1697,9 +1687,7 @@ async function subscribeNewsletter(e) {
   btn.textContent = 'Subscribing…';
   try {
     const { error } = await sb().from('newsletter_subscribers').insert({ email, subscribed_at: new Date().toISOString(), active: true });
-    if (error && error.message?.includes('unique')) {
-      toast('You\'re already subscribed!', 'info'); return;
-    }
+    if (error && error.message?.includes('unique')) { toast('You\'re already subscribed!', 'info'); return; }
     if (error) throw error;
     toast('Subscribed! Welcome to the Zakhem family 🎉');
     document.getElementById('newsletterEmail').value = '';
@@ -1722,11 +1710,10 @@ function openWhatsApp(msg) {
 /* ═══════════════════════════════════════════════════
    UI HELPERS
 ═══════════════════════════════════════════════════ */
-function scrollTo(id) { document.getElementById(id)?.scrollIntoView({behavior:'smooth'}); }
-function openMobNav() { document.getElementById('mobNav').classList.add('open'); document.body.style.overflow='hidden'; }
+function scrollTo(id) { document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }); }
+function openMobNav()  { document.getElementById('mobNav').classList.add('open'); document.body.style.overflow='hidden'; }
 function closeMobNav() { document.getElementById('mobNav').classList.remove('open'); document.body.style.overflow=''; }
-
-function openModal(id) { document.getElementById(id)?.classList.add('open'); document.body.style.overflow='hidden'; }
+function openModal(id)  { document.getElementById(id)?.classList.add('open'); document.body.style.overflow='hidden'; }
 function closeModal(id) { document.getElementById(id)?.classList.remove('open'); document.body.style.overflow=''; }
 
 document.addEventListener('keydown', e => {
@@ -1747,7 +1734,6 @@ function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 }
 
-// TOAST
 let toastTimeout;
 function toast(msg, type='success') {
   const t = document.getElementById('toast');

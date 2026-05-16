@@ -190,8 +190,12 @@ tr:hover td{background:#f8fef2}
 .ffile{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
 .img-prev{width:100%;height:110px;object-fit:contain;border-radius:7px;background:#e8fad8;display:none;margin-bottom:10px}
 .img-prev.show{display:block}
-.mi-grid{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
-.mi-thumb{width:60px;height:60px;border-radius:7px;object-fit:cover;border:2px solid var(--border2)}
+.mi-grid{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:10px}
+.mi-item{position:relative;display:inline-flex;flex-direction:column;align-items:center;gap:3px}
+.mi-thumb{width:70px;height:70px;border-radius:7px;object-fit:cover;border:2px solid var(--border2);display:block}
+.mi-del{position:absolute;top:-6px;right:-6px;width:18px;height:18px;background:var(--red);border:none;border-radius:50%;color:#fff;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;font-weight:700;z-index:2}
+.mi-del:hover{background:#a93226}
+.mi-label{font-size:9px;color:var(--muted);max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
 .re-bar{display:flex;gap:5px;flex-wrap:wrap;padding:9px;background:#e8fad8;border:1px solid var(--border2);border-radius:var(--r) var(--r) 0 0}
 .re-bar button{padding:4px 9px;border-radius:5px;border:none;background:#c8eaa0;color:#2e5012;font-size:11.5px;cursor:pointer;transition:all .15s}
 .re-bar button:hover{background:var(--accent);color:#0a1007}
@@ -417,17 +421,18 @@ tr:hover td{background:#f8fef2}
         <div class="card" style="margin-bottom:18px">
           <div class="card-head"><h3>Add Category</h3></div>
           <div style="padding:18px 22px">
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:12px;align-items:end">
               <div class="fg" style="margin:0"><label>Name *</label><input class="fi" id="nCN" placeholder="e.g. Air Conditioning"></div>
               <div class="fg" style="margin:0"><label>Slug *</label><input class="fi" id="nCS" placeholder="air-conditioning"></div>
               <div class="fg" style="margin:0"><label>Icon (FA)</label><input class="fi" id="nCI" placeholder="fas fa-snowflake"></div>
+              <div class="fg" style="margin:0"><label>Parent Category <span style="font-weight:400;font-size:9.5px;color:var(--muted)">(optional, for sub-cats)</span></label><select class="fsel" id="nCP"><option value="">— None (Top Level) —</option></select></div>
               <button class="btn primary" onclick="addCat()"><i class="fas fa-plus"></i> Add</button>
             </div>
           </div>
         </div>
-        <div class="card"><div class="card-head"><h3>Categories</h3></div>
-          <div class="tw"><table><thead><tr><th>Name</th><th>Slug</th><th>Icon</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody id="catT"><tr><td colspan="5" class="te"><i class="fas fa-spinner fa-spin"></i></td></tr></tbody></table></div>
+        <div class="card"><div class="card-head"><h3>Categories & Sub-Categories</h3></div>
+          <div class="tw"><table><thead><tr><th>Name</th><th>Slug</th><th>Icon</th><th>Parent</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="catT"><tr><td colspan="6" class="te"><i class="fas fa-spinner fa-spin"></i></td></tr></tbody></table></div>
         </div>
       </div>
 
@@ -677,14 +682,36 @@ tr:hover td{background:#f8fef2}
     <input type="hidden" id="pm_id">
     <div class="fr"><div class="fg"><label>Name *</label><input class="fi" id="pm_name" placeholder="e.g. Samsung 55″ 4K TV"></div><div class="fg"><label>SKU</label><input class="fi" id="pm_sku" placeholder="SKU-001"></div></div>
     <div class="fr"><div class="fg"><label>Price (KES) *</label><input type="number" class="fi" id="pm_price" placeholder="45000" min="0"></div><div class="fg"><label>Old Price (KES)</label><input type="number" class="fi" id="pm_old" placeholder="55000" min="0"></div></div>
-    <div class="fr"><div class="fg"><label>Category</label><select class="fsel" id="pm_cat"><option value="">— None —</option></select></div><div class="fg"><label>Brand</label><select class="fsel" id="pm_brand"><option value="">— None —</option></select></div></div>
-    <div class="fr"><div class="fg"><label>Badge</label><select class="fsel" id="pm_badge"><option value="">None</option><option value="NEW">NEW</option><option value="SALE">SALE</option><option value="HOT">HOT</option><option value="DEAL">DEAL</option></select></div><div class="fg"><label>Stock</label><input type="number" class="fi" id="pm_stock" placeholder="0" min="0"></div></div>
+    <div class="fr"><div class="fg"><label>Category</label><select class="fsel" id="pm_cat" onchange="loadSubCats(this.value)"><option value="">— None —</option></select></div><div class="fg"><label>Sub-Category <span style="font-size:10px;font-weight:400;color:var(--muted)">(optional)</span></label><select class="fsel" id="pm_subcat"><option value="">— None —</option></select></div></div>
+    <div class="fr"><div class="fg"><label>Brand</label><select class="fsel" id="pm_brand"><option value="">— None —</option></select></div><div class="fg"><label>Badge</label><select class="fsel" id="pm_badge"><option value="">None</option><option value="NEW">NEW</option><option value="SALE">SALE</option><option value="HOT">HOT</option><option value="DEAL">DEAL</option></select></div></div>
+    <div class="fr"><div class="fg"><label>Stock <span style="font-size:10px;font-weight:400;color:var(--muted)">(overall, if no variants)</span></label><input type="number" class="fi" id="pm_stock" placeholder="0" min="0"></div></div>
     <div class="fg"><label>Description</label><textarea class="fta" id="pm_desc" rows="3" placeholder="Product description…"></textarea></div>
-    <div class="fg"><label>Images (URLs, comma-separated)</label><textarea class="fta" id="pm_imgs" rows="2" oninput="previewImgs()"></textarea><div class="mi-grid" id="imgGrid"></div></div>
-    <div class="fg"><label>Upload Images</label>
-      <div class="drop" onclick="document.getElementById('pmFiles').click()"><i class="fas fa-cloud-upload-alt"></i><p>Click or drag to upload</p><span>Max 3MB each</span><input type="file" id="pmFiles" class="ffile" accept="image/*" multiple onchange="uploadProdImgs(this.files)"></div>
+    <div class="fg"><label>Images (URLs, one per line or comma-separated)</label><textarea class="fta" id="pm_imgs" rows="3" oninput="previewImgs()" placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"></textarea><div class="mi-grid" id="imgGrid"></div></div>
+    <div class="fg"><label>Upload Images <span style="font-size:10.5px;color:var(--muted);font-weight:400;text-transform:none">(multiple allowed — all will show on product page)</span></label>
+      <div class="drop" onclick="document.getElementById('pmFiles').click()"><i class="fas fa-cloud-upload-alt"></i><p>Click or drag to upload — select multiple files</p><span>Max 3MB each · All images appear in product gallery</span><input type="file" id="pmFiles" class="ffile" accept="image/*" multiple onchange="uploadProdImgs(this.files)"></div>
       <div id="pmUpSt"></div>
     </div>
+
+    <!-- VARIANTS (Variable Products) -->
+    <div style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
+        <label style="display:block;font-size:11px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin:0">Product Variants <span style="font-weight:400;text-transform:none;font-size:10.5px;color:var(--muted)">(e.g. different sizes/colors of same product)</span></label>
+        <button type="button" onclick="addVariantRow()" style="background:rgba(110,217,48,0.14);border:1px solid rgba(110,217,48,0.3);border-radius:7px;padding:4px 11px;font-size:11.5px;font-weight:600;color:var(--muted2);cursor:pointer;display:flex;align-items:center;gap:5px"><i class="fas fa-plus"></i> Add Variant</button>
+      </div>
+      <div style="background:#f8fef2;border:1px solid var(--border2);border-radius:var(--r);overflow:hidden">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:0;background:#e8fad8;padding:7px 12px">
+          <span style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px">Variant Name</span>
+          <span style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px">Price (KES)</span>
+          <span style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px">Stock</span>
+          <span></span>
+        </div>
+        <div id="variantRows" style="padding:9px 12px;display:flex;flex-direction:column;gap:7px">
+          <div class="te" id="variantEmpty" style="padding:10px 0;font-size:12px;color:var(--muted);text-align:center"><i class="fas fa-tag" style="margin-right:5px"></i>No variants — product uses the main price & stock above</div>
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:5px"><i class="fas fa-info-circle"></i> Example: One "Padlock" product with variants Small (KES 250), Medium (KES 350), Large (KES 500)</p>
+    </div>
+
     <div class="fr"><div class="fg"><label>Rating (0–5)</label><input type="number" class="fi" id="pm_rating" placeholder="4.5" step="0.1" min="0" max="5"></div><div class="fg"><label>Reviews Count</label><input type="number" class="fi" id="pm_reviews" placeholder="0" min="0"></div></div>
     <div style="display:flex;gap:18px;flex-wrap:wrap">
       <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13.5px;color:var(--muted2)"><input type="checkbox" id="pm_active" checked> Active</label>
@@ -942,19 +969,32 @@ async function loadRecentOrders(){
 async function loadProducts(){
   try{
     const[{data:cats},{data:brands},{data}]=await Promise.all([
-      sb().from('categories').select('id,name').eq('active',true).order('sort_order'),
+      sb().from('categories').select('id,name,parent_id').eq('active',true).order('sort_order'),
       sb().from('brands').select('id,name').eq('active',true).order('name'),
       sb().from('products').select('*').order('created_at',{ascending:false}),
     ]);
-    allProducts=data||[];renderProducts(allProducts);
-    popSel('pm_cat',cats,c=>c.name,c=>c.name);
+    allProducts=data||[];
+    window._allCats=cats||[];
+    renderProducts(allProducts);
+    // Populate top-level categories only in product modal cat dropdown
+    const topCats=(cats||[]).filter(c=>!c.parent_id);
+    popSel('pm_cat',topCats,c=>c.name,c=>c.name);
     popSel('pm_brand',brands,b=>b.name,b=>b.name);
   }catch(e){toast('Error: '+e.message,'error');}
+}
+function loadSubCats(catName,selectedVal=''){
+  const all=window._allCats||[];
+  const parent=all.find(c=>c.name===catName);
+  const sub=parent?all.filter(c=>c.parent_id===parent.id):[];
+  const sel=document.getElementById('pm_subcat');
+  if(!sel)return;
+  if(!sub.length){sel.innerHTML='<option value="">— None —</option>';return;}
+  sel.innerHTML='<option value="">— None —</option>'+sub.map(c=>`<option value="${esc(c.name)}" ${c.name===selectedVal?'selected':''}>${esc(c.name)}</option>`).join('');
 }
 function renderProducts(rows){
   const tb=document.getElementById('pT');
   if(!rows?.length){tb.innerHTML=emptyR(8,'No products yet');return;}
-  tb.innerHTML=rows.map(p=>{const imgs=Array.isArray(p.images)?p.images.filter(Boolean):[];const img=imgs[0]||'';const lowStock=p.stock!=null&&p.stock<=5&&p.stock>0;const noStock=p.stock===0;return`<tr><td>${img?`<img src="${esc(img)}" alt="${esc(p.name)}" style="width:42px;height:42px;object-fit:cover;border-radius:7px" loading="lazy" onerror="this.style.display='none'">`:'—'}</td><td><strong>${esc(p.name)}</strong>${p.featured?' <span class="badge active" style="font-size:9px">FEAT</span>':''}${noStock?' <span class="badge inactive" style="font-size:9px;background:rgba(192,57,43,0.11);color:var(--red)">OUT</span>':lowStock?` <span class="badge" style="font-size:9px;background:rgba(230,135,10,0.11);color:var(--gold)">LOW:${p.stock}</span>`:''}</td><td>${esc(p.category_name||p.category||'—')}</td><td>${esc(p.brand_name||p.brand||'—')}</td><td>KES ${Number(p.price).toLocaleString()}</td><td>${p.badge?`<span class="badge">${esc(p.badge)}</span>`:'—'}</td><td><span class="badge ${p.active?'active':'inactive'}">${p.active?'Active':'Inactive'}</span></td><td class="ac"><button class="tb edit" onclick="editProd('${esc(p.id)}')"><i class="fas fa-edit"></i></button><button class="tb del" onclick="delProd('${esc(p.id)}')"><i class="fas fa-trash"></i></button></td></tr>`;}).join('');
+  tb.innerHTML=rows.map(p=>{const imgs=Array.isArray(p.images)?p.images.filter(Boolean):[];const img=imgs[0]||'';const imgCount=imgs.length;const lowStock=p.stock!=null&&p.stock<=5&&p.stock>0;const noStock=p.stock===0;const varCount=Array.isArray(p.variants)&&p.variants.length;return`<tr><td style="position:relative">${img?`<div style="position:relative;display:inline-block"><img src="${esc(img)}" alt="${esc(p.name)}" style="width:42px;height:42px;object-fit:cover;border-radius:7px" loading="lazy" onerror="this.style.display='none'">${imgCount>1?`<span style="position:absolute;bottom:-4px;right:-4px;background:var(--accent);color:#0a1007;font-size:8px;font-weight:700;border-radius:8px;padding:1px 4px">${imgCount}</span>`:''}</div>`:'—'}</td><td><strong>${esc(p.name)}</strong>${p.featured?' <span class="badge active" style="font-size:9px">FEAT</span>':''}${varCount?` <span class="badge" style="font-size:9px;background:rgba(124,58,237,0.11);color:var(--purple)">${varCount} VAR</span>`:''}${noStock?' <span class="badge inactive" style="font-size:9px;background:rgba(192,57,43,0.11);color:var(--red)">OUT</span>':lowStock?` <span class="badge" style="font-size:9px;background:rgba(230,135,10,0.11);color:var(--gold)">LOW:${p.stock}</span>`:''}</td><td>${esc(p.category_name||p.category||'—')}${p.subcategory?` <span style="font-size:10px;color:var(--muted)">› ${esc(p.subcategory)}</span>`:''}</td><td>${esc(p.brand_name||p.brand||'—')}</td><td>KES ${Number(p.price).toLocaleString()}</td><td>${p.badge?`<span class="badge">${esc(p.badge)}</span>`:'—'}</td><td><span class="badge ${p.active?'active':'inactive'}">${p.active?'Active':'Inactive'}</span></td><td class="ac"><button class="tb edit" onclick="editProd('${esc(p.id)}')"><i class="fas fa-edit"></i></button><button class="tb del" onclick="delProd('${esc(p.id)}')"><i class="fas fa-trash"></i></button></td></tr>`;}).join('');
 }
 function openPM(p){
   document.getElementById('pmTitle').textContent=p?'Edit Product':'Add Product';
@@ -968,18 +1008,27 @@ function openPM(p){
   document.getElementById('pm_rating').value=p?.rating||'';
   document.getElementById('pm_reviews').value=p?.reviews||0;
   const imgs=Array.isArray(p?.images)?p.images.filter(Boolean):[];
-  document.getElementById('pm_imgs').value=imgs.join(', ');
+  document.getElementById('pm_imgs').value=imgs.join('\n');
   document.getElementById('pm_badge').value=p?.badge||'';
   document.getElementById('pm_active').checked=p?!!p.active:true;
   document.getElementById('pm_feat').checked=!!p?.featured;
   document.getElementById('pmUpSt').innerHTML='';
+  // Load variants
+  loadVariantsIntoForm(Array.isArray(p?.variants)?p.variants:[]);
   previewImgs();
   const cs=document.getElementById('pm_cat'),bs=document.getElementById('pm_brand');
-  if(cs)cs.value=p?.category_name||p?.category||'';
+  const catVal=p?.category_name||p?.category||'';
+  if(cs){cs.value=catVal;if(catVal)loadSubCats(catVal,p?.subcategory||'');}
   if(bs)bs.value=p?.brand_name||p?.brand||'';
   openMo('pmModal');
 }
-function previewImgs(){const imgs=(document.getElementById('pm_imgs').value||'').split(',').map(s=>s.trim()).filter(Boolean);document.getElementById('imgGrid').innerHTML=imgs.map((u,i)=>`<img class="mi-thumb" src="${esc(u)}" alt="img ${i+1}" loading="lazy" onerror="this.style.opacity='.3'">`).join('');}
+function getImgList(){return(document.getElementById('pm_imgs').value||'').split(/[\n,]+/).map(s=>s.trim()).filter(Boolean);}
+function previewImgs(){
+  const imgs=getImgList();
+  if(!imgs.length){document.getElementById('imgGrid').innerHTML='';return;}
+  document.getElementById('imgGrid').innerHTML=imgs.map((u,i)=>`<div class="mi-item"><button type="button" class="mi-del" onclick="removeImg(${i})" title="Remove this image">×</button><img class="mi-thumb" src="${esc(u)}" alt="img ${i+1}" loading="lazy" onerror="this.style.opacity='.3'"><span class="mi-label">Image ${i+1}</span></div>`).join('');
+}
+function removeImg(idx){const imgs=getImgList();imgs.splice(idx,1);document.getElementById('pm_imgs').value=imgs.join('\n');previewImgs();}
 function editProd(id){const p=allProducts.find(x=>x.id===id);if(p)openPM(p);}
 async function saveProd(){
   const name=document.getElementById('pm_name').value.trim();
@@ -988,16 +1037,18 @@ async function saveProd(){
   if(!price||parseFloat(price)<0){toast('Valid price required','error');return;}
   const btn=document.getElementById('savePMBtn');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Saving…';
   const id=document.getElementById('pm_id').value;
-  const images=(document.getElementById('pm_imgs').value||'').split(',').map(s=>s.trim()).filter(Boolean);
+  const images=getImgList();
   const catV=document.getElementById('pm_cat').value||'';
+  const subcatV=document.getElementById('pm_subcat').value||'';
   const brandV=document.getElementById('pm_brand').value||'';
-  const payload={name,sku:document.getElementById('pm_sku').value.trim()||null,price:parseFloat(price)||0,old_price:parseFloat(document.getElementById('pm_old').value)||null,description:document.getElementById('pm_desc').value.trim(),stock:parseInt(document.getElementById('pm_stock').value)||0,rating:parseFloat(document.getElementById('pm_rating').value)||0,reviews:parseInt(document.getElementById('pm_reviews').value)||0,images,badge:document.getElementById('pm_badge').value||null,category:catV||null,brand:brandV||null,category_name:catV||null,brand_name:brandV||null,active:document.getElementById('pm_active').checked,featured:document.getElementById('pm_feat').checked,updated_at:new Date().toISOString()};
+  const variants=getVariantsFromForm();
+  const payload={name,sku:document.getElementById('pm_sku').value.trim()||null,price:parseFloat(price)||0,old_price:parseFloat(document.getElementById('pm_old').value)||null,description:document.getElementById('pm_desc').value.trim(),stock:parseInt(document.getElementById('pm_stock').value)||0,rating:parseFloat(document.getElementById('pm_rating').value)||0,reviews:parseInt(document.getElementById('pm_reviews').value)||0,images,badge:document.getElementById('pm_badge').value||null,category:catV||null,brand:brandV||null,category_name:catV||null,brand_name:brandV||null,subcategory:subcatV||null,variants:variants.length?variants:null,active:document.getElementById('pm_active').checked,featured:document.getElementById('pm_feat').checked,updated_at:new Date().toISOString()};
   try{const{error}=id?await sb().from('products').update(payload).eq('id',id):await sb().from('products').insert({...payload,created_at:new Date().toISOString()});if(error)throw error;toast(id?'Updated!':'Added!');closeMo('pmModal');loadProducts();}
   catch(e){toast('Error: '+e.message,'error');}
   finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-save"></i> Save Product';}
 }
 async function delProd(id){if(!confirm('Delete this product?'))return;try{const{error}=await sb().from('products').delete().eq('id',id);if(error)throw error;toast('Deleted');loadProducts();}catch(e){toast('Error: '+e.message,'error');}}
-async function uploadProdImgs(files){if(!files?.length)return;const st=document.getElementById('pmUpSt');st.innerHTML='<div class="alert info"><i class="fas fa-spinner fa-spin"></i> Uploading…</div>';const urls=[],errs=[];for(const f of files){if(f.size>3*1024*1024){errs.push(`${f.name} too large`);continue;}try{const path=`products/${Date.now()}_${f.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;const{data,error}=await sb().storage.from('product-images').upload(path,f,{upsert:true});if(error)throw error;const{data:{publicUrl}}=sb().storage.from('product-images').getPublicUrl(data.path);urls.push(publicUrl);}catch(e){errs.push(`${f.name}: ${e.message}`);}}if(urls.length){const cur=document.getElementById('pm_imgs').value.trim();document.getElementById('pm_imgs').value=cur?cur+', '+urls.join(', '):urls.join(', ');previewImgs();toast(`${urls.length} uploaded!`);st.innerHTML=`<div class="alert ok"><i class="fas fa-check-circle"></i> ${urls.length} uploaded.</div>`;}if(errs.length)st.innerHTML+=`<div class="alert err">${errs.join(', ')}</div>`;}
+async function uploadProdImgs(files){if(!files?.length)return;const st=document.getElementById('pmUpSt');st.innerHTML='<div class="alert info"><i class="fas fa-spinner fa-spin"></i> Uploading…</div>';const urls=[],errs=[];for(const f of files){if(f.size>3*1024*1024){errs.push(`${f.name} too large`);continue;}try{const path=`products/${Date.now()}_${f.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;const{data,error}=await sb().storage.from('product-images').upload(path,f,{upsert:true});if(error)throw error;const{data:{publicUrl}}=sb().storage.from('product-images').getPublicUrl(data.path);urls.push(publicUrl);}catch(e){errs.push(`${f.name}: ${e.message}`);}}if(urls.length){const cur=document.getElementById('pm_imgs').value.trim();document.getElementById('pm_imgs').value=cur?cur+'\n'+urls.join('\n'):urls.join('\n');previewImgs();toast(`${urls.length} image(s) uploaded!`);st.innerHTML=`<div class="alert ok"><i class="fas fa-check-circle"></i> ${urls.length} image(s) uploaded successfully.</div>`;}if(errs.length)st.innerHTML+=`<div class="alert err">${errs.join(', ')}</div>`;}
 
 /* ORDERS */
 async function loadOrders(){try{const{data,error}=await sb().from('orders').select('*').order('created_at',{ascending:false});if(error)throw error;allOrders=data||[];renderOrders(allOrders);}catch(e){toast('Error: '+e.message,'error');}}
@@ -1031,8 +1082,40 @@ async function updateOrdStatus(){const s=document.getElementById('ordStatus').va
 async function delOrd(id){if(!confirm('Delete order?'))return;try{await sb().from('orders').delete().eq('id',id);toast('Deleted');loadOrders();}catch(e){toast('Error: '+e.message,'error');}}
 
 /* CATEGORIES */
-async function loadCats(){try{const{data,error}=await sb().from('categories').select('*').order('sort_order');if(error)throw error;const tb=document.getElementById('catT');if(!data?.length){tb.innerHTML=emptyR(5,'No categories yet');return;}tb.innerHTML=data.map(c=>`<tr><td><strong>${esc(c.name)}</strong></td><td style="color:var(--muted2)">${esc(c.slug)}</td><td><i class="${esc(c.icon_class)}" style="color:var(--accent)"></i> <span style="font-size:11.5px;color:var(--muted2)">${esc(c.icon_class)}</span></td><td><span class="badge ${c.active?'active':'inactive'}">${c.active?'Active':'Inactive'}</span></td><td class="ac"><button class="tb edit" onclick="toggleCat('${esc(c.id)}',${c.active})"><i class="fas fa-toggle-${c.active?'on':'off'}"></i> ${c.active?'Disable':'Enable'}</button><button class="tb del" onclick="delCat('${esc(c.id)}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');}catch(e){toast('Error: '+e.message,'error');}}
-async function addCat(){const name=document.getElementById('nCN').value.trim();const slug=document.getElementById('nCS').value.trim().toLowerCase().replace(/\s+/g,'-');const icon=document.getElementById('nCI').value.trim()||'fas fa-tag';if(!name||!slug){toast('Name and slug required','error');return;}if(!/^[a-z0-9-]+$/.test(slug)){toast('Slug: lowercase, numbers, hyphens only','error');return;}try{const{error}=await sb().from('categories').insert({name,slug,icon_class:icon,active:true});if(error)throw error;toast('Category added!');['nCN','nCS','nCI'].forEach(id=>document.getElementById(id).value='');loadCats();}catch(e){toast('Error: '+(e.message?.includes('unique')?'Slug exists':e.message),'error');}}
+async function loadCats(){
+  try{
+    const{data,error}=await sb().from('categories').select('*').order('sort_order');
+    if(error)throw error;
+    const tb=document.getElementById('catT');
+    if(!data?.length){tb.innerHTML=emptyR(6,'No categories yet');return;}
+    const catMap=Object.fromEntries(data.map(c=>[c.id,c.name]));
+    tb.innerHTML=data.map(c=>{
+      const parentName=c.parent_id?catMap[c.parent_id]||'—':'<span style="color:var(--muted);font-size:11px">Top Level</span>';
+      const indent=c.parent_id?'<i class="fas fa-level-up-alt fa-rotate-90" style="color:var(--muted);font-size:10px;margin-right:5px"></i>':'';
+      return`<tr><td><strong>${indent}${esc(c.name)}</strong></td><td style="color:var(--muted2)">${esc(c.slug)}</td><td><i class="${esc(c.icon_class)}" style="color:var(--accent)"></i> <span style="font-size:11.5px;color:var(--muted2)">${esc(c.icon_class)}</span></td><td>${parentName}</td><td><span class="badge ${c.active?'active':'inactive'}">${c.active?'Active':'Inactive'}</span></td><td class="ac"><button class="tb edit" onclick="toggleCat('${esc(c.id)}',${c.active})"><i class="fas fa-toggle-${c.active?'on':'off'}"></i> ${c.active?'Disable':'Enable'}</button><button class="tb del" onclick="delCat('${esc(c.id)}')"><i class="fas fa-trash"></i></button></td></tr>`;
+    }).join('');
+    // Populate parent dropdown (only top-level cats as parents)
+    const topCats=data.filter(c=>!c.parent_id);
+    const np=document.getElementById('nCP');
+    if(np)np.innerHTML='<option value="">— None (Top Level) —</option>'+topCats.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
+  }catch(e){toast('Error: '+e.message,'error');}
+}
+async function addCat(){
+  const name=document.getElementById('nCN').value.trim();
+  const slug=document.getElementById('nCS').value.trim().toLowerCase().replace(/\s+/g,'-');
+  const icon=document.getElementById('nCI').value.trim()||'fas fa-tag';
+  const parentId=document.getElementById('nCP')?.value||null;
+  if(!name||!slug){toast('Name and slug required','error');return;}
+  if(!/^[a-z0-9-]+$/.test(slug)){toast('Slug: lowercase, numbers, hyphens only','error');return;}
+  try{
+    const{error}=await sb().from('categories').insert({name,slug,icon_class:icon,parent_id:parentId||null,active:true});
+    if(error)throw error;
+    toast('Category added!');
+    ['nCN','nCS','nCI'].forEach(id=>document.getElementById(id).value='');
+    if(document.getElementById('nCP'))document.getElementById('nCP').value='';
+    loadCats();
+  }catch(e){toast('Error: '+(e.message?.includes('unique')?'Slug exists':e.message),'error');}
+}
 async function toggleCat(id,cur){try{await sb().from('categories').update({active:!cur}).eq('id',id);toast(`${!cur?'Activated':'Deactivated'}`);loadCats();}catch(e){toast('Error: '+e.message,'error');}}
 async function delCat(id){if(!confirm('Delete category?'))return;try{await sb().from('categories').delete().eq('id',id);toast('Deleted');loadCats();}catch(e){toast('Error: '+e.message,'error');}}
 
@@ -1226,6 +1309,46 @@ async function sendResetEmail(){
     st.innerHTML=`<div class="alert err"><i class="fas fa-exclamation-circle"></i> ${esc(e.message)}</div>`;
     toast('Error: '+e.message,'error');
   }finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Reset Email';}}
+}
+
+/* VARIANTS */
+function addVariantRow(v){
+  const container=document.getElementById('variantRows');
+  const empty=document.getElementById('variantEmpty');
+  if(empty)empty.style.display='none';
+  const row=document.createElement('div');
+  row.className='var-row';
+  row.style.cssText='display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:center';
+  row.innerHTML=`<input type="text" class="fi" placeholder="e.g. Small / Red / 30cm" value="${esc(v?.name||'')}" style="font-size:12.5px;padding:8px 11px">
+    <input type="number" class="fi" placeholder="Price (KES)" value="${v?.price||''}" min="0" style="font-size:12.5px;padding:8px 11px">
+    <input type="number" class="fi" placeholder="Stock" value="${v?.stock||''}" min="0" style="font-size:12.5px;padding:8px 11px">
+    <button type="button" onclick="removeVariantRow(this)" style="background:rgba(192,57,43,0.1);border:1px solid rgba(192,57,43,0.2);border-radius:7px;padding:7px 10px;color:var(--red);cursor:pointer;font-size:12px;flex-shrink:0"><i class="fas fa-trash"></i></button>`;
+  container.appendChild(row);
+}
+function removeVariantRow(btn){
+  const row=btn.closest('.var-row');if(row)row.remove();
+  const container=document.getElementById('variantRows');
+  if(!container.querySelectorAll('.var-row').length){const e=document.getElementById('variantEmpty');if(e)e.style.display='block';}
+}
+function loadVariantsIntoForm(variants){
+  const container=document.getElementById('variantRows');
+  container.querySelectorAll('.var-row').forEach(r=>r.remove());
+  const empty=document.getElementById('variantEmpty');
+  if(!variants.length){if(empty)empty.style.display='block';return;}
+  if(empty)empty.style.display='none';
+  variants.forEach(v=>addVariantRow(v));
+}
+function getVariantsFromForm(){
+  const rows=document.querySelectorAll('#variantRows .var-row');
+  const variants=[];
+  rows.forEach(row=>{
+    const inputs=row.querySelectorAll('input');
+    const name=inputs[0]?.value.trim();
+    const price=parseFloat(inputs[1]?.value)||0;
+    const stock=parseInt(inputs[2]?.value)||0;
+    if(name)variants.push({name,price,stock});
+  });
+  return variants;
 }
 
 /* TOAST */

@@ -180,8 +180,12 @@ tr:hover td{background:#f8fef2}
 .detail-box .lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
 
 /* PRODUCT UPLOAD */
-.mi-grid{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
-.mi-thumb{width:60px;height:60px;border-radius:7px;object-fit:cover;border:2px solid var(--border2)}
+.mi-grid{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:10px}
+.mi-item{position:relative;display:inline-flex;flex-direction:column;align-items:center;gap:3px}
+.mi-thumb{width:70px;height:70px;border-radius:7px;object-fit:cover;border:2px solid var(--border2);display:block}
+.mi-del{position:absolute;top:-6px;right:-6px;width:18px;height:18px;background:var(--red);border:none;border-radius:50%;color:#fff;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;font-weight:700;z-index:2}
+.mi-del:hover{background:#a93226}
+.mi-label{font-size:9px;color:var(--muted);max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
 .drop{border:2px dashed var(--border2);border-radius:var(--r);padding:24px;text-align:center;cursor:pointer;transition:all .2s;position:relative;margin-bottom:10px;background:#f8fef2}
 .drop:hover,.drop.over{border-color:var(--accent);background:rgba(110,217,48,0.07)}
 .drop i{font-size:26px;color:var(--muted);display:block;margin-bottom:7px}
@@ -564,14 +568,36 @@ tr:hover td{background:#f8fef2}
     <div class="ro-banner" style="margin-bottom:18px"><i class="fas fa-info-circle"></i> You can add and edit products. To delete a product, contact the master admin.</div>
     <div class="fr"><div class="fg"><label>Name *</label><input class="fi" id="pm_name" placeholder="e.g. Samsung 55″ 4K TV"></div><div class="fg"><label>SKU</label><input class="fi" id="pm_sku" placeholder="SKU-001"></div></div>
     <div class="fr"><div class="fg"><label>Price (KES) *</label><input type="number" class="fi" id="pm_price" placeholder="45000" min="0"></div><div class="fg"><label>Old Price</label><input type="number" class="fi" id="pm_old" placeholder="55000" min="0"></div></div>
-    <div class="fr"><div class="fg"><label>Category</label><select class="fsel" id="pm_cat"><option value="">— None —</option></select></div><div class="fg"><label>Brand</label><select class="fsel" id="pm_brand"><option value="">— None —</option></select></div></div>
-    <div class="fr"><div class="fg"><label>Badge</label><select class="fsel" id="pm_badge"><option value="">None</option><option value="NEW">NEW</option><option value="SALE">SALE</option><option value="HOT">HOT</option><option value="DEAL">DEAL</option></select></div><div class="fg"><label>Stock</label><input type="number" class="fi" id="pm_stock" placeholder="0" min="0"></div></div>
+    <div class="fr"><div class="fg"><label>Category</label><select class="fsel" id="pm_cat" onchange="loadSubCats(this.value)"><option value="">— None —</option></select></div><div class="fg"><label>Sub-Category <span style="font-size:10px;font-weight:400;color:var(--muted)">(optional)</span></label><select class="fsel" id="pm_subcat"><option value="">— None —</option></select></div></div>
+    <div class="fr"><div class="fg"><label>Brand</label><select class="fsel" id="pm_brand"><option value="">— None —</option></select></div><div class="fg"><label>Badge</label><select class="fsel" id="pm_badge"><option value="">None</option><option value="NEW">NEW</option><option value="SALE">SALE</option><option value="HOT">HOT</option><option value="DEAL">DEAL</option></select></div></div>
+    <div class="fr"><div class="fg"><label>Stock <span style="font-size:10px;font-weight:400;color:var(--muted)">(overall, if no variants)</span></label><input type="number" class="fi" id="pm_stock" placeholder="0" min="0"></div></div>
     <div class="fg"><label>Description</label><textarea class="fta" id="pm_desc" rows="3" placeholder="Product description…"></textarea></div>
-    <div class="fg"><label>Images (URLs, comma-separated)</label><textarea class="fta" id="pm_imgs" rows="2" oninput="previewImgs()"></textarea><div class="mi-grid" id="imgGrid"></div></div>
-    <div class="fg"><label>Upload Images</label>
-      <div class="drop" onclick="document.getElementById('pmFiles').click()"><i class="fas fa-cloud-upload-alt"></i><p>Click to upload</p><span>Max 3MB each</span><input type="file" id="pmFiles" class="ffile" accept="image/*" multiple onchange="uploadProdImgs(this.files)"></div>
+    <div class="fg"><label>Images (URLs, one per line or comma-separated)</label><textarea class="fta" id="pm_imgs" rows="3" oninput="previewImgs()" placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"></textarea><div class="mi-grid" id="imgGrid"></div></div>
+    <div class="fg"><label>Upload Images <span style="font-size:10.5px;color:var(--muted);font-weight:400;text-transform:none">(multiple allowed — all will show on product page)</span></label>
+      <div class="drop" onclick="document.getElementById('pmFiles').click()"><i class="fas fa-cloud-upload-alt"></i><p>Click or drag to upload — select multiple files</p><span>Max 3MB each · All images appear in product gallery</span><input type="file" id="pmFiles" class="ffile" accept="image/*" multiple onchange="uploadProdImgs(this.files)"></div>
       <div id="pmUpSt"></div>
     </div>
+
+    <!-- VARIANTS (Variable Products) -->
+    <div style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
+        <label style="display:block;font-size:11px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin:0">Product Variants <span style="font-weight:400;text-transform:none;font-size:10.5px;color:var(--muted)">(e.g. different sizes/colors of same product)</span></label>
+        <button type="button" onclick="addVariantRow()" style="background:rgba(110,217,48,0.14);border:1px solid rgba(110,217,48,0.3);border-radius:7px;padding:4px 11px;font-size:11.5px;font-weight:600;color:var(--muted2);cursor:pointer;display:flex;align-items:center;gap:5px"><i class="fas fa-plus"></i> Add Variant</button>
+      </div>
+      <div style="background:#f8fef2;border:1px solid var(--border2);border-radius:var(--r);overflow:hidden">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:0;background:#e8fad8;padding:7px 12px">
+          <span style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px">Variant Name</span>
+          <span style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px">Price (KES)</span>
+          <span style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px">Stock</span>
+          <span></span>
+        </div>
+        <div id="variantRows" style="padding:9px 12px;display:flex;flex-direction:column;gap:7px">
+          <div class="te" id="variantEmpty" style="padding:10px 0;font-size:12px;color:var(--muted);text-align:center"><i class="fas fa-tag" style="margin-right:5px"></i>No variants — product uses the main price &amp; stock above</div>
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:5px"><i class="fas fa-info-circle"></i> Example: One "Padlock" product with variants Small (KES 250), Medium (KES 350), Large (KES 500)</p>
+    </div>
+
     <div class="fr"><div class="fg"><label>Rating (0–5)</label><input type="number" class="fi" id="pm_rating" placeholder="4.5" step="0.1" min="0" max="5"></div><div class="fg"><label>Reviews Count</label><input type="number" class="fi" id="pm_reviews" placeholder="0" min="0"></div></div>
     <div style="display:flex;gap:18px;flex-wrap:wrap">
       <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13.5px;color:var(--muted2)"><input type="checkbox" id="pm_active" checked> Active</label>
@@ -848,22 +874,45 @@ async function updateOrdStatus(){
 async function loadProducts(){
   try{
     const[{data:cats},{data:brands},{data}]=await Promise.all([
-      sb().from('categories').select('id,name').eq('active',true).order('sort_order'),
+      sb().from('categories').select('id,name,parent_id').eq('active',true).order('sort_order'),
       sb().from('brands').select('id,name').eq('active',true).order('name'),
       sb().from('products').select('*').order('created_at',{ascending:false}),
     ]);
-    allProducts=data||[];renderProducts(allProducts);
-    popSel('pm_cat',cats,c=>c.name,c=>c.name);
+    allProducts=data||[];
+    window._allCats=cats||[];
+    renderProducts(allProducts);
+    const topCats=(cats||[]).filter(c=>!c.parent_id);
+    popSel('pm_cat',topCats,c=>c.name,c=>c.name);
     popSel('pm_brand',brands,b=>b.name,b=>b.name);
   }catch(e){toast('Error: '+e.message,'error');}
+}
+function loadSubCats(catName,selectedVal=''){
+  const all=window._allCats||[];
+  const parent=all.find(c=>c.name===catName);
+  const sub=parent?all.filter(c=>c.parent_id===parent.id):[];
+  const sel=document.getElementById('pm_subcat');
+  if(!sel)return;
+  if(!sub.length){sel.innerHTML='<option value="">— None —</option>';return;}
+  sel.innerHTML='<option value="">— None —</option>'+sub.map(c=>`<option value="${esc(c.name)}" ${c.name===selectedVal?'selected':''}>${esc(c.name)}</option>`).join('');
 }
 function renderProducts(rows){
   const tb=document.getElementById('pT');
   if(!rows?.length){tb.innerHTML=emptyR(7,'No products yet');return;}
-  tb.innerHTML=rows.map(p=>{const imgs=Array.isArray(p.images)?p.images.filter(Boolean):[];const img=imgs[0]||'';
-  return`<tr><td>${img?`<img src="${esc(img)}" alt="${esc(p.name)}" style="width:42px;height:42px;object-fit:cover;border-radius:7px" loading="lazy" onerror="this.style.display='none'">`:'—'}</td><td><strong>${esc(p.name)}</strong></td><td>${esc(p.category_name||p.category||'—')}</td><td>KES ${Number(p.price).toLocaleString()}</td><td>${p.stock??'—'}</td><td><span class="badge ${p.active?'active':'inactive'}">${p.active?'Active':'Inactive'}</span></td><td><button class="tb edit" onclick="editProd('${esc(p.id)}')"><i class="fas fa-edit"></i> Edit</button></td></tr>`;
+  tb.innerHTML=rows.map(p=>{
+    const imgs=Array.isArray(p.images)?p.images.filter(Boolean):[];
+    const img=imgs[0]||'';
+    const imgCount=imgs.length;
+    const varCount=Array.isArray(p.variants)&&p.variants.length;
+    return`<tr><td style="position:relative">${img?`<div style="position:relative;display:inline-block"><img src="${esc(img)}" alt="${esc(p.name)}" style="width:42px;height:42px;object-fit:cover;border-radius:7px" loading="lazy" onerror="this.style.display='none'">${imgCount>1?`<span style="position:absolute;bottom:-4px;right:-4px;background:var(--accent);color:#0a1007;font-size:8px;font-weight:700;border-radius:8px;padding:1px 4px">${imgCount}</span>`:''}</div>`:'—'}</td><td><strong>${esc(p.name)}</strong>${varCount?` <span style="font-size:9px;background:rgba(124,58,237,0.11);color:var(--purple);border-radius:8px;padding:1px 6px;font-weight:700">${varCount} VAR</span>`:''}</td><td>${esc(p.category_name||p.category||'—')}${p.subcategory?` <span style="font-size:10px;color:var(--muted)">› ${esc(p.subcategory)}</span>`:''}</td><td>KES ${Number(p.price).toLocaleString()}</td><td>${p.stock??'—'}</td><td><span class="badge ${p.active?'active':'inactive'}">${p.active?'Active':'Inactive'}</span></td><td><button class="tb edit" onclick="editProd('${esc(p.id)}')"><i class="fas fa-edit"></i> Edit</button></td></tr>`;
   }).join('');
 }
+function getImgList(){return(document.getElementById('pm_imgs').value||'').split(/[\n,]+/).map(s=>s.trim()).filter(Boolean);}
+function previewImgs(){
+  const imgs=getImgList();
+  if(!imgs.length){document.getElementById('imgGrid').innerHTML='';return;}
+  document.getElementById('imgGrid').innerHTML=imgs.map((u,i)=>`<div class="mi-item"><button type="button" class="mi-del" onclick="removeImg(${i})" title="Remove this image">×</button><img class="mi-thumb" src="${esc(u)}" alt="img ${i+1}" loading="lazy" onerror="this.style.opacity='.3'"><span class="mi-label">Image ${i+1}</span></div>`).join('');
+}
+function removeImg(idx){const imgs=getImgList();imgs.splice(idx,1);document.getElementById('pm_imgs').value=imgs.join('\n');previewImgs();}
 function openPM(p){
   document.getElementById('pmTitle').textContent=p?'Edit Product':'Add Product';
   document.getElementById('pm_id').value=p?.id||'';
@@ -876,18 +925,19 @@ function openPM(p){
   document.getElementById('pm_rating').value=p?.rating||'';
   document.getElementById('pm_reviews').value=p?.reviews||0;
   const imgs=Array.isArray(p?.images)?p.images.filter(Boolean):[];
-  document.getElementById('pm_imgs').value=imgs.join(', ');
+  document.getElementById('pm_imgs').value=imgs.join('\n');
   document.getElementById('pm_badge').value=p?.badge||'';
-  document.getElementById('pm_active').checked=p?p.active:true;
-  document.getElementById('pm_feat').checked=p?.featured||false;
+  document.getElementById('pm_active').checked=p?!!p.active:true;
+  document.getElementById('pm_feat').checked=!!p?.featured;
   document.getElementById('pmUpSt').innerHTML='';
+  loadVariantsIntoForm(Array.isArray(p?.variants)?p.variants:[]);
   previewImgs();
   const cs=document.getElementById('pm_cat'),bs=document.getElementById('pm_brand');
-  if(cs)cs.value=p?.category_name||p?.category||'';
+  const catVal=p?.category_name||p?.category||'';
+  if(cs){cs.value=catVal;if(catVal)loadSubCats(catVal,p?.subcategory||'');}
   if(bs)bs.value=p?.brand_name||p?.brand||'';
   openMo('pmModal');
 }
-function previewImgs(){const imgs=(document.getElementById('pm_imgs').value||'').split(',').map(s=>s.trim()).filter(Boolean);document.getElementById('imgGrid').innerHTML=imgs.map((u,i)=>`<img class="mi-thumb" src="${esc(u)}" alt="img ${i+1}" loading="lazy" onerror="this.style.opacity='.3'">`).join('');}
 function editProd(id){const p=allProducts.find(x=>x.id===id);if(p)openPM(p);}
 async function saveProd(){
   const name=document.getElementById('pm_name').value.trim();
@@ -897,10 +947,12 @@ async function saveProd(){
   const btn=document.getElementById('savePMBtn');
   btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Saving…';
   const id=document.getElementById('pm_id').value;
-  const images=(document.getElementById('pm_imgs').value||'').split(',').map(s=>s.trim()).filter(Boolean);
+  const images=getImgList();
   const catV=document.getElementById('pm_cat').value||'';
+  const subcatV=document.getElementById('pm_subcat').value||'';
   const brandV=document.getElementById('pm_brand').value||'';
-  const payload={name,sku:document.getElementById('pm_sku').value.trim()||null,price:parseFloat(price)||0,old_price:parseFloat(document.getElementById('pm_old').value)||null,description:document.getElementById('pm_desc').value.trim(),stock:parseInt(document.getElementById('pm_stock').value)||0,rating:parseFloat(document.getElementById('pm_rating').value)||0,reviews:parseInt(document.getElementById('pm_reviews').value)||0,images,badge:document.getElementById('pm_badge').value||null,category:catV||null,brand:brandV||null,category_name:catV||null,brand_name:brandV||null,active:document.getElementById('pm_active').checked,featured:document.getElementById('pm_feat').checked,updated_at:new Date().toISOString()};
+  const variants=getVariantsFromForm();
+  const payload={name,sku:document.getElementById('pm_sku').value.trim()||null,price:parseFloat(price)||0,old_price:parseFloat(document.getElementById('pm_old').value)||null,description:document.getElementById('pm_desc').value.trim(),stock:parseInt(document.getElementById('pm_stock').value)||0,rating:parseFloat(document.getElementById('pm_rating').value)||0,reviews:parseInt(document.getElementById('pm_reviews').value)||0,images,badge:document.getElementById('pm_badge').value||null,category:catV||null,brand:brandV||null,category_name:catV||null,brand_name:brandV||null,subcategory:subcatV||null,variants:variants.length?variants:null,active:document.getElementById('pm_active').checked,featured:document.getElementById('pm_feat').checked,updated_at:new Date().toISOString()};
   try{const{error}=id?await sb().from('products').update(payload).eq('id',id):await sb().from('products').insert({...payload,created_at:new Date().toISOString()});if(error)throw error;toast(id?'Product updated!':'Product added!');closeMo('pmModal');loadProducts();}
   catch(e){toast('Error: '+e.message,'error');}
   finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-save"></i> Save Product';}
@@ -914,8 +966,48 @@ async function uploadProdImgs(files){
     try{const path=`products/${Date.now()}_${f.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;const{data,error}=await sb().storage.from('product-images').upload(path,f,{upsert:true});if(error)throw error;const{data:{publicUrl}}=sb().storage.from('product-images').getPublicUrl(data.path);urls.push(publicUrl);}
     catch(e){errs.push(`${f.name}: ${e.message}`);}
   }
-  if(urls.length){const cur=document.getElementById('pm_imgs').value.trim();document.getElementById('pm_imgs').value=cur?cur+', '+urls.join(', '):urls.join(', ');previewImgs();toast(`${urls.length} image(s) uploaded!`);st.innerHTML=`<div style="color:var(--green);font-size:12.5px;padding:8px;background:rgba(22,163,74,0.07);border-radius:7px;border:1px solid rgba(22,163,74,0.18)"><i class="fas fa-check-circle"></i> ${urls.length} uploaded.</div>`;}
+  if(urls.length){const cur=document.getElementById('pm_imgs').value.trim();document.getElementById('pm_imgs').value=cur?cur+'\n'+urls.join('\n'):urls.join('\n');previewImgs();toast(`${urls.length} image(s) uploaded!`);st.innerHTML=`<div style="color:var(--green);font-size:12.5px;padding:8px;background:rgba(22,163,74,0.07);border-radius:7px;border:1px solid rgba(22,163,74,0.18)"><i class="fas fa-check-circle"></i> ${urls.length} image(s) uploaded successfully.</div>`;}
   if(errs.length)st.innerHTML+=`<div style="color:var(--red);font-size:12px;margin-top:5px">${errs.join(', ')}</div>`;
+}
+
+/* VARIANTS */
+function addVariantRow(v){
+  const container=document.getElementById('variantRows');
+  const empty=document.getElementById('variantEmpty');
+  if(empty)empty.style.display='none';
+  const row=document.createElement('div');
+  row.className='var-row';
+  row.style.cssText='display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:center';
+  row.innerHTML=`<input type="text" class="fi" placeholder="e.g. Small / Red / 30cm" value="${esc(v?.name||'')}" style="font-size:12.5px;padding:8px 11px">
+    <input type="number" class="fi" placeholder="Price (KES)" value="${v?.price||''}" min="0" style="font-size:12.5px;padding:8px 11px">
+    <input type="number" class="fi" placeholder="Stock" value="${v?.stock||''}" min="0" style="font-size:12.5px;padding:8px 11px">
+    <button type="button" onclick="removeVariantRow(this)" style="background:rgba(192,57,43,0.1);border:1px solid rgba(192,57,43,0.2);border-radius:7px;padding:7px 10px;color:var(--red);cursor:pointer;font-size:12px;flex-shrink:0"><i class="fas fa-trash"></i></button>`;
+  container.appendChild(row);
+}
+function removeVariantRow(btn){
+  const row=btn.closest('.var-row');if(row)row.remove();
+  const container=document.getElementById('variantRows');
+  if(!container.querySelectorAll('.var-row').length){const e=document.getElementById('variantEmpty');if(e)e.style.display='block';}
+}
+function loadVariantsIntoForm(variants){
+  const container=document.getElementById('variantRows');
+  container.querySelectorAll('.var-row').forEach(r=>r.remove());
+  const empty=document.getElementById('variantEmpty');
+  if(!variants.length){if(empty)empty.style.display='block';return;}
+  if(empty)empty.style.display='none';
+  variants.forEach(v=>addVariantRow(v));
+}
+function getVariantsFromForm(){
+  const rows=document.querySelectorAll('#variantRows .var-row');
+  const variants=[];
+  rows.forEach(row=>{
+    const inputs=row.querySelectorAll('input');
+    const name=inputs[0]?.value.trim();
+    const price=parseFloat(inputs[1]?.value)||0;
+    const stock=parseInt(inputs[2]?.value)||0;
+    if(name)variants.push({name,price,stock});
+  });
+  return variants;
 }
 
 /* ═══ DEALS (READ-ONLY) ═══ */

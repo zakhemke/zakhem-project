@@ -148,6 +148,33 @@ section{padding:64px 24px}
 .cat-card:hover .cat-icon{background:var(--green);color:#0a1007}
 .cat-card h4{font-family:var(--font-head);font-size:11.5px;font-weight:700;color:#1c3309;line-height:1.2}
 
+/* SUB-CATEGORY PANEL */
+.subcat-panel{background:var(--bg3);border-top:1px solid var(--border2);border-bottom:1px solid var(--border2);padding:0;max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(0.4,0,0.2,1),padding .3s}
+.subcat-panel.open{max-height:240px;padding:20px 24px}
+.subcat-inner{max-width:1340px;margin:auto}
+.subcat-title{font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.7px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.subcat-title i{color:var(--green)}
+.subcat-chips{display:flex;flex-wrap:wrap;gap:8px}
+.subcat-chip{padding:7px 16px;background:#fff;border:1.5px solid #c8eaa0;border-radius:50px;font-size:13px;font-weight:600;color:#2e5012;cursor:pointer;transition:var(--transition);font-family:var(--font-head)}
+.subcat-chip:hover,.subcat-chip.active{background:var(--green);color:#0a1007;border-color:var(--green);box-shadow:var(--shadow-green)}
+
+/* MODAL IMAGE GALLERY */
+.modal-thumb-strip{display:flex;gap:8px;padding:10px 16px;overflow-x:auto;background:#f0fce6;flex-shrink:0}
+.modal-thumb-strip::-webkit-scrollbar{height:3px}
+.modal-thumb-strip::-webkit-scrollbar-thumb{background:var(--green);border-radius:2px}
+.modal-thumb{width:56px;height:56px;border-radius:8px;object-fit:cover;cursor:pointer;border:2px solid transparent;transition:var(--transition);flex-shrink:0}
+.modal-thumb.active{border-color:var(--green);box-shadow:0 0 0 2px var(--green-glow)}
+.modal-thumb:hover{border-color:var(--green2)}
+
+/* VARIANT SELECTOR */
+.modal-variants{margin:14px 0}
+.modal-variants-label{font-size:12px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+.variant-chips{display:flex;flex-wrap:wrap;gap:8px}
+.variant-chip{padding:6px 14px;background:#f0fce6;border:1.5px solid #c8eaa0;border-radius:8px;font-size:13px;font-weight:600;font-family:var(--font-head);color:#2e5012;cursor:pointer;transition:var(--transition)}
+.variant-chip:hover{border-color:var(--green);background:#e8fad8}
+.variant-chip.active{background:var(--green);color:#0a1007;border-color:var(--green)}
+.variant-chip.out-of-stock{opacity:.45;cursor:not-allowed;text-decoration:line-through}
+
 /* DEALS */
 .deals-section{background:var(--bg)}
 .deals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
@@ -516,6 +543,14 @@ footer{background:#1c3309;color:#d4ffa0;padding:56px 24px 0}
   </div>
 </section>
 
+<!-- SUB-CATEGORY PANEL (revealed when a main category is clicked) -->
+<div class="subcat-panel" id="subcatPanel">
+  <div class="subcat-inner">
+    <div class="subcat-title"><i class="fas fa-folder-open"></i> <span id="subcatParentName">Sub-categories</span></div>
+    <div class="subcat-chips" id="subcatChips"></div>
+  </div>
+</div>
+
 <!-- DEALS -->
 <section class="deals-section" id="deals">
   <div class="section-inner">
@@ -725,6 +760,7 @@ footer{background:#1c3309;color:#d4ffa0;padding:56px 24px 0}
       <div class="modal-gallery">
         <button class="modal-close-btn" onclick="closeProductModal()"><i class="fas fa-times"></i></button>
         <img id="modalImg" src="" alt="Product image" style="object-fit:contain;padding:20px">
+        <div class="modal-thumb-strip" id="modalThumbStrip" style="display:none"></div>
       </div>
       <div class="modal-details">
         <div class="modal-cat" id="modalCat"></div>
@@ -739,6 +775,12 @@ footer{background:#1c3309;color:#d4ffa0;padding:56px 24px 0}
           <span class="off" id="modalDiscount" style="display:none"></span>
         </div>
         <p class="modal-desc" id="modalDesc"></p>
+        <div id="modalVariantsWrap" style="display:none">
+          <div class="modal-variants">
+            <div class="modal-variants-label" id="modalVariantsLabel">Choose variant</div>
+            <div class="variant-chips" id="modalVariantChips"></div>
+          </div>
+        </div>
         <div class="modal-qty-row">
           <div class="qty-control">
             <button class="qty-btn" onclick="changeModalQty(-1)"><i class="fas fa-minus"></i></button>
@@ -1045,32 +1087,110 @@ async function loadLegalLinks() {
 }
 
 /* ═══════════════════════════════════════════════════
-   CATEGORIES
-   FIX: pass c.name (not c.slug) to filterByCategory so it
-        matches the category_name stored on products.
+   CATEGORIES + SUB-CATEGORIES
 ═══════════════════════════════════════════════════ */
+let allCategories = [];
+
 async function loadCategories() {
   try {
     const { data, error } = await sb().from('categories').select('*').eq('active',true).order('sort_order');
     if (error) throw error;
+    allCategories = data || [];
+
     const grid = document.getElementById('catGrid');
-    if (!data?.length) {
+    // Only show top-level categories (no parent_id) on the main grid
+    const topLevel = allCategories.filter(c => !c.parent_id);
+    if (!topLevel.length) {
       grid.innerHTML = '<div style="color:var(--muted);text-align:center;grid-column:1/-1;padding:40px">No categories yet</div>';
       return;
     }
 
-    // ── FIX: use c.name instead of c.slug ──
+    // Filter tabs — show all top-level cats
     const tabs = document.getElementById('filterTabs');
     tabs.innerHTML = `<button class="filter-tab active" onclick="filterByCategory('all',this)">All</button>` +
-      data.map(c => `<button class="filter-tab" onclick="filterByCategory('${esc(c.name)}',this)">${esc(c.name)}</button>`).join('');
+      topLevel.map(c => `<button class="filter-tab" onclick="filterByCategory('${esc(c.name)}',this)">${esc(c.name)}</button>`).join('');
 
-    grid.innerHTML = data.map(c => `
-      <div class="cat-card" onclick="filterByCategory('${esc(c.name)}',null);document.getElementById('products')?.scrollIntoView({behavior:'smooth'})">
+    // Category cards — clicking shows sub-cats if any, then scrolls to products
+    grid.innerHTML = topLevel.map(c => {
+      const hasSubs = allCategories.some(x => x.parent_id === c.id);
+      return `<div class="cat-card" onclick="handleCatCardClick('${esc(c.id)}','${esc(c.name)}',${hasSubs})">
         <div class="cat-icon"><i class="${esc(c.icon_class||'fas fa-tag')}"></i></div>
-        <h4>${esc(c.name)}</h4>
-      </div>
-    `).join('');
+        <h4>${esc(c.name)}${hasSubs ? ' <i class="fas fa-chevron-down" style="font-size:9px;opacity:.6"></i>' : ''}</h4>
+      </div>`;
+    }).join('');
   } catch(e) { console.warn('loadCategories:', e); }
+}
+
+let activeMainCatId = null;
+
+function handleCatCardClick(catId, catName, hasSubs) {
+  // Highlight active cat card
+  document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active-filter'));
+  event.currentTarget.classList.add('active-filter');
+
+  if (hasSubs) {
+    // Show sub-category panel
+    const subs = allCategories.filter(c => c.parent_id === catId);
+    const panel = document.getElementById('subcatPanel');
+    const chips = document.getElementById('subcatChips');
+    document.getElementById('subcatParentName').textContent = catName;
+
+    // Build chips: "All [catName]" first, then each sub
+    chips.innerHTML = `<div class="subcat-chip active" onclick="selectSubCat('${esc(catName)}',this,true)">${esc(catName)} — All</div>` +
+      subs.map(s => `<div class="subcat-chip" onclick="selectSubCat('${esc(s.name)}',this,false)">${esc(s.name)}</div>`).join('');
+
+    // Open panel if not already open for this cat, else close+reopen
+    if (activeMainCatId === catId && panel.classList.contains('open')) {
+      panel.classList.remove('open');
+      activeMainCatId = null;
+      filterByCategory('all', null);
+      return;
+    }
+    activeMainCatId = catId;
+    panel.classList.add('open');
+
+    // Filter by the main category first (shows all including subs)
+    filterByCategoryBroad(catName);
+    document.getElementById('products')?.scrollIntoView({behavior:'smooth'});
+  } else {
+    // No subs — close panel and filter directly
+    closeSubcatPanel();
+    filterByCategory(catName, null);
+    document.getElementById('products')?.scrollIntoView({behavior:'smooth'});
+  }
+}
+
+function selectSubCat(name, el, isParent) {
+  document.querySelectorAll('.subcat-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  if (isParent) {
+    filterByCategoryBroad(name);
+  } else {
+    filterByCategory(name, null);
+  }
+  document.getElementById('products')?.scrollIntoView({behavior:'smooth'});
+}
+
+function closeSubcatPanel() {
+  const panel = document.getElementById('subcatPanel');
+  panel.classList.remove('open');
+  activeMainCatId = null;
+}
+
+// filterByCategoryBroad: matches the cat AND any sub-categories under it
+function filterByCategoryBroad(catName) {
+  const key = catName.toLowerCase().trim();
+  // Collect names of all sub-cats under this parent name
+  const parent = allCategories.find(c => c.name.toLowerCase().trim() === key);
+  const subNames = parent
+    ? allCategories.filter(c => c.parent_id === parent.id).map(c => c.name.toLowerCase().trim())
+    : [];
+  filteredProducts = allProducts.filter(p => {
+    const pCat = (p.category_name || p.category || '').toLowerCase().trim();
+    const pSub = (p.subcategory || '').toLowerCase().trim();
+    return pCat === key || subNames.includes(pCat) || subNames.includes(pSub) || pSub === key;
+  });
+  sortProducts(currentSort);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -1182,8 +1302,6 @@ function renderProducts() {
 
 /* ═══════════════════════════════════════════════════
    FILTER BY CATEGORY
-   FIX: categoryKey is now the category NAME (not slug).
-        Compare both sides lowercased+trimmed — simple and reliable.
 ═══════════════════════════════════════════════════ */
 function filterByCategory(categoryKey, btnEl) {
   activeCategory = categoryKey;
@@ -1192,8 +1310,11 @@ function filterByCategory(categoryKey, btnEl) {
   if (btnEl) {
     document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
     btnEl.classList.add('active');
+    // If clicking a tab, close sub-cat panel
+    closeSubcatPanel();
+    document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active-filter'));
   } else {
-    // Called from category card — find the matching tab and activate it
+    // Called from category card or subcat chip — find the matching tab and activate it
     document.querySelectorAll('.filter-tab').forEach(t => {
       t.classList.toggle('active',
         categoryKey === 'all'
@@ -1205,11 +1326,14 @@ function filterByCategory(categoryKey, btnEl) {
 
   if (categoryKey === 'all') {
     filteredProducts = [...allProducts];
+    closeSubcatPanel();
+    document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active-filter'));
   } else {
     const key = categoryKey.toLowerCase().trim();
     filteredProducts = allProducts.filter(p => {
       const pCat = (p.category_name || p.category || '').toLowerCase().trim();
-      return pCat === key;
+      const pSub = (p.subcategory || '').toLowerCase().trim();
+      return pCat === key || pSub === key;
     });
   }
 
@@ -1251,31 +1375,102 @@ function openProductDetail(id) {
   openModal('productModal');
 }
 
+let selectedVariant = null;
+
 function populateProductModal(p) {
   const imgs = Array.isArray(p.images) ? p.images.filter(Boolean) : [];
   const img  = imgs[0] || '';
-  document.getElementById('modalImg').src = img || '';
-  document.getElementById('modalImg').alt = p.name;
+
+  // Main image
+  const mainImg = document.getElementById('modalImg');
+  mainImg.src = img;
+  mainImg.alt = p.name;
+
+  // Thumbnail strip — only show if >1 image
+  const strip = document.getElementById('modalThumbStrip');
+  if (imgs.length > 1) {
+    strip.style.display = 'flex';
+    strip.innerHTML = imgs.map((url, i) =>
+      `<img class="modal-thumb${i===0?' active':''}" src="${esc(url)}" alt="Image ${i+1}" loading="lazy"
+        onclick="switchModalImage(this,'${esc(url)}')" onerror="this.style.display='none'">`
+    ).join('');
+  } else {
+    strip.style.display = 'none';
+    strip.innerHTML = '';
+  }
+
   document.getElementById('modalCat').textContent = p.category_name || p.category || '';
   document.getElementById('modalName').textContent = p.name;
-  const off = p.old_price ? Math.round((1-p.price/p.old_price)*100) : 0;
-  document.getElementById('modalPrice').textContent = 'KES ' + Number(p.price).toLocaleString();
+
+  const basePrice = p.price || 0;
+  const off = p.old_price ? Math.round((1-basePrice/p.old_price)*100) : 0;
+  document.getElementById('modalPrice').textContent = 'KES ' + Number(basePrice).toLocaleString();
   const oldEl = document.getElementById('modalOldPrice');
   oldEl.style.display = p.old_price ? '' : 'none';
   oldEl.textContent = p.old_price ? 'KES ' + Number(p.old_price).toLocaleString() : '';
   const discEl = document.getElementById('modalDiscount');
   discEl.style.display = off > 0 ? '' : 'none';
   discEl.textContent = off > 0 ? `-${off}% OFF` : '';
+
   const stars = p.rating ? '★'.repeat(Math.round(p.rating))+'☆'.repeat(5-Math.round(p.rating)) : '★★★★★';
   document.getElementById('modalStars').innerHTML = `<span style="color:var(--gold)">${stars}</span>`;
   document.getElementById('modalReviewCount').textContent = p.reviews ? `(${p.reviews} reviews)` : '';
   document.getElementById('modalDesc').textContent = p.description || 'No description available.';
   document.getElementById('modalQty').textContent = 1;
+
+  // Variants
+  selectedVariant = null;
+  const varWrap = document.getElementById('modalVariantsWrap');
+  let variants = [];
+  if (p.variants) {
+    try {
+      variants = typeof p.variants === 'string' ? JSON.parse(p.variants) : p.variants;
+    } catch(e) { variants = []; }
+  }
+  if (Array.isArray(variants) && variants.length) {
+    varWrap.style.display = '';
+    const labelEl = document.getElementById('modalVariantsLabel');
+    // Auto-detect label from first variant key
+    const sample = variants[0];
+    const varKey = sample.name ? 'name' : Object.keys(sample)[0];
+    labelEl.textContent = 'Choose ' + (varKey === 'name' ? 'variant' : varKey);
+
+    document.getElementById('modalVariantChips').innerHTML = variants.map((v, i) => {
+      const label = v.name || v.size || v.color || v.type || `Option ${i+1}`;
+      const outOfStock = v.stock !== undefined && Number(v.stock) <= 0;
+      return `<div class="variant-chip${outOfStock?' out-of-stock':''}"
+        onclick="${outOfStock ? '' : `selectVariant(this,${i})`}"
+        data-index="${i}">${esc(label)}${v.price ? ` — KES ${Number(v.price).toLocaleString()}` : ''}</div>`;
+    }).join('');
+  } else {
+    varWrap.style.display = 'none';
+  }
+
   const meta = [];
   if (p.brand_name || p.brand) meta.push(`<div class="modal-meta-item"><strong>Brand</strong>${esc(p.brand_name||p.brand)}</div>`);
-  if (p.stock !== undefined) meta.push(`<div class="modal-meta-item"><strong>Stock</strong>${p.stock > 0 ? p.stock + ' units' : 'Call for availability'}</div>`);
+  if (p.stock !== undefined && !variants.length) meta.push(`<div class="modal-meta-item"><strong>Stock</strong>${p.stock > 0 ? p.stock + ' units' : 'Call for availability'}</div>`);
   if (p.sku) meta.push(`<div class="modal-meta-item"><strong>SKU</strong>${esc(p.sku)}</div>`);
   document.getElementById('modalMeta').innerHTML = meta.join('');
+}
+
+function switchModalImage(thumbEl, url) {
+  document.getElementById('modalImg').src = url;
+  document.querySelectorAll('.modal-thumb').forEach(t => t.classList.remove('active'));
+  thumbEl.classList.add('active');
+}
+
+function selectVariant(el, idx) {
+  document.querySelectorAll('.variant-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  let variants = [];
+  try {
+    const raw = modalProduct?.variants;
+    variants = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : [];
+  } catch(e) {}
+  selectedVariant = variants[idx] || null;
+  if (selectedVariant?.price) {
+    document.getElementById('modalPrice').textContent = 'KES ' + Number(selectedVariant.price).toLocaleString();
+  }
 }
 
 function changeModalQty(delta) {
@@ -1285,7 +1480,24 @@ function changeModalQty(delta) {
 
 function addModalItemToCart() {
   if (!modalProduct) return;
-  addToCart(modalProduct, modalQty);
+  // Check if variants exist but none selected
+  let variants = [];
+  try {
+    const raw = modalProduct.variants;
+    variants = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : [];
+  } catch(e) {}
+  if (Array.isArray(variants) && variants.length && !selectedVariant) {
+    toast('Please choose a variant first', 'error');
+    return;
+  }
+  // Build product to add — use variant price/name if selected
+  const productToAdd = { ...modalProduct };
+  if (selectedVariant) {
+    const label = selectedVariant.name || selectedVariant.size || selectedVariant.color || selectedVariant.type || '';
+    if (label) productToAdd.name = modalProduct.name + ' — ' + label;
+    if (selectedVariant.price) productToAdd.price = Number(selectedVariant.price);
+  }
+  addToCart(productToAdd, modalQty);
   closeModal('productModal');
   toggleCart();
 }

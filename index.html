@@ -1149,11 +1149,14 @@ function handleCatCardClick(catId, catName, hasSubs) {
     activeMainCatId = catId;
     panel.classList.add('open');
 
-    // Filter by the main category first (shows all including subs)
+    // Filter products by the broad parent category immediately
     filterByCategoryBroad(catName);
-    document.getElementById('products')?.scrollIntoView({behavior:'smooth'});
+
+    // Scroll to the sub-category panel so the user sees the chips clearly,
+    // then after they pick a chip it scrolls down to products
+    setTimeout(() => panel.scrollIntoView({behavior:'smooth', block:'center'}), 80);
   } else {
-    // No subs — close panel and filter directly
+    // No subs — close panel and filter directly, scroll to products
     closeSubcatPanel();
     filterByCategory(catName, null);
     document.getElementById('products')?.scrollIntoView({behavior:'smooth'});
@@ -1168,7 +1171,8 @@ function selectSubCat(name, el, isParent) {
   } else {
     filterByCategory(name, null);
   }
-  document.getElementById('products')?.scrollIntoView({behavior:'smooth'});
+  // Now scroll to the products grid
+  setTimeout(() => document.getElementById('products')?.scrollIntoView({behavior:'smooth'}), 80);
 }
 
 function closeSubcatPanel() {
